@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/global/style.css?v=20260213">
+    <link rel="stylesheet" href="./local/search/core.css?v=20260213">
+    <title>法令検索</title>
+</head>
+
+<body>
+
+    <main>
+        <div id="bar">
+            <div id="search-container">
+                <div id="search-bar">
+                    <input id="search-input" type="text">
+                    <div id="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--color-gray)"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+                    </div>
+                    <div id="search-exec">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--color-black)"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div id="search-filter-container">
+                <div id="search-filter-item-all" class="search-filter-item">すべて</div>
+                <div id="search-filter-item-constitution" class="search-filter-item" style="display: none;">憲法</div>
+                <div id="search-filter-item-act" class="search-filter-item" style="display: none;">法律</div>
+                <div id="search-filter-item-cabinet-order" class="search-filter-item" style="display: none;">政令</div>
+                <div id="search-filter-item-imperial-order" class="search-filter-item" style="display: none;">勅令</div>
+                <div id="search-filter-item-ministerial-ordinance" class="search-filter-item" style="display: none;">府省令</div>
+                <div id="search-filter-item-rule" class="search-filter-item" style="display: none;">規則</div>
+                <div id="search-filter-item-misc" class="search-filter-item" style="display: none;">その他</div>
+            </div>
+            <div class="border"></div>
+        </div>
+        <div id="content">
+            <div id="search-message"></div>
+            <div id="search-result"></div>
+        </div>
+    </main>
+
+    <script type="module" src="./local/search/core.js?v=20260213"></script>
+
+</body>
+
+</html>

@@ -1,1 +1,65 @@
+<!doctype html>
+<html lang="ja">
 
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/global/style.css?v=20260213">
+    <link rel="stylesheet" href="/global/interface.css?v=20260213">
+    <link rel="stylesheet" href="./local/index/core.css?v=20260213">
+    <link rel="stylesheet" href="./local/index/search.css?v=20260213">
+    <title>法令検索</title>
+</head>
+
+<body>
+
+    <header></header>
+
+    <main>
+        <div id="title">法令検索</div>
+        <div id="search-container">
+            <div id="search-bar">
+                <input id="search-input" type="text" placeholder="法令名を入力">
+                <div id="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--color-gray)"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+                </div>
+                <div id="search-exec" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--color-black)"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>
+                </div>
+            </div>
+            <div id="search-result" style="display: none;"></div>
+        </div>
+    </main>
+
+    <div class="button-container">
+        <div class="left">
+        </div>
+        <div class="center">
+            <div id="help-button" class="button-link">使い方</div>
+        </div>
+        <div class="right">
+            <a href="/info.html?q=terms" class="button-link"><div>利用規約</div></a>
+            <div>・</div>
+            <a href="/info.html?q=privacy" class="button-link"><div>プライバシー</div></a>
+            <div>・</div>
+            <a href="/info.html?q=about" class="button-link"><div>当サイトについて</div></a>
+        </div>
+    </div>
+
+    <div id="help-content" style="display: none;">
+        <h3>トップページ</h3>
+        <p>検索予測は、一部の法令にのみ対応しています。</p>
+        <h3>法令閲覧ページ</h3>
+        <h4>検索</h4>
+        <p>「検索」機能は、条文の検索に特化しています。「制定文」や「編」「章」「節」などは検索結果に含まれません。これらを検索する場合は、ブラウザーの検索機能をご利用ください。</p>
+        <p>条番号で検索する際には、漢数字のみならず、半角数字や全角数字で検索することも可能です。たとえば「第四百十三条の二」を検索する場合には、「４１３　２」「413-2」などと入力すれば検索できます。</p>
+        <h4>目次</h4>
+        <p>「目次」機能で表示される目次では、「法令情報」が最初に表示されます。この「法令情報」は、本文中の「法令番号」「法令名」「制定文」「目次」など、法令番号から本則までのすべての内容を意味しています。</p>
+    </div>
+
+    <script type="module" src="./local/index/core.js?v=20260213"></script>
+
+</body>
+
+</html>

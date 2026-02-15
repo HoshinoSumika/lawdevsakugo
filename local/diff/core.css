@@ -1,0 +1,125 @@
+header {
+    border-bottom: 1px solid var(--color-border);
+}
+
+main {
+}
+
+#header-title {
+    flex: 1;
+    height: var(--size-normal); min-width: 0;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 20px;
+}
+#header-title > span {
+    overflow: hidden;
+    flex-shrink: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#diff-info,
+#diff-content {
+    width: 100%;
+}
+
+#diff-info {
+    height: var(--size-normal);
+    display: flex; justify-content: center; align-items: start;
+    background-color: var(--color-silver);
+}
+
+#diff-content {
+    background-color: var(--color-smoke);
+    display: flex; flex-direction: column; justify-content: start; align-items: center;
+    font-size: 16px;
+}
+
+@media (max-width: 1200px) {
+    #diff-content {
+        font-size: 15.5px;
+    }
+}
+
+@media (max-width: 1000px) {
+    #diff-content {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 900px) {
+    #diff-content {
+        font-size: 14.5px;
+    }
+}
+
+@media (max-width: 800px) {
+    #diff-content {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 700px) {
+    #diff-content {
+        font-size: 13.5px;
+    }
+}
+
+@media (max-width: 600px) {
+    #diff-content {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 500px) {
+    #diff-content {
+        font-size: 12.5px;
+    }
+}
+
+@media (max-width: 400px) {
+    #diff-content {
+        font-size: 12px;
+    }
+}
+
+.diff-item {
+    width: 100%;
+    display: flex; flex-direction: row; justify-content: center; align-items: stretch;
+}
+
+.left,
+.right {
+    flex: 1;
+    display: flex; justify-content: center; align-items: start;
+}
+
+.left {
+    border-right: 1px solid var(--color-border);
+}
+.right {
+    border-left: 1px solid var(--color-border);
+}
+
+#diff-info > .left,
+#diff-info > .right {
+    height: 100%;
+    display: flex; justify-content: center; align-items: center;
+}
+
+#diff-content > .diff-item > .left {
+    padding: 8px 12px 8px 16px;
+}
+#diff-content > .diff-item > .right {
+    padding: 8px 16px 8px 12px;
+}
+
+#diff-content .Law .PartTitle,
+#diff-content .Law .ChapterTitle,
+#diff-content .Law .SectionTitle,
+#diff-content .Law .SubsectionTitle,
+#diff-content .Law .DivisionTitle,
+#diff-content .Law > :not(.LawBody),
+#diff-content .Law > .LawBody > :not(.MainProvision) {
+    display: none;
+}
