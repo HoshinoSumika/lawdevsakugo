@@ -10,11 +10,6 @@ let searchResult;
 let selectedIndex = -1;
 
 function init() {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = './local/index/search.css?v=20260303';
-    document.head.appendChild(link);
-
     searchInput = document.querySelector('#search-input');
     searchInput.value = '';
     searchInput.addEventListener('keydown', (e) => {
