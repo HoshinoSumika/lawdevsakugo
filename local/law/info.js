@@ -5,10 +5,10 @@ export const Info = {
     clear,
 };
 
-import { Interface } from '/global/interface.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
+import { Shell } from '/global/shell.js?v=20260101';
 
-let interfaceView;
+let modal;
 let lawContent;
 let infoContent;
 
@@ -16,28 +16,19 @@ function init(el) {
     lawContent = el;
 
     infoContent = document.createElement('div');
+    infoContent.classList.add('info-content');
 
-    interfaceView = Interface.createModal(infoContent);
-    interfaceView.enableTitleBar();
-    interfaceView.setTitle('法令詳細');
-    interfaceView.getOverlay().classList.add('law-overlay');
-    interfaceView.getOverlay().classList.add('info-overlay');
-    interfaceView.getContainer().classList.add('law-container');
-    interfaceView.getContainer().classList.add('info-container');
-    interfaceView.getContent().classList.add('info-content');
-
-    interfaceView.onShow(() => {
-        requestAnimationFrame(() => {
-            interfaceView.getContainer().classList.add('show');
-        });
-    });
-    interfaceView.onHide(() => {
-        interfaceView.getContainer().classList.remove('show');
-    });
+    modal = Shell.createModal(infoContent);
+    modal.setTitle('法令詳細');
+    modal.enableCloseButton(hide);
 }
 
 function show() {
-    interfaceView.show();
+    modal.show();
+}
+
+function hide() {
+    modal.hide();
 }
 
 function update() {

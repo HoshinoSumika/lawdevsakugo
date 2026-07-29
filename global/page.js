@@ -3,151 +3,121 @@ export const Page = {
 };
 
 function createManager(container) {
-    const api = {};
+    if (!container) {
+        return null;
+    }
+
+    const position = container.style.position;
+    const overflow = container.style.overflow;
+    if (getComputedStyle(container).position === 'static') {
+        container.style.position = 'relative';
+    }
+    container.style.overflow = 'hidden';
+
     const stack = [];
-    let isAnimating = false;
     let duration = 200;
-    let offset = '32%';
+    let distance = '100%';
+    let easing = 'ease';
+    let moving = false;
 
-    container.style.position = 'relative';
+    const api = {};
 
-    api.open = (next) => {
-        if (isAnimating) {
-            return;
-        }
-        isAnimating = true;
+    api.getCurrent = () => stack.length ? stack[stack.length - 1].content : null;
 
-        const current = stack[stack.length - 1];
-        if (current) {
-            hideOnOpen(current, duration, offset);
-        }
+    api.getDepth = () => stack.length;
 
-        showOnOpen(next, duration, offset).then(() => {
-            isAnimating = false;
-        });
-
-        container.appendChild(next);
-        stack.push(next);
-    };
-
-    api.back = () => {
-        if (stack.length <= 1) {
-            return;
-        }
-        if (isAnimating) {
-            return;
-        }
-        isAnimating = true;
-
-        const current = stack.pop();
-        const prev = stack[stack.length - 1];
-
-        hideOnBack(current, duration, offset);
-        showOnBack(prev, duration, offset).then(() => {
-            isAnimating = false;
-        });
-    };
-
-    api.navigate = (next) => {
-        if (isAnimating) {
-            return;
-        }
-        isAnimating = true;
-
-        const current = stack[stack.length - 1];
-        if (current) {
-            hideOnNavigate(current, duration);
-        }
-
-        container.appendChild(next);
-        showOnNavigate(next, duration).then(() => {
-            for (const page of stack) {
-                page.remove();
-            }
-            stack.length = 0;
-            stack.push(next);
-            isAnimating = false;
-        });
-    };
-
-    api.isAnimating = () => {
-        return isAnimating;
-    };
-
-    api.isRoot = () => {
-        return stack.length <= 1;
-    };
+    api.isRoot = () => stack.length === 1;
 
     api.setDuration = (value) => {
         duration = value;
     };
 
-    api.setOffset = (value) => {
-        offset = value;
+    api.setDistance = (value) => {
+        distance = value;
+    };
+
+    api.setEasing = (value) => {
+        easing = value;
+    };
+
+    api.open = (content) => {
+        if (!content || moving) {
+            return;
+        }
+
+        const layer = document.createElement('div');
+        layer.style.position = 'absolute';
+        layer.style.inset = '0';
+        layer.appendChild(content);
+        container.appendChild(layer);
+
+        const current = stack[stack.length - 1];
+        stack.push({ content, layer });
+        if (!current) {
+            return;
+        }
+
+        moving = true;
+        current.layer.style.display = '';
+        const outgoing = current.layer.animate([
+            { transform: 'translateX(0)', opacity: 1 },
+            { transform: 'translateX(calc(0px - ' + distance + '))', opacity: 0 },
+        ], { duration, easing, fill: 'forwards' });
+        const incoming = layer.animate([
+            { transform: 'translateX(' + distance + ')', opacity: 0 },
+            { transform: 'translateX(0)', opacity: 1 },
+        ], { duration, easing, fill: 'forwards' });
+        incoming.onfinish = () => {
+            current.layer.style.display = 'none';
+            outgoing.cancel();
+            incoming.cancel();
+            moving = false;
+        };
+    };
+
+    api.close = () => {
+        if (stack.length < 2 || moving) {
+            return;
+        }
+
+        moving = true;
+        const current = stack.pop();
+        const previous = stack[stack.length - 1];
+        previous.layer.style.display = '';
+        const incoming = previous.layer.animate([
+            { transform: 'translateX(calc(0px - ' + distance + '))', opacity: 0 },
+            { transform: 'translateX(0)', opacity: 1 },
+        ], { duration, easing, fill: 'forwards' });
+        const outgoing = current.layer.animate([
+            { transform: 'translateX(0)', opacity: 1 },
+            { transform: 'translateX(' + distance + ')', opacity: 0 },
+        ], { duration, easing, fill: 'forwards' });
+        outgoing.onfinish = () => {
+            current.layer.remove();
+            incoming.cancel();
+            outgoing.cancel();
+            moving = false;
+        };
+    };
+
+    api.clear = () => {
+        if (moving) {
+            return;
+        }
+        for (const page of stack) {
+            page.layer.remove();
+        }
+        stack.length = 0;
+    };
+
+    api.destroy = () => {
+        if (moving) {
+            return;
+        }
+        api.clear();
+        container.style.position = position;
+        container.style.overflow = overflow;
     };
 
     return api;
-}
-
-function showOnOpen(el, duration, offset) {
-    el.style.visibility = 'visible';
-    el.style.position = '';
-    el.style.top = '';
-    el.style.left = '';
-    const SHOW_FRAMES = [{ opacity: 0, transform: 'translateX(' + offset + ')' }, { opacity: 1, transform: 'translateX(0)' }];
-    const ANIM_OPTIONS = { duration, easing: 'ease', fill: 'forwards' };
-    return el.animate(SHOW_FRAMES, ANIM_OPTIONS).finished;
-}
-
-function hideOnOpen(el, duration, offset) {
-    el.style.position = 'absolute';
-    el.style.top = '0';
-    el.style.left = '0';
-    const HIDE_FRAMES = [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: 'translateX(-' + offset + ')' }];
-    const ANIM_OPTIONS = { duration, easing: 'ease', fill: 'forwards' };
-    return el.animate(HIDE_FRAMES, ANIM_OPTIONS).finished.then(() => {
-        el.style.visibility = 'hidden';
-    });
-}
-
-function showOnBack(el, duration, offset) {
-    el.style.visibility = 'visible';
-    el.style.position = '';
-    el.style.top = '';
-    el.style.left = '';
-    const SHOW_FRAMES = [{ opacity: 0, transform: 'translateX(-' + offset + ')' }, { opacity: 1, transform: 'translateX(0)' }];
-    const ANIM_OPTIONS = { duration, easing: 'ease', fill: 'forwards' };
-    return el.animate(SHOW_FRAMES, ANIM_OPTIONS).finished;
-}
-
-function hideOnBack(el, duration, offset) {
-    el.style.position = 'absolute';
-    el.style.top = '0';
-    el.style.left = '0';
-    const HIDE_FRAMES = [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: 'translateX(' + offset + ')' }];
-    const ANIM_OPTIONS = { duration, easing: 'ease', fill: 'forwards' };
-    return el.animate(HIDE_FRAMES, ANIM_OPTIONS).finished.then(() => {
-        el.remove();
-    });
-}
-
-function showOnNavigate(el, duration) {
-    el.style.visibility = 'visible';
-    el.style.position = '';
-    el.style.top = '';
-    el.style.left = '';
-    const SHOW_FRAMES = [{ opacity: 0, transform: 'scale(0.9)' }, { opacity: 1, transform: 'scale(1)' }];
-    const ANIM_OPTIONS = { duration, easing: 'ease', fill: 'forwards' };
-    return el.animate(SHOW_FRAMES, ANIM_OPTIONS).finished;
-}
-
-function hideOnNavigate(el, duration) {
-    el.style.position = 'absolute';
-    el.style.top = '0';
-    el.style.left = '0';
-    const HIDE_FRAMES = [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.9)' }];
-    const ANIM_OPTIONS = { duration, easing: 'ease', fill: 'forwards' };
-    return el.animate(HIDE_FRAMES, ANIM_OPTIONS).finished.then(() => {
-        el.style.visibility = 'hidden';
-    });
 }

@@ -4,8 +4,8 @@ export const Config = {
     show,
 };
 
-import { Control } from '/global/control.js?v=20260101';
-import { Interface } from '/global/interface.js?v=20260101';
+import { Page } from '/global/page.js?v=20260101';
+import { Shell } from '/global/shell.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 
 import {
@@ -29,9 +29,15 @@ import {
 } from './library.js?v=20260101';
 import { Mokuji } from './mokuji.js?v=20260101';
 
-let controlView;
-let interfaceView;
+let pageManager;
+let centerModal;
+let centerModalContent;
+let bottomModal;
+let bottomModalContent;
+let current;
+let configContent;
 let lawContent;
+let isOpen = false;
 
 function init(el) {
     lawContent = el;
@@ -105,31 +111,36 @@ function init(el) {
     fragment.appendChild(configItemLetterSpacing);
     fragment.appendChild(createDivider());
 
-    const configContent = document.createElement('div');
+    configContent = document.createElement('div');
+    configContent.classList.add('config-content');
+
+    centerModalContent = document.createElement('div');
+
+    centerModal = Shell.createModal(centerModalContent);
+    centerModal.setWidth('min(90vw, 640px)');
+    centerModal.setHeight('min(64vh, 640px)');
+    centerModal.enableCloseButton(hide);
+
+    bottomModalContent = document.createElement('div');
+
+    bottomModal = Shell.createModal(bottomModalContent);
+    bottomModal.setPlacement('bottom');
+    bottomModal.setHeight('50%');
+    bottomModal.enableCloseButton(hide);
+
+    current = isNarrow() ? bottomModal : centerModal;
+    (isNarrow() ? bottomModalContent : centerModalContent).appendChild(configContent);
+
+    pageManager = Page.createManager(configContent);
 
     const page = document.createElement('div');
     page.appendChild(fragment);
+    pageManager.open(page);
 
-    controlView = Control.createInstance(configContent);
-    controlView.open(page);
+    updateNav();
 
-    interfaceView = Interface.createModal(configContent);
-    interfaceView.enableTitleBar();
-    interfaceView.enableExpandButton();
-    interfaceView.setTitle('設定');
-    interfaceView.getOverlay().classList.add('law-overlay');
-    interfaceView.getOverlay().classList.add('config-overlay');
-    interfaceView.getContainer().classList.add('law-container');
-    interfaceView.getContainer().classList.add('config-container');
-    interfaceView.getContent().classList.add('config-content');
-
-    interfaceView.onShow(() => {
-        requestAnimationFrame(() => {
-            interfaceView.getContainer().classList.add('show');
-        });
-    });
-    interfaceView.onHide(() => {
-        interfaceView.getContainer().classList.remove('show');
+    window.addEventListener('resize', () => {
+        place();
     });
 
     toggleCheckboxItem(configItemTOC, 'toc', false, showTOC, hideTOC);
@@ -207,7 +218,49 @@ function register(name, func) {
 }
 
 function show() {
-    interfaceView.show();
+    isOpen = true;
+    place();
+    current.show();
+}
+
+function hide() {
+    isOpen = false;
+    current.hide();
+}
+
+function isNarrow() {
+    return window.innerWidth <= 640;
+}
+
+function place() {
+    const next = isNarrow() ? bottomModal : centerModal;
+    if (next === current) {
+        return;
+    }
+
+    current.hide();
+    current = next;
+    (isNarrow() ? bottomModalContent : centerModalContent).appendChild(configContent);
+    updateNav();
+
+    if (isOpen) {
+        current.show();
+    }
+}
+
+function updateNav() {
+    if (pageManager.isRoot()) {
+        current.disableBackButton();
+        current.setTitle('設定');
+    } else {
+        current.enableBackButton(closePage);
+        current.setTitle('');
+    }
+}
+
+function closePage() {
+    pageManager.close();
+    updateNav();
 }
 
 function initToggleWithNav(checkbox, nav, storageKey, defaultValue, showFn, hideFn) {
@@ -245,18 +298,8 @@ const refreshTitleColor = createRefresher('style-title-color', hideTitleColor, s
 function openPage() {
     const page = document.createElement('div');
 
-    interfaceView.enableBackButton();
-    interfaceView.setTitle('');
-
-    interfaceView.onBack(() => {
-        controlView.back();
-        if (controlView.isRoot()) {
-            interfaceView.disableBackButton();
-            interfaceView.setTitle('設定');
-        }
-    });
-
-    controlView.open(page);
+    pageManager.open(page);
+    updateNav();
 
     return page;
 }

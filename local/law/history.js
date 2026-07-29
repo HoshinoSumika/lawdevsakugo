@@ -4,34 +4,22 @@ export const History = {
     show,
 };
 
-import { Interface } from '/global/interface.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
+import { Shell } from '/global/shell.js?v=20260101';
 import { Storage } from '/global/storage.js?v=20260101';
 
-let interfaceView;
+let modal;
 let historyContent;
 
 function init() {
     historyContent = document.createElement('div');
+    historyContent.classList.add('history-content');
 
-    interfaceView = Interface.createModal(historyContent);
-    interfaceView.enableTitleBar();
-    interfaceView.setTitle('改正履歴');
-    interfaceView.getOverlay().classList.add('law-overlay');
-    interfaceView.getOverlay().classList.add('history-overlay');
-    interfaceView.getContainer().classList.add('law-container');
-    interfaceView.getContainer().classList.add('history-container');
-    interfaceView.getContent().classList.add('history-content');
-
-    interfaceView.onShow(() => {
-        requestAnimationFrame(() => {
-            interfaceView.getContainer().classList.add('show');
-        });
-    });
-    interfaceView.onHide(() => {
-        interfaceView.getContainer().classList.remove('show');
-    });
+    modal = Shell.createModal(historyContent);
+    modal.setPlacement('left');
+    modal.setTitle('改正履歴');
+    modal.enableCloseButton(hide);
 }
 
 let initContent = () => {};
@@ -44,11 +32,11 @@ function register(name, func) {
 
 function show() {
     updateContent();
-    interfaceView.show();
+    modal.show();
 }
 
 function hide() {
-    interfaceView.hide();
+    modal.hide();
 }
 
 let revisions;

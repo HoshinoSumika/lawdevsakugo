@@ -1,5 +1,6 @@
 .search-overlay {
-    align-items: start;
+    transition: opacity var(--transition-duration) ease;
+    background-color: var(--color-translucent-overlay);
 }
 
 .search-container {
@@ -7,6 +8,9 @@
     transform: scale(0.9);
     width: 100%; max-width: min(calc(var(--width-limit) - 128px), calc(100% - 256px)); max-height: calc(100dvh - calc(var(--size-normal) * 4));
     margin: calc(var(--size-normal) * 2) 0px 0px 0px; padding: 0px;
+    display: flex; flex-direction: column; justify-content: start; align-items: center;
+    transition: transform var(--transition-duration) ease;
+    background-color: var(--color-white);
     border: 1px solid var(--color-border); border-radius: calc(var(--radius-normal) * 1.5);
 }
 .search-container.show {
@@ -14,6 +18,7 @@
 }
 
 .search-content {
+    overflow: hidden;
     width: 100%;
     display: flex; flex-direction: column;
 }

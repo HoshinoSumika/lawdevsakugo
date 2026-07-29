@@ -1,25 +1,7 @@
-.history-overlay {
-    justify-content: start;
-}
-
-.history-container {
-    transform: translateX(-100%);
-    width: 100%; height: 100%; max-width: 320px;
-}
-.history-container.show {
-    transform: translateX(0);
-}
-
-@media (max-width: 360px) {
-    .history-container {
-        max-width: none;
-    }
-}
-
 .history-content {
     overflow-y: auto;
     position: relative;
-    width: 100%; height: 100%; padding: 12px 0px 12px 0px;
+    width: 100%; padding: 12px 0px 12px 0px;
     display: flex; flex-direction: column; justify-content: start; align-items: start;
 }
 

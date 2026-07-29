@@ -102,14 +102,3 @@ a {
 .highlight {
     background-color: var(--color-highlight);
 }
-
-.law-overlay {
-    display: flex; justify-content: center; align-items: center;
-    transition: opacity var(--transition-duration) ease;
-    background-color: var(--color-translucent-overlay);
-}
-.law-container {
-    display: flex; flex-direction: column; justify-content: start; align-items: center;
-    transition: transform var(--transition-duration) ease, width var(--transition-duration) ease, height var(--transition-duration) ease;
-    background-color: var(--color-white);
-}

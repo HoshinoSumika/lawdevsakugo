@@ -3,9 +3,10 @@ export const Search = {
     show,
 };
 
-import { Interface } from '/global/interface.js?v=20260101';
+import { Frame } from '/global/frame.js?v=20260101';
 
-let interfaceView;
+let panel;
+let searchContainer;
 let lawContent;
 let searchContent;
 let searchInput;
@@ -48,32 +49,56 @@ function init(el) {
     });
 
     searchContent = document.querySelector('#search-content');
+    searchContent.classList.add('search-content');
 
-    interfaceView = Interface.createModal(searchContent);
-    interfaceView.getOverlay().classList.add('law-overlay');
-    interfaceView.getOverlay().classList.add('search-overlay');
-    interfaceView.getContainer().classList.add('law-container');
-    interfaceView.getContainer().classList.add('search-container');
-    interfaceView.getContent().classList.add('search-content');
+    searchContainer = document.createElement('div');
+    searchContainer.classList.add('search-container');
+    searchContainer.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    searchContainer.appendChild(searchContent);
 
-    interfaceView.onShow(onShowBefore, onShowAfter);
-    interfaceView.onHide(onHideBefore, onHideAfter);
-}
+    const overlay = document.createElement('div');
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'start';
+    overlay.appendChild(searchContainer);
 
-function onShowBefore() {
-    const fontSize = parseFloat(window.getComputedStyle(lawContent).fontSize) - 1.5;
-    searchResult.style.fontSize = fontSize + 'px';
-    const lineHeight = parseFloat(window.getComputedStyle(lawContent).lineHeight) / parseFloat(window.getComputedStyle(lawContent).fontSize) - 0.2;
-    searchResult.style.lineHeight = lineHeight + '';
-    const letterSpacing = window.getComputedStyle(lawContent).letterSpacing;
-    searchResult.style.letterSpacing = letterSpacing;
+    panel = Frame.createPanel(overlay);
 
-    requestAnimationFrame(() => {
-        interfaceView.getContainer().classList.add('show');
+    const panelEl = panel.getPanel();
+    panelEl.classList.add('search-overlay');
+    panelEl.style.top = '0';
+    panelEl.style.left = '0';
+    panelEl.style.width = '100vw';
+    panelEl.style.height = '100vh';
+
+    let pressTarget = null;
+
+    overlay.addEventListener('pointerdown', (e) => {
+        pressTarget = e.target;
+    });
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay && pressTarget === overlay) {
+            hide();
+        }
     });
 }
 
-function onShowAfter() {
+function show() {
+    const style = window.getComputedStyle(lawContent);
+    searchResult.style.fontSize = (parseFloat(style.fontSize) - 1.5) + 'px';
+    searchResult.style.lineHeight = (parseFloat(style.lineHeight) / parseFloat(style.fontSize) - 0.2) + '';
+    searchResult.style.letterSpacing = style.letterSpacing;
+
+    panel.show();
+    requestAnimationFrame(() => {
+        searchContainer.classList.add('show');
+    });
+
     searchInput.value = '';
     searchInput.style.display = '';
     searchInput.style.caretColor = 'transparent';
@@ -86,21 +111,12 @@ function onShowAfter() {
     updateResult(false);
 }
 
-function onHideBefore() {
-    interfaceView.getContainer().classList.remove('show');
-}
+function hide() {
+    searchContainer.classList.remove('show');
+    panel.hide();
 
-function onHideAfter() {
     searchInput.value = '';
     searchInput.style.display = 'none';
-}
-
-function show() {
-    interfaceView.show();
-}
-
-function hide() {
-    interfaceView.hide();
 }
 
 function updateResult(isUnlimited) {

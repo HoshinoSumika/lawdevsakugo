@@ -3,14 +3,14 @@ export const Menu = {
     show,
 };
 
-import { Interface } from '/global/interface.js?v=20260101';
+import { Shell } from '/global/shell.js?v=20260101';
 
 import { Config } from './config.js?v=20260101';
 import { History } from './history.js?v=20260101';
 import { Info } from './info.js?v=20260101';
 import { Mokuji } from './mokuji.js?v=20260101';
 
-let interfaceView;
+let modal;
 
 function init() {
     const menuItemConfig = document.querySelector('#menu-item-config');
@@ -56,30 +56,18 @@ function init() {
     });
 
     const menuContent = document.querySelector('#menu-content');
+    menuContent.classList.add('menu-content');
 
-    interfaceView = Interface.createModal(menuContent);
-    interfaceView.enableTitleBar();
-    interfaceView.setTitle('');
-    interfaceView.getOverlay().classList.add('law-overlay');
-    interfaceView.getOverlay().classList.add('menu-overlay');
-    interfaceView.getContainer().classList.add('law-container');
-    interfaceView.getContainer().classList.add('menu-container');
-    interfaceView.getContent().classList.add('menu-content');
-
-    interfaceView.onShow(() => {
-        requestAnimationFrame(() => {
-            interfaceView.getContainer().classList.add('show');
-        });
-    });
-    interfaceView.onHide(() => {
-        interfaceView.getContainer().classList.remove('show');
-    });
+    modal = Shell.createModal(menuContent);
+    modal.setPlacement('left');
+    modal.setTitle('');
+    modal.enableCloseButton(hide);
 }
 
 function show() {
-    interfaceView.show();
+    modal.show();
 }
 
 function hide() {
-    interfaceView.hide();
+    modal.hide();
 }

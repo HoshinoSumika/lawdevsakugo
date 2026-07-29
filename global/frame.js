@@ -1,6 +1,6 @@
 export const Frame = {
+    getIndex,
     createPanel,
-    createExPanel,
     createModal,
 };
 
@@ -23,11 +23,21 @@ function createPanel(content) {
     panel.style.opacity = '0';
     panel.style.zIndex = getIndex();
     panel.style.overflow = 'hidden';
-    panel.style.touchAction = 'none';
     panel.style.position = 'fixed';
 
     panel.addEventListener('click', (e) => {
         e.stopPropagation();
+    });
+
+    panel.addEventListener('touchmove', (e) => {
+        let node = e.target;
+        while (node !== panel) {
+            if (node.scrollHeight > node.clientHeight) {
+                return;
+            }
+            node = node.parentNode;
+        }
+        e.preventDefault();
     });
 
     panel.appendChild(content);
@@ -35,6 +45,26 @@ function createPanel(content) {
 
     api.getPanel = () => panel;
     api.getContent = () => content;
+
+    api.setBackground = (value) => {
+        panel.style.background = value;
+    };
+
+    api.setShadow = (value) => {
+        panel.style.boxShadow = value;
+    };
+
+    api.setBorder = (value) => {
+        panel.style.border = value;
+    };
+
+    api.setRadius = (value) => {
+        panel.style.borderRadius = value;
+    };
+
+    api.setTransition = (value) => {
+        panel.style.transition = value;
+    };
 
     api.show = () => {
         panel.style.zIndex = getIndex();
@@ -80,7 +110,7 @@ function createPanel(content) {
     return api;
 }
 
-function createExPanel(content) {
+function createModal(content) {
     if (!content) {
         return null;
     }
@@ -89,181 +119,61 @@ function createExPanel(content) {
     container.style.width = '100%';
     container.style.height = '100%';
     container.style.display = 'flex';
-    container.style.flexDirection = 'column';
+    container.style.justifyContent = 'center';
+    container.style.alignItems = 'center';
 
-    const bar = document.createElement('div');
-    bar.style.width = '100%';
-    bar.style.height = '36px';
-    bar.style.maxHeight = '36px';
-    bar.style.minHeight = '36px';
-    bar.style.padding = '0 4px 0 4px';
-    bar.style.cursor = 'grab';
-    bar.style.userSelect = 'none';
-    bar.style.webkitUserSelect = 'none';
-    bar.style.display = 'flex';
-    bar.style.justifyContent = 'center';
-    bar.style.alignItems = 'center';
-    bar.style.borderBottom = '1px solid #c3c3c3';
-    bar.style.backgroundColor = '#f0f0f0';
+    const modal = document.createElement('div');
+    modal.style.overflow = 'auto';
+    modal.style.overscrollBehavior = 'contain';
 
-    const title = document.createElement('div');
-    title.style.flex = '1';
-    title.style.overflow = 'hidden';
-    title.style.padding = '0 8px 0 12px';
-    title.style.fontSize = '0.8125em';
-    title.style.whiteSpace = 'nowrap';
-    title.style.textOverflow = 'ellipsis';
+    modal.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
 
-    const close = document.createElement('div');
-    close.textContent = '×';
-    close.style.width = '28px';
-    close.style.height = '28px';
-    close.style.cursor = 'pointer';
-    close.style.display = 'flex';
-    close.style.justifyContent = 'center';
-    close.style.alignItems = 'center';
-    close.style.fontSize = '1em';
-    close.style.borderRadius = '4px';
-
-    bar.appendChild(title);
-    bar.appendChild(close);
-
-    content.style.flex = '1';
-    content.style.overflow = 'auto';
-
-    container.appendChild(bar);
-    container.appendChild(content);
+    modal.appendChild(content);
+    container.appendChild(modal);
 
     const api = createPanel(container);
-    const panel = api.getPanel();
 
-    panel.style.top = '25vh';
-    panel.style.left = '25vw';
-    panel.style.width = '256px';
-    panel.style.height = '160px';
-    panel.style.border = '1px solid #c3c3c3';
-    panel.style.borderRadius = '8px';
-    panel.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18)';
-    panel.style.backgroundColor = 'white';
+    api.getPanel().style.top = '0';
+    api.getPanel().style.left = '0';
+    api.getPanel().style.width = '100vw';
+    api.getPanel().style.height = '100vh';
 
-    const resize = document.createElement('div');
-    resize.style.position = 'absolute';
-    resize.style.right = '0';
-    resize.style.bottom = '0';
-    resize.style.width = '12px';
-    resize.style.height = '12px';
-    resize.style.cursor = 'nwse-resize';
-    panel.appendChild(resize);
+    let pressTarget = null;
 
-    container.addEventListener('pointerdown', () => {
-        panel.style.zIndex = getIndex();
+    container.addEventListener('pointerdown', (e) => {
+        pressTarget = e.target;
     });
 
-    bar.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        panel.style.zIndex = getIndex();
-        bar.style.cursor = 'grabbing';
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startLeft = panel.offsetLeft;
-        const startTop = panel.offsetTop;
-        const onMove = (ev) => {
-            const dx = ev.clientX - startX;
-            const dy = ev.clientY - startY;
-            const maxLeft = window.innerWidth - panel.offsetWidth;
-            const maxTop = window.innerHeight - panel.offsetHeight;
-            panel.style.left = Math.max(0, Math.min(maxLeft, startLeft + dx)) + 'px';
-            panel.style.top = Math.max(0, Math.min(maxTop, startTop + dy)) + 'px';
-        };
-        const onUp = () => {
-            bar.style.cursor = 'grab';
-            document.removeEventListener('pointermove', onMove);
-            document.removeEventListener('pointerup', onUp);
-        };
-        document.addEventListener('pointermove', onMove);
-        document.addEventListener('pointerup', onUp);
-    });
-
-    close.addEventListener('pointerenter', () => {
-        close.style.backgroundColor = '#e0e0e0';
-    });
-
-    close.addEventListener('pointerleave', () => {
-        close.style.backgroundColor = 'transparent';
-    });
-
-    close.addEventListener('pointerdown', (e) => {
-        e.stopPropagation();
-        panel.style.zIndex = getIndex();
-        close.style.backgroundColor = '#e0e0e0';
-        const onUp = (ev) => {
-            document.removeEventListener('pointerup', onUp);
-            close.style.backgroundColor = 'transparent';
-            if (e.pointerId === ev.pointerId && close.contains(document.elementFromPoint(ev.clientX, ev.clientY))) {
-                api.hide();
-            }
-        };
-        document.addEventListener('pointerup', onUp);
-    });
-
-    resize.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        panel.style.zIndex = getIndex();
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startW = panel.offsetWidth;
-        const startH = panel.offsetHeight;
-        const onMove = (ev) => {
-            const maxW = window.innerWidth - panel.offsetLeft;
-            const maxH = window.innerHeight - panel.offsetTop;
-            const w = Math.max(128, Math.min(maxW, startW + (ev.clientX - startX)));
-            const h = Math.max(80, Math.min(maxH, startH + (ev.clientY - startY)));
-            panel.style.width = w + 'px';
-            panel.style.height = h + 'px';
-        };
-        const onUp = () => {
-            document.removeEventListener('pointermove', onMove);
-            document.removeEventListener('pointerup', onUp);
-        };
-        document.addEventListener('pointermove', onMove);
-        document.addEventListener('pointerup', onUp);
-    });
-
-    const onWindowResize = () => {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        if (panel.offsetWidth > vw) {
-            panel.style.width = vw + 'px';
+    container.addEventListener('click', (e) => {
+        if (e.target === container && pressTarget === container) {
+            api.hide();
         }
-        if (panel.offsetHeight > vh) {
-            panel.style.height = vh + 'px';
-        }
-        if (panel.offsetLeft + panel.offsetWidth > vw) {
-            panel.style.left = Math.max(0, vw - panel.offsetWidth) + 'px';
-        }
-        if (panel.offsetTop + panel.offsetHeight > vh) {
-            panel.style.top = Math.max(0, vh - panel.offsetHeight) + 'px';
-        }
-    };
+    });
 
-    window.addEventListener('resize', onWindowResize);
-
+    api.getModal = () => modal;
     api.getContent = () => content;
 
-    api.setTitle = (text) => {
-        title.textContent = text;
+    api.setOverlayBackground = (value) => {
+        api.getPanel().style.background = value;
     };
 
-    const destroy = api.destroy;
-    api.destroy = () => {
-        window.removeEventListener('resize', onWindowResize);
-        destroy();
+    api.setModalBackground = (value) => {
+        modal.style.background = value;
+    };
+
+    api.setModalShadow = (value) => {
+        modal.style.boxShadow = value;
+    };
+
+    api.setModalBorder = (value) => {
+        modal.style.border = value;
+    };
+
+    api.setModalRadius = (value) => {
+        modal.style.borderRadius = value;
     };
 
     return api;
-}
-
-function createModal(content) {
 }
