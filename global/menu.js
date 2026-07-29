@@ -2,7 +2,7 @@ export const Menu = {
     createContextMenu,
 };
 
-import { Frame } from '/global/frame.js?v=20260303';
+import { Frame } from '/global/frame.js?v=20260703';
 
 function createContextMenu() {
     const api = {};
