@@ -13,16 +13,16 @@ function createContextMenu() {
     list.style.padding = '4px 0';
     list.style.minWidth = '160px';
 
-    const panel = Frame.createPanel(list);
-    const panelEl = panel.getPanel();
-    panelEl.style.width = 'auto';
-    panelEl.style.height = 'auto';
-    panelEl.style.inset = 'auto';
-    panelEl.style.backgroundColor = 'white';
-    panelEl.style.border = '1px solid #c3c3c3';
-    panelEl.style.borderRadius = '4px';
-    panelEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    panelEl.style.overflow = 'visible';
+    const frame = Frame.createPanel(list);
+    const panel = frame.getPanel();
+    panel.style.width = 'auto';
+    panel.style.height = 'auto';
+    panel.style.inset = 'auto';
+    panel.style.backgroundColor = 'white';
+    panel.style.border = '1px solid #c3c3c3';
+    panel.style.borderRadius = '4px';
+    panel.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    panel.style.overflow = 'visible';
 
     let cleanup = null;
 
@@ -35,7 +35,7 @@ function createContextMenu() {
 
     const attachDismiss = (anchorEl) => {
         const onPointerDown = (e) => {
-            if (panelEl.contains(e.target)) {
+            if (panel.contains(e.target)) {
                 return;
             }
             if (anchorEl && anchorEl.contains(e.target)) {
@@ -45,14 +45,14 @@ function createContextMenu() {
         };
 
         const onScroll = (e) => {
-            if (panelEl.contains(e.target)) {
+            if (panel.contains(e.target)) {
                 return;
             }
             dismiss();
         };
 
         cleanup = () => {
-            panel.hide();
+            frame.hide();
             window.removeEventListener('pointerdown', onPointerDown);
             window.removeEventListener('scroll', onScroll, { capture: true });
             cleanup = null;
@@ -66,24 +66,24 @@ function createContextMenu() {
 
     api.show = (anchorEl) => {
         dismiss();
-        panel.show();
+        frame.show();
         attachDismiss(anchorEl);
     };
 
     api.hide = () => {
         dismiss();
         if (!cleanup) {
-            panel.hide();
+            frame.hide();
         }
     };
 
     api.anchor = (el, placement, offset) => {
-        panel.anchor(el, placement, offset);
+        frame.anchor(el, placement, offset);
     };
 
     api.destroy = () => {
         dismiss();
-        panel.destroy();
+        frame.destroy();
     };
 
     api.addItem = (label, onClick) => {

@@ -6,7 +6,7 @@ export const Shell = {
     createModal,
 };
 
-let cascade = 0;
+let cascadeOffset = 0;
 
 function createPanel(content) {
     if (!content) {
@@ -23,23 +23,23 @@ function createPanel(content) {
     content.style.flex = '1';
     content.style.borderTop = '1px solid var(--color-border)';
 
-    const panel = Frame.createPanel(content);
-    panel.setBackground('var(--color-white)');
-    panel.setBorder('1px solid var(--color-border)');
-    panel.setRadius('var(--radius-normal)');
-    panel.setShadow('0 8px 32px rgba(0,0,0,0.18)');
-    panel.setTransition('opacity var(--transition-duration)');
+    const frame = Frame.createPanel(content);
+    frame.setBackground('var(--color-white)');
+    frame.setBorder('1px solid var(--color-border)');
+    frame.setRadius('var(--radius-normal)');
+    frame.setShadow('0 8px 32px rgba(0,0,0,0.18)');
+    frame.setTransition('opacity var(--transition-duration)');
 
-    const panelEl = panel.getPanel();
-    panelEl.style.display = 'flex';
-    panelEl.style.flexDirection = 'column';
-    panelEl.style.top = 'calc(25vh + ' + cascade + 'px)';
-    panelEl.style.left = 'calc(25vw + ' + cascade + 'px)';
-    panelEl.style.width = '256px';
-    panelEl.style.height = '160px';
-    cascade = (cascade + 24) % 120;
+    const panel = frame.getPanel();
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+    panel.style.top = 'calc(25vh + ' + cascadeOffset + 'px)';
+    panel.style.left = 'calc(25vw + ' + cascadeOffset + 'px)';
+    panel.style.width = '256px';
+    panel.style.height = '160px';
+    cascadeOffset = (cascadeOffset + 24) % 120;
 
-    panelEl.insertBefore(titleNav, content);
+    panel.insertBefore(titleNav, content);
 
     const resize = document.createElement('div');
     resize.style.position = 'absolute';
@@ -49,21 +49,21 @@ function createPanel(content) {
     resize.style.height = '12px';
     resize.style.cursor = 'nwse-resize';
     resize.style.touchAction = 'none';
-    for (const [offset, width] of [[6, 9.5], [8, 4]]) {
+    for (const [position, length] of [[6, 9.5], [8, 4]]) {
         const line = document.createElement('div');
         line.style.position = 'absolute';
-        line.style.left = offset + 'px';
-        line.style.top = offset + 'px';
-        line.style.width = width + 'px';
+        line.style.left = position + 'px';
+        line.style.top = position + 'px';
+        line.style.width = length + 'px';
         line.style.height = '1px';
         line.style.background = 'var(--color-border)';
         line.style.transform = 'translate(-50%,-50%) rotate(-45deg)';
         resize.appendChild(line);
     }
-    panelEl.appendChild(resize);
+    panel.appendChild(resize);
 
-    panelEl.addEventListener('pointerdown', () => {
-        panelEl.style.zIndex = Frame.getIndex();
+    panel.addEventListener('pointerdown', () => {
+        panel.style.zIndex = Frame.getIndex();
     });
 
     titleText.style.cursor = 'grab';
@@ -74,15 +74,15 @@ function createPanel(content) {
         titleText.style.cursor = 'grabbing';
         const startX = e.clientX;
         const startY = e.clientY;
-        const startLeft = panelEl.offsetLeft;
-        const startTop = panelEl.offsetTop;
+        const startLeft = panel.offsetLeft;
+        const startTop = panel.offsetTop;
         const onMove = (ev) => {
             const dx = ev.clientX - startX;
             const dy = ev.clientY - startY;
-            const maxLeft = window.innerWidth - panelEl.offsetWidth;
-            const maxTop = window.innerHeight - panelEl.offsetHeight;
-            panelEl.style.left = Math.max(0, Math.min(maxLeft, startLeft + dx)) + 'px';
-            panelEl.style.top = Math.max(0, Math.min(maxTop, startTop + dy)) + 'px';
+            const maxLeft = window.innerWidth - panel.offsetWidth;
+            const maxTop = window.innerHeight - panel.offsetHeight;
+            panel.style.left = Math.max(0, Math.min(maxLeft, startLeft + dx)) + 'px';
+            panel.style.top = Math.max(0, Math.min(maxTop, startTop + dy)) + 'px';
         };
         const onUp = () => {
             titleText.style.cursor = 'grab';
@@ -97,15 +97,15 @@ function createPanel(content) {
         e.preventDefault();
         const startX = e.clientX;
         const startY = e.clientY;
-        const startW = panelEl.offsetWidth;
-        const startH = panelEl.offsetHeight;
+        const startWidth = panel.offsetWidth;
+        const startHeight = panel.offsetHeight;
         const onMove = (ev) => {
-            const maxW = window.innerWidth - panelEl.offsetLeft;
-            const maxH = window.innerHeight - panelEl.offsetTop;
-            const w = Math.max(128, Math.min(maxW, startW + (ev.clientX - startX)));
-            const h = Math.max(80, Math.min(maxH, startH + (ev.clientY - startY)));
-            panelEl.style.width = w + 'px';
-            panelEl.style.height = h + 'px';
+            const maxWidth = window.innerWidth - panel.offsetLeft;
+            const maxHeight = window.innerHeight - panel.offsetTop;
+            const width = Math.max(128, Math.min(maxWidth, startWidth + (ev.clientX - startX)));
+            const height = Math.max(80, Math.min(maxHeight, startHeight + (ev.clientY - startY)));
+            panel.style.width = width + 'px';
+            panel.style.height = height + 'px';
         };
         const onUp = () => {
             document.removeEventListener('pointermove', onMove);
@@ -118,17 +118,17 @@ function createPanel(content) {
     const update = () => {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        if (panelEl.offsetWidth > vw) {
-            panelEl.style.width = vw + 'px';
+        if (panel.offsetWidth > vw) {
+            panel.style.width = vw + 'px';
         }
-        if (panelEl.offsetHeight > vh) {
-            panelEl.style.height = vh + 'px';
+        if (panel.offsetHeight > vh) {
+            panel.style.height = vh + 'px';
         }
-        if (panelEl.offsetLeft + panelEl.offsetWidth > vw) {
-            panelEl.style.left = Math.max(0, vw - panelEl.offsetWidth) + 'px';
+        if (panel.offsetLeft + panel.offsetWidth > vw) {
+            panel.style.left = Math.max(0, vw - panel.offsetWidth) + 'px';
         }
-        if (panelEl.offsetTop + panelEl.offsetHeight > vh) {
-            panelEl.style.top = Math.max(0, vh - panelEl.offsetHeight) + 'px';
+        if (panel.offsetTop + panel.offsetHeight > vh) {
+            panel.style.top = Math.max(0, vh - panel.offsetHeight) + 'px';
         }
     };
 
@@ -142,13 +142,13 @@ function createPanel(content) {
 
     api.getContent = () => content;
 
-    api.show = panel.show;
+    api.show = frame.show;
 
-    api.hide = panel.hide;
+    api.hide = frame.hide;
 
     api.destroy = () => {
         window.removeEventListener('resize', update);
-        panel.destroy();
+        frame.destroy();
     };
 
     api.setTitle = (text) => {
@@ -233,15 +233,15 @@ function createModal(content) {
 
     container.appendChild(modal);
 
-    const panel = Frame.createPanel(container);
-    panel.setBackground('rgba(0,0,0,0.4)');
-    panel.setTransition('opacity var(--transition-duration)');
+    const frame = Frame.createPanel(container);
+    frame.setBackground('rgba(0,0,0,0.4)');
+    frame.setTransition('opacity var(--transition-duration)');
 
-    const panelEl = panel.getPanel();
-    panelEl.style.top = '0';
-    panelEl.style.left = '0';
-    panelEl.style.width = '100vw';
-    panelEl.style.height = '100vh';
+    const panel = frame.getPanel();
+    panel.style.top = '0';
+    panel.style.left = '0';
+    panel.style.width = '100vw';
+    panel.style.height = '100vh';
 
     let closedTransform = '';
     let pressTarget = null;
@@ -263,7 +263,7 @@ function createModal(content) {
     api.getContent = () => content;
 
     api.show = () => {
-        panel.show();
+        frame.show();
         requestAnimationFrame(() => {
             modal.style.transform = '';
         });
@@ -271,11 +271,11 @@ function createModal(content) {
 
     api.hide = () => {
         modal.style.transform = closedTransform;
-        panel.hide();
+        frame.hide();
     };
 
     api.destroy = () => {
-        panel.destroy();
+        frame.destroy();
     };
 
     api.setTitle = (text) => {
@@ -290,36 +290,37 @@ function createModal(content) {
         modal.style.height = value;
         modal.style.maxHeight = '';
         content.style.flex = '1';
+        content.style.minHeight = '0px';
     };
 
-    api.setPlacement = (edge) => {
-        const isEdge = edge === 'left' || edge === 'right' || edge === 'top' || edge === 'bottom';
+    api.setPlacement = (placement) => {
+        const isEdge = placement === 'left' || placement === 'right' || placement === 'top' || placement === 'bottom';
 
         modal.style.marginLeft = '';
         modal.style.marginRight = '';
         modal.style.marginTop = '';
         modal.style.marginBottom = '';
 
-        if (edge === 'left') {
+        if (placement === 'left') {
             modal.style.marginRight = 'auto';
             closedTransform = 'translateX(-100%)';
-        } else if (edge === 'right') {
+        } else if (placement === 'right') {
             modal.style.marginLeft = 'auto';
             closedTransform = 'translateX(100%)';
-        } else if (edge === 'top') {
+        } else if (placement === 'top') {
             modal.style.marginBottom = 'auto';
             closedTransform = 'translateY(-100%)';
-        } else if (edge === 'bottom') {
+        } else if (placement === 'bottom') {
             modal.style.marginTop = 'auto';
             closedTransform = 'translateY(100%)';
         } else {
             closedTransform = '';
         }
 
-        if (edge === 'left' || edge === 'right') {
+        if (placement === 'left' || placement === 'right') {
             api.setWidth('min(320px, 100%)');
             api.setHeight('100%');
-        } else if (edge === 'top' || edge === 'bottom') {
+        } else if (placement === 'top' || placement === 'bottom') {
             api.setWidth('100%');
             api.setHeight('min(50%, 640px)');
         }

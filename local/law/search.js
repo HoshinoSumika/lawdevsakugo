@@ -5,7 +5,7 @@ export const Search = {
 
 import { Frame } from '/global/frame.js?v=20260101';
 
-let panel;
+let frame;
 let searchContainer;
 let lawContent;
 let searchContent;
@@ -66,14 +66,14 @@ function init(el) {
     overlay.style.alignItems = 'start';
     overlay.appendChild(searchContainer);
 
-    panel = Frame.createPanel(overlay);
+    frame = Frame.createPanel(overlay);
 
-    const panelEl = panel.getPanel();
-    panelEl.classList.add('search-overlay');
-    panelEl.style.top = '0';
-    panelEl.style.left = '0';
-    panelEl.style.width = '100vw';
-    panelEl.style.height = '100vh';
+    const panel = frame.getPanel();
+    panel.classList.add('search-overlay');
+    panel.style.top = '0';
+    panel.style.left = '0';
+    panel.style.width = '100vw';
+    panel.style.height = '100vh';
 
     let pressTarget = null;
 
@@ -94,7 +94,7 @@ function show() {
     searchResult.style.lineHeight = (parseFloat(style.lineHeight) / parseFloat(style.fontSize) - 0.2) + '';
     searchResult.style.letterSpacing = style.letterSpacing;
 
-    panel.show();
+    frame.show();
     requestAnimationFrame(() => {
         searchContainer.classList.add('show');
     });
@@ -113,7 +113,7 @@ function show() {
 
 function hide() {
     searchContainer.classList.remove('show');
-    panel.hide();
+    frame.hide();
 
     searchInput.value = '';
     searchInput.style.display = 'none';
