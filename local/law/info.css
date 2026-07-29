@@ -1,0 +1,23 @@
+.info-container {
+    transform: scale(0.95);
+    width: 90%; max-width: 480px; max-height: 640px;
+}
+.info-container.show {
+    transform: scale(1.0);
+}
+
+.info-content {
+    overflow-y: auto;
+    width: 100%; height: 100%; padding: 16px;
+    display: flex; flex-direction: column; justify-content: start; align-items: start;
+    font-size: 14px;
+}
+
+.info-content table th,
+.info-content table td {
+    padding: 8px;
+    vertical-align: top;
+}
+.info-content table th {
+    white-space: nowrap;
+}

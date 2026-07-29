@@ -1,0 +1,51 @@
+@media print {
+    html, body,
+    body > main {
+        overflow: visible !important;
+        height: auto !important;
+    }
+    body > :not(main),
+    body > main > :not(#content) {
+        display: none !important;
+    }
+    body > main {
+        display: block !important;
+    }
+}
+
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
+
+header {
+    border-bottom: 1px solid var(--color-border);
+}
+
+main {
+    overflow-y: auto;
+    display: flex; flex-direction: row; justify-content: center; align-items: start; gap: 16px;
+}
+
+#header-title {
+    flex: 1;
+    height: var(--size-normal); min-width: 0px; padding: 0px 8px 0px 8px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 20px;
+}
+#header-title > span {
+    overflow: hidden;
+    flex-shrink: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#message {
+    position: absolute; top: 0; left: 0;
+    width: 100%; padding: 32px;
+    display: flex; justify-content: center; align-items: center;
+}
+
+#content {
+    flex: 0 1 auto;
+}
