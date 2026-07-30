@@ -374,7 +374,7 @@ function createTitle() {
     const title = document.createElement('div');
     title.style.flex = '1';
     title.style.overflow = 'hidden';
-    title.style.padding = '0 8px 0 12px';
+    title.style.padding = '0 16px 0 16px';
     title.style.fontWeight = 'bold';
     title.style.whiteSpace = 'nowrap';
     title.style.textOverflow = 'ellipsis';
