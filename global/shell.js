@@ -189,22 +189,6 @@ function createModal(content) {
         return null;
     }
 
-    const modal = document.createElement('div');
-    modal.style.overflow = 'hidden';
-    modal.style.width = 'min(480px, 90vw)';
-    modal.style.maxHeight = '55dvh';
-    modal.style.display = 'flex';
-    modal.style.flexDirection = 'column';
-    modal.style.background = 'var(--color-white)';
-    modal.style.border = '1px solid var(--color-border)';
-    modal.style.borderRadius = 'var(--radius-normal)';
-    modal.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18)';
-    modal.style.transition = 'transform var(--transition-duration) ease';
-
-    modal.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-
     const titleNav = createNav();
     titleNav.style.height = '48px';
     titleNav.style.padding = '0px';
@@ -220,45 +204,30 @@ function createModal(content) {
     actionNav.style.gap = '4px';
     actionNav.style.borderTop = '1px solid var(--color-border)';
 
-    modal.appendChild(titleNav);
-    modal.appendChild(content);
+    const frame = Frame.createModal(content);
+    frame.setOverlayBackground('rgba(0,0,0,0.4)');
+    frame.setTransition('opacity var(--transition-duration)');
+    frame.setModalBackground('var(--color-white)');
+    frame.setModalBorder('1px solid var(--color-border)');
+    frame.setModalRadius('var(--radius-normal)');
+    frame.setModalShadow('0 8px 32px rgba(0,0,0,0.18)');
+    frame.setModalTransition('transform var(--transition-duration) ease');
+
+    const modal = frame.getModal();
+    modal.style.overflow = 'hidden';
+    modal.style.width = 'min(480px, 90vw)';
+    modal.style.maxHeight = '55dvh';
+    modal.style.display = 'flex';
+    modal.style.flexDirection = 'column';
+
+    modal.insertBefore(titleNav, content);
     modal.appendChild(actionNav);
 
-    const container = document.createElement('div');
-    container.style.width = '100%';
-    container.style.height = '100%';
-    container.style.display = 'flex';
-    container.style.justifyContent = 'center';
-    container.style.alignItems = 'center';
-
-    container.appendChild(modal);
-
-    const frame = Frame.createPanel(container);
-    frame.setBackground('rgba(0,0,0,0.4)');
-    frame.setTransition('opacity var(--transition-duration)');
-
-    const panel = frame.getPanel();
-    panel.style.top = '0';
-    panel.style.left = '0';
-    panel.style.width = '100vw';
-    panel.style.height = '100vh';
-
     let closedTransform = '';
-    let pressTarget = null;
     let back = null;
     let close = null;
 
     const api = {};
-
-    container.addEventListener('pointerdown', (e) => {
-        pressTarget = e.target;
-    });
-
-    container.addEventListener('click', (e) => {
-        if (e.target === container && pressTarget === container) {
-            api.hide();
-        }
-    });
 
     api.getContent = () => content;
 
@@ -273,6 +242,8 @@ function createModal(content) {
         modal.style.transform = closedTransform;
         frame.hide();
     };
+
+    frame.setDismiss(api.hide);
 
     api.destroy = () => {
         frame.destroy();

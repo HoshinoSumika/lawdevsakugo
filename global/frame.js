@@ -141,6 +141,7 @@ function createModal(content) {
     api.getPanel().style.height = '100vh';
 
     let pressTarget = null;
+    let dismiss = api.hide;
 
     container.addEventListener('pointerdown', (e) => {
         pressTarget = e.target;
@@ -148,12 +149,16 @@ function createModal(content) {
 
     container.addEventListener('click', (e) => {
         if (e.target === container && pressTarget === container) {
-            api.hide();
+            dismiss();
         }
     });
 
     api.getModal = () => modal;
     api.getContent = () => content;
+
+    api.setDismiss = (fn) => {
+        dismiss = fn;
+    };
 
     api.setOverlayBackground = (value) => {
         api.getPanel().style.background = value;
@@ -173,6 +178,10 @@ function createModal(content) {
 
     api.setModalRadius = (value) => {
         modal.style.borderRadius = value;
+    };
+
+    api.setModalTransition = (value) => {
+        modal.style.transition = value;
     };
 
     return api;
