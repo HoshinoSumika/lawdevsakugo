@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/global/style.css?v=20260101">
+    <link rel="stylesheet" href="./local/dev/core.css?v=20260101">
+    <title>dev</title>
+</head>
+
+<body>
+
+    <header>
+        <div id="header-title">
+            <span>dev</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="dev-content">
+
+            <div class="dev-section">
+                <div class="dev-category">Frame</div>
+                <div class="dev-group">
+                    <div id="frame-panel-top" class="dev-button">createPanel / anchor top</div>
+                    <div id="frame-panel-bottom" class="dev-button">createPanel / anchor bottom</div>
+                    <div id="frame-panel-left" class="dev-button">createPanel / anchor left</div>
+                    <div id="frame-panel-right" class="dev-button">createPanel / anchor right</div>
+                    <div id="frame-modal" class="dev-button">createModal</div>
+                    <div id="frame-index" class="dev-button">getIndex</div>
+                </div>
+                <div class="dev-note">パネルは押したボタンを基準に配置される。モーダルは背景のクリックでも閉じる。</div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-category">Shell</div>
+                <div class="dev-group">
+                    <div id="shell-panel" class="dev-button">createPanel</div>
+                    <div id="shell-modal-center" class="dev-button">createModal / center</div>
+                    <div id="shell-modal-left" class="dev-button">createModal / left</div>
+                    <div id="shell-modal-right" class="dev-button">createModal / right</div>
+                    <div id="shell-modal-top" class="dev-button">createModal / top</div>
+                    <div id="shell-modal-bottom" class="dev-button">createModal / bottom</div>
+                </div>
+                <div class="dev-note">パネルは連続で開くと位置がずれる。タイトルのドラッグで移動、右下の角でリサイズ。モーダルは一度だけ生成して再利用する。</div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-category">Message</div>
+                <div class="dev-group">
+                    <div id="message-tip" class="dev-button">tip（ホバーで表示）</div>
+                    <div id="message-toast" class="dev-button">toast</div>
+                    <div id="message-toast-long" class="dev-button">toast / 長文</div>
+                    <div id="message-warning" class="dev-button">warning</div>
+                    <div id="message-error" class="dev-button">error</div>
+                    <div id="message-progress-open" class="dev-button">progress 開始</div>
+                    <div id="message-progress-close" class="dev-button">progress 終了</div>
+                    <div id="message-stack" class="dev-button">4種を同時に表示</div>
+                </div>
+                <div class="dev-note">tip は対象から吹き出しへマウスを移しても消えない。toast は3秒、warning は4秒で自動的に消える。error と progress は×ボタンか close() でしか消えない。複数出すと下から順に積み上がる。</div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-category">ログ</div>
+                <div id="dev-log" class="dev-log"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="./local/dev/core.js?v=20260101"></script>
+
+</body>
+
+</html>
