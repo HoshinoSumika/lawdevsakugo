@@ -4,9 +4,10 @@ export const History = {
     show,
 };
 
+import { Shell } from '/lib/shell.js?v=20260101';
+
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
-import { Shell } from '/global/shell.js?v=20260101';
 import { Storage } from '/global/storage.js?v=20260101';
 
 let modal;

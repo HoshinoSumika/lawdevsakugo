@@ -3,7 +3,7 @@ export const Search = {
     show,
 };
 
-import { Frame } from '/global/frame.js?v=20260101';
+import { Frame } from '/lib/frame.js?v=20260101';
 
 let frame;
 let searchContainer;

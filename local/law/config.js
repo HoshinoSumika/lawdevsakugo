@@ -4,8 +4,9 @@ export const Config = {
     show,
 };
 
-import { Page } from '/global/page.js?v=20260101';
-import { Shell } from '/global/shell.js?v=20260101';
+import { Page } from '/lib/page.js?v=20260101';
+import { Shell } from '/lib/shell.js?v=20260101';
+
 import { Theme } from '/global/theme.js?v=20260101';
 
 import {

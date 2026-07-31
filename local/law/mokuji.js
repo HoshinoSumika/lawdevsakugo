@@ -6,7 +6,7 @@ export const Mokuji = {
     clear,
 };
 
-import { Shell } from '/global/shell.js?v=20260101';
+import { Shell } from '/lib/shell.js?v=20260101';
 
 let lawContent;
 let lawContainer;

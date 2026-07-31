@@ -3,7 +3,7 @@ export const Menu = {
     show,
 };
 
-import { Shell } from '/global/shell.js?v=20260101';
+import { Shell } from '/lib/shell.js?v=20260101';
 
 import { Config } from './config.js?v=20260101';
 import { History } from './history.js?v=20260101';
