@@ -6,9 +6,9 @@ export const History = {
 
 import { Shell } from '/lib/shell.js?v=20260101';
 
+import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
-import { Storage } from '/global/storage.js?v=20260101';
 
 let modal;
 let historyContent;
@@ -52,10 +52,10 @@ async function updateContent() {
     }
     if (!revisions) {
         historyContent.innerHTML = '<div style="width: 100%; height: 32px; text-align: center;">' + 'Loading...' + '</div>';
-        await Storage.init('LawRevisionsBeta');
-        await Storage.cleanup();
+        await Cache.init('LawRevisionsBeta');
+        await Cache.cleanup();
         try {
-            revisions = await Storage.getItem(id);
+            revisions = await Cache.getItem(id);
             check();
         } catch (e) {
         }
@@ -64,10 +64,10 @@ async function updateContent() {
             revisions = data ? data.revisions : null;
             check();
             if (revisions) {
-                await Storage.setItem(id, revisions);
+                await Cache.setItem(id, revisions);
             }
         }
-        await Storage.cleanup();
+        await Cache.cleanup();
     }
     if (revisions) {
         historyContent.innerHTML = '';

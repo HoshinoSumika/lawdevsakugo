@@ -1,4 +1,5 @@
-import { Device } from '/global/device.js?v=20260101';
+import { Device } from '/lib/device.js?v=20260101';
+
 import { Service } from '/global/service.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 

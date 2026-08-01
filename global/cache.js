@@ -1,4 +1,4 @@
-export const Storage = {
+export const Cache = {
     init,
     setItem,
     getItem,

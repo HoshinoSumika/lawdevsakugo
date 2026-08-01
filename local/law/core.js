@@ -1,7 +1,8 @@
-import { Device } from '/global/device.js?v=20260101';
+import { Device } from '/lib/device.js?v=20260101';
+
+import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
-import { Storage } from '/global/storage.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 
 import { Config } from './config.js?v=20260101';
@@ -105,24 +106,24 @@ async function initContent() {
     }
 
     let result;
-    await Storage.init('LawFullTextBeta');
-    await Storage.cleanup();
+    await Cache.init('LawFullTextBeta');
+    await Cache.cleanup();
 
     try {
-        result = await Storage.getItem(id);
+        result = await Cache.getItem(id);
     } catch (e) {
     }
     if (!result) {
         result = await Service.getLawFullText(id);
         if (result) {
-            await Storage.setItem(id, result);
+            await Cache.setItem(id, result);
         }
     }
     if (!result) {
         message.innerHTML = 'データを取得できませんでした。';
         return;
     }
-    await Storage.cleanup();
+    await Cache.cleanup();
 
     if (functionVersion < contentVersion) {
         return;
