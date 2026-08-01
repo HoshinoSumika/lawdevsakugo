@@ -2,7 +2,9 @@ import { Device } from '/lib/device.js?v=20260101';
 import { Frame } from '/lib/frame.js?v=20260101';
 import { Message } from '/lib/message.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
+import { Storage } from '/lib/storage.js?v=20260101';
 
+import { Route } from '/global/route.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 
 let logEl;
@@ -12,6 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     logEl = document.querySelector('#dev-log');
 
+    initRoute();
     initFrame();
     initShell();
     initMessage();
@@ -20,6 +23,24 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('load', () => {
     Device.disableHoverOnTouch();
 });
+
+let routeStateEl;
+
+function initRoute() {
+    routeStateEl = document.querySelector('#route-dev-state');
+    updateRouteState();
+
+    bind('#route-dev-toggle', () => {
+        Storage.set('dev', !Storage.get('dev', false));
+        updateRouteState();
+        log("Storage.set('dev', " + Storage.get('dev', false) + ')');
+    });
+}
+
+function updateRouteState() {
+    const state = Storage.get('dev', false) ? 'dev モード：ON' : 'dev モード：OFF';
+    routeStateEl.textContent = state + '　法令へのリンク例：' + Route.getLawHref('129AC0000000089');
+}
 
 function initFrame() {
     bind('#frame-panel-top', (button) => openFramePanel(button, 'top'));

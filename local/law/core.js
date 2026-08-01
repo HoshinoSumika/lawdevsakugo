@@ -2,6 +2,7 @@ import { Device } from '/lib/device.js?v=20260101';
 
 import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
+import { Route } from '/global/route.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 
@@ -18,9 +19,10 @@ const scrollEl = contentEl.parentElement;
 const api = {
     getContent: () => contentEl,
     getContainer: () => scrollEl,
+    getLawId: () => Route.getLawId(),
     restoreScroll: () => restoreScrollPosition(),
     onDisplayChange: () => Mokuji.update(),
-    onRevisionSelect: () => initContent(),
+    onRevisionSelect: (id) => moveToLaw(id),
     onConfigSelect: () => Config.show(),
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
@@ -85,6 +87,11 @@ function initSearchButton() {
     button.addEventListener('click', () => Search.show());
 }
 
+function moveToLaw(id) {
+    window.history.pushState(null, '', Route.getLawHref(id));
+    initContent().then(() => {});
+}
+
 let contentVersion = 0;
 
 async function initContent() {
@@ -101,7 +108,7 @@ async function initContent() {
     Info.clear();
     Mokuji.clear();
 
-    const id = window.location.pathname.slice(1);
+    const id = Route.getLawId();
 
     if (!id) {
         content.style.minHeight = '';

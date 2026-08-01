@@ -37,7 +37,7 @@ function hide() {
 let revisions;
 
 async function updateContent() {
-    let id = window.location.pathname.slice(1);
+    let id = api.getLawId();
     if (!id) {
         return;
     }
@@ -103,11 +103,11 @@ function renderContent() {
             str += '<div>' + '（' + '新規制定' + '）' + '</div>';
         }
 
-        if (revision.law_revision_id === window.location.pathname.slice(1)) {
+        if (revision.law_revision_id === api.getLawId()) {
             item.style.fontWeight = 'bold';
             scrollTarget = item;
         } else if (revision.current_revision_status === 'CurrentEnforced') {
-            if (revision.law_revision_id.split('_')[0] === window.location.pathname.slice(1)) {
+            if (revision.law_revision_id.split('_')[0] === api.getLawId()) {
                 item.style.fontWeight = 'bold';
                 scrollTarget = item;
             }
@@ -124,8 +124,7 @@ function renderContent() {
             }
             if (item.style.fontWeight === 'bold') {
             } else {
-                window.history.pushState(null, '', '/' + id);
-                api.onRevisionSelect();
+                api.onRevisionSelect(id);
             }
         });
         historyContent.appendChild(item);

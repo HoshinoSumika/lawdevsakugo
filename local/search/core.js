@@ -1,5 +1,6 @@
 import { Device } from '/lib/device.js?v=20260101';
 
+import { Route } from '/global/route.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 
@@ -194,7 +195,7 @@ function update() {
 
     laws.forEach((data) => {
         const item = document.createElement('a');
-        item.href = '/' + data.law_info.law_id;
+        item.href = Route.getLawHref(data.law_info.law_id);
 
         const title = document.createElement('div');
         title.textContent = data.revision_info.law_title;

@@ -22,6 +22,15 @@
         <div class="dev-content">
 
             <div class="dev-section">
+                <div class="dev-category">Route</div>
+                <div class="dev-group">
+                    <div id="route-dev-toggle" class="dev-button">dev モードを切り替える</div>
+                </div>
+                <div class="dev-note" id="route-dev-state"></div>
+                <div class="dev-note">dev モードでは法令へのリンクが <code>/law.html?id={法令ID}</code> になり、<code>functions/[id].js</code> のパス書き換えを介さずに開ける。本番形式の <code>/{法令ID}</code> は Cloudflare 上でのみ動く。</div>
+            </div>
+
+            <div class="dev-section">
                 <div class="dev-category">Frame</div>
                 <div class="dev-group">
                     <div id="frame-panel-top" class="dev-button">createPanel / anchor top</div>

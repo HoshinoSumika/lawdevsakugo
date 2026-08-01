@@ -2,6 +2,8 @@ export const Search = {
     init,
 };
 
+import { Route } from '/global/route.js?v=20260101';
+
 let searchInput;
 let searchIcon;
 let searchExec;
@@ -216,7 +218,7 @@ function updateResult() {
             const textEl = document.createElement('div');
             textEl.textContent = data.title;
             const itemEl = document.createElement('a');
-            itemEl.href = '/' + data.id;
+            itemEl.href = Route.getLawHref(data.id);
             itemEl.appendChild(iconEl);
             itemEl.appendChild(textEl);
             itemEl.addEventListener('mouseenter', () => {
