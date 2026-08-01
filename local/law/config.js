@@ -5,6 +5,7 @@ export const Config = {
 
 import { Page } from '/lib/page.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
+import { Storage } from '/lib/storage.js?v=20260101';
 
 import { Theme } from '/global/theme.js?v=20260101';
 
@@ -280,7 +281,7 @@ function openPage() {
 
 function initPage(item, { title, options, defaultKey, storageKey, onSelect }) {
     const valueEl = item.querySelector('.config-value');
-    const stored = localStorage.getItem(storageKey);
+    const stored = Storage.get(storageKey, null);
     const key = (stored && options[stored]) ? stored : defaultKey;
 
     onSelect(key);
@@ -292,7 +293,7 @@ function initPage(item, { title, options, defaultKey, storageKey, onSelect }) {
         page.appendChild(Component.createCategory(title));
         page.appendChild(Component.createDivider());
 
-        const raw = localStorage.getItem(storageKey);
+        const raw = Storage.get(storageKey, null);
         const currentKey = (raw && options[raw]) ? raw : defaultKey;
         const items = {};
 
@@ -314,9 +315,9 @@ function initPage(item, { title, options, defaultKey, storageKey, onSelect }) {
                 valueEl.textContent = options[k].label;
 
                 if (k === defaultKey) {
-                    localStorage.removeItem(storageKey);
+                    Storage.remove(storageKey);
                 } else {
-                    localStorage.setItem(storageKey, k);
+                    Storage.set(storageKey, k);
                 }
             });
 
@@ -334,7 +335,7 @@ function initRadioSelectPage(navItem, title, storageKey, defaultKey, onChanged, 
     page.appendChild(Component.createDivider());
 
     const valueEl = navItem.querySelector('.config-value');
-    const raw = localStorage.getItem(storageKey);
+    const raw = Storage.get(storageKey, null);
     const currentKey = (raw && options[raw]) ? raw : defaultKey;
     const items = {};
 
@@ -355,9 +356,9 @@ function initRadioSelectPage(navItem, title, storageKey, defaultKey, onChanged, 
             valueEl.textContent = options[k].label;
 
             if (k === defaultKey) {
-                localStorage.removeItem(storageKey);
+                Storage.remove(storageKey);
             } else {
-                localStorage.setItem(storageKey, k);
+                Storage.set(storageKey, k);
             }
 
             onChanged();
@@ -385,7 +386,7 @@ function appendColorNavItems(page, levels) {
         const navItem = Component.createNavigationItem(level.title);
         const valueEl = navItem.querySelector('.config-value');
 
-        const stored = localStorage.getItem(level.storageKey);
+        const stored = Storage.get(level.storageKey, null);
         const currentKey = (stored && COLOR_OPTIONS[stored]) ? stored : level.defaultKey;
         valueEl.textContent = COLOR_OPTIONS[currentKey].label;
 
@@ -435,7 +436,7 @@ function initParenDetailPage(item) {
         const bgNavItem = Component.createNavigationItem('背景');
         const bgValueEl = bgNavItem.querySelector('.config-value');
 
-        const bgStored = localStorage.getItem('paren-background');
+        const bgStored = Storage.get('paren-background', null);
         const bgCurrentKey = (bgStored && PAREN_BACKGROUND_OPTIONS[bgStored]) ? bgStored : 'color';
         bgValueEl.textContent = PAREN_BACKGROUND_OPTIONS[bgCurrentKey].label;
 
@@ -449,7 +450,7 @@ function initParenDetailPage(item) {
         const fsNavItem = Component.createNavigationItem('文字サイズ');
         const fsValueEl = fsNavItem.querySelector('.config-value');
 
-        const fsStored = localStorage.getItem('paren-font-size');
+        const fsStored = Storage.get('paren-font-size', null);
         const fsCurrentKey = (fsStored && PAREN_FONT_SIZE_OPTIONS[fsStored]) ? fsStored : '1.00';
         fsValueEl.textContent = PAREN_FONT_SIZE_OPTIONS[fsCurrentKey].label;
 

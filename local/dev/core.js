@@ -31,9 +31,13 @@ function initRoute() {
     updateRouteState();
 
     bind('#route-dev-toggle', () => {
-        Storage.set('dev', !Storage.get('dev', false));
+        if (Storage.get('dev', false)) {
+            Storage.remove('dev');
+        } else {
+            Storage.set('dev', true);
+        }
         updateRouteState();
-        log("Storage.set('dev', " + Storage.get('dev', false) + ')');
+        log("Storage 'dev' = " + Storage.get('dev', false));
     });
 }
 

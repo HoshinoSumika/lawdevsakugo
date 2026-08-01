@@ -12,6 +12,8 @@ export const Cache = {
     cleanup,
 };
 
+import { Storage } from '/lib/storage.js?v=20260101';
+
 let dbName = null;
 let dbInstance = null;
 const STORAGE_NAME_CONTENT = 'Content';
@@ -168,15 +170,14 @@ const KEY_MAX_SIZE = 'storage-max-size';
 const VALUE_MAX_SIZE = 20 * 1024 * 1024;
 
 function getMaxSize() {
-    const value = localStorage.getItem(KEY_MAX_SIZE + '-' + dbName);
-    return value ? Number(value) : VALUE_MAX_SIZE;
+    return Storage.get(KEY_MAX_SIZE + '-' + dbName, VALUE_MAX_SIZE);
 }
 
 function setMaxSize(size) {
     if (size === VALUE_MAX_SIZE) {
-        localStorage.removeItem(KEY_MAX_SIZE + '-' + dbName);
+        Storage.remove(KEY_MAX_SIZE + '-' + dbName);
     } else {
-        localStorage.setItem(KEY_MAX_SIZE + '-' + dbName, String(size));
+        Storage.set(KEY_MAX_SIZE + '-' + dbName, size);
     }
 }
 
@@ -184,15 +185,14 @@ const KEY_MAX_TIME = 'storage-max-time';
 const VALUE_MAX_TIME = 1 * 8 * 60 * 60 * 1000;
 
 function getMaxTime() {
-    const value = localStorage.getItem(KEY_MAX_TIME + '-' + dbName);
-    return value ? Number(value) : VALUE_MAX_TIME;
+    return Storage.get(KEY_MAX_TIME + '-' + dbName, VALUE_MAX_TIME);
 }
 
 function setMaxTime(time) {
     if (time === VALUE_MAX_TIME) {
-        localStorage.removeItem(KEY_MAX_TIME + '-' + dbName);
+        Storage.remove(KEY_MAX_TIME + '-' + dbName);
     } else {
-        localStorage.setItem(KEY_MAX_TIME + '-' + dbName, String(time));
+        Storage.set(KEY_MAX_TIME + '-' + dbName, time);
     }
 }
 

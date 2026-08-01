@@ -4,6 +4,8 @@ export const Theme = {
     get,
 };
 
+import { Storage } from '/lib/storage.js?v=20260101';
+
 const THEMES = {
     light: `
 :root {
@@ -101,7 +103,7 @@ const STORAGE_KEY = 'theme';
 const STYLE_ID = 'style-theme';
 
 function init() {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = Storage.get(STORAGE_KEY, null);
     const key = stored && THEMES[stored] ? stored : 'system';
     set(key);
 }
@@ -111,7 +113,7 @@ function set(key) {
     if (style) style.remove();
 
     if (key === 'system') {
-        localStorage.removeItem(STORAGE_KEY);
+        Storage.remove(STORAGE_KEY);
         return;
     }
 
@@ -124,10 +126,10 @@ function set(key) {
     el.textContent = THEMES[key];
     document.head.appendChild(el);
 
-    localStorage.setItem(STORAGE_KEY, key);
+    Storage.set(STORAGE_KEY, key);
 }
 
 function get() {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = Storage.get(STORAGE_KEY, null);
     return stored && THEMES[stored] ? stored : 'system';
 }

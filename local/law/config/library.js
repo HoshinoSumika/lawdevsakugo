@@ -20,6 +20,8 @@ export const Library = {
     setFontFamily,
 };
 
+import { Storage } from '/lib/storage.js?v=20260101';
+
 function showTOC() {
     const style = document.getElementById('style-toc');
     if (style) style.remove();
@@ -55,8 +57,7 @@ const PAREN_COLOR_DEFAULTS = [
 ];
 
 function getParenColor(level) {
-    const stored = localStorage.getItem('paren-color-' + level);
-    return stored || PAREN_COLOR_DEFAULTS[level - 1];
+    return Storage.get('paren-color-' + level, PAREN_COLOR_DEFAULTS[level - 1]);
 }
 
 function showParenColor() {
@@ -84,7 +85,7 @@ function hideParenColor() {
 }
 
 function getParenBackground() {
-    const key = localStorage.getItem('paren-background') || 'color';
+    const key = Storage.get('paren-background', 'color');
     if (key === 'color') {
         return 'rgba(128, 128, 128, 0.2)';
     }
@@ -118,7 +119,7 @@ function hideParenBackground() {
 }
 
 function getParenFontSize() {
-    return localStorage.getItem('paren-font-size') || '1.00';
+    return Storage.get('paren-font-size', '1.00');
 }
 
 function showParenFontSize() {
@@ -139,7 +140,7 @@ function hideParenFontSize() {
 }
 
 function getConjColor(type) {
-    return localStorage.getItem('conj-color-' + type) || 'deepskyblue';
+    return Storage.get('conj-color-' + type, 'deepskyblue');
 }
 
 function showConjColor() {
@@ -161,7 +162,7 @@ function hideConjColor() {
 }
 
 function getConditionColor() {
-    return localStorage.getItem('conj-color-c') || 'deeppink';
+    return Storage.get('conj-color-c', 'deeppink');
 }
 
 function showConditionColor() {
@@ -189,7 +190,7 @@ const TITLE_COLOR_DEFAULTS = {
 };
 
 function getTitleColor(type) {
-    return localStorage.getItem('title-color-' + type) || TITLE_COLOR_DEFAULTS[type];
+    return Storage.get('title-color-' + type, TITLE_COLOR_DEFAULTS[type]);
 }
 
 function showTitleColor() {

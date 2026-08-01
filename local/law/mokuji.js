@@ -6,6 +6,7 @@ export const Mokuji = {
 };
 
 import { Shell } from '/lib/shell.js?v=20260101';
+import { Storage } from '/lib/storage.js?v=20260101';
 
 let api;
 let lawContent;
@@ -52,12 +53,12 @@ function toggle() {
     if (isOpen) {
         hide();
         if (!isUnderThreshold()) {
-            localStorage.setItem('mokuji', 'false');
+            Storage.set('mokuji', false);
         }
     } else {
         show();
         if (!isUnderThreshold()) {
-            localStorage.removeItem('mokuji');
+            Storage.remove('mokuji');
         }
     }
 }
@@ -221,7 +222,7 @@ function resize() {
         mokujiContent.classList.remove('mobile');
         mokujiSidebar.appendChild(mokujiContent);
 
-        if (wasOpen && localStorage.getItem('mokuji') !== 'false') {
+        if (wasOpen && Storage.get('mokuji', true)) {
             show();
         } else {
             hide();

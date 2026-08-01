@@ -10,6 +10,8 @@ export const Component = {
     initSeekbar,
 };
 
+import { Storage } from '/lib/storage.js?v=20260101';
+
 function createCategory(text) {
     const div = document.createElement('div');
     div.className = 'config-category';
@@ -114,7 +116,7 @@ function toggleCheckboxItem(item, storageKey, defaultEnabled, onEnable, onDisabl
     const checkbox = item.querySelector('.config-checkbox');
 
     if (!item.getAttribute('data-value')) {
-        const stored = localStorage.getItem(storageKey);
+        const stored = Storage.get(storageKey, null);
         const enabled = defaultEnabled ? (stored !== 'disable') : (stored === 'enable');
 
         if (enabled) {
@@ -134,18 +136,18 @@ function toggleCheckboxItem(item, storageKey, defaultEnabled, onEnable, onDisabl
             item.setAttribute('data-value', 'disable');
             checkbox.classList.remove('checked');
             if (defaultEnabled) {
-                localStorage.setItem(storageKey, 'disable');
+                Storage.set(storageKey, 'disable');
             } else {
-                localStorage.removeItem(storageKey);
+                Storage.remove(storageKey);
             }
         } else {
             onEnable();
             item.setAttribute('data-value', 'enable');
             checkbox.classList.add('checked');
             if (defaultEnabled) {
-                localStorage.removeItem(storageKey);
+                Storage.remove(storageKey);
             } else {
-                localStorage.setItem(storageKey, 'enable');
+                Storage.set(storageKey, 'enable');
             }
         }
     }
@@ -153,18 +155,18 @@ function toggleCheckboxItem(item, storageKey, defaultEnabled, onEnable, onDisabl
 
 function initSeekbar(item, storageKey, defaultValue, applyValue) {
     const seekbar = item.querySelector('.config-seekbar');
-    const stored = parseFloat(localStorage.getItem(storageKey) ?? defaultValue);
+    const stored = Storage.get(storageKey, defaultValue);
 
     applyValue(stored);
     seekbar.value = stored;
 
     seekbar.addEventListener('input', (e) => {
-        const value = e.target.value;
-        applyValue(parseFloat(value));
-        if (parseFloat(value) === defaultValue) {
-            localStorage.removeItem(storageKey);
+        const value = parseFloat(e.target.value);
+        applyValue(value);
+        if (value === defaultValue) {
+            Storage.remove(storageKey);
         } else {
-            localStorage.setItem(storageKey, value);
+            Storage.set(storageKey, value);
         }
     });
 }
