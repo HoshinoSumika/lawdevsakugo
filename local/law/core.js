@@ -97,7 +97,7 @@ async function initContent() {
     Info.clear();
     Mokuji.clear();
 
-    const id = new URLSearchParams(window.location.search).get('id');
+    const id = window.location.pathname.slice(1);
 
     if (!id) {
         content.style.minHeight = '';

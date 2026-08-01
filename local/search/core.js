@@ -194,9 +194,7 @@ function update() {
 
     laws.forEach((data) => {
         const item = document.createElement('a');
-        const url = new URL('./law.html', window.location);
-        url.searchParams.set('id', data.law_info.law_id);
-        item.href = url;
+        item.href = '/' + data.law_info.law_id;
 
         const title = document.createElement('div');
         title.textContent = data.revision_info.law_title;

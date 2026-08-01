@@ -215,10 +215,8 @@ function updateResult() {
             iconEl.innerHTML = icon;
             const textEl = document.createElement('div');
             textEl.textContent = data.title;
-            const url = new URL('./law.html', window.location);
-            url.searchParams.set('id', data.id);
             const itemEl = document.createElement('a');
-            itemEl.href = url;
+            itemEl.href = '/' + data.id;
             itemEl.appendChild(iconEl);
             itemEl.appendChild(textEl);
             itemEl.addEventListener('mouseenter', () => {
