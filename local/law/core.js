@@ -15,23 +15,27 @@ import { Search } from './search.js?v=20260101';
 const contentEl = document.querySelector('#content');
 const scrollEl = contentEl.parentElement;
 
+const api = {
+    getContent: () => contentEl,
+    getContainer: () => scrollEl,
+    restoreScroll: () => restoreScrollPosition(),
+    onDisplayChange: () => Mokuji.update(),
+    onRevisionSelect: () => initContent(),
+    onConfigSelect: () => Config.show(),
+    onHistorySelect: () => History.show(),
+    onInfoSelect: () => Info.show(),
+    onMokujiSelect: () => Mokuji.toggle(),
+};
+
 window.addEventListener('DOMContentLoaded', () => {
-    Theme.init();
+    Theme.init(api);
 
-    Config.init(contentEl);
-    Config.register('restoreScrollPosition', restoreScrollPosition);
-
-    History.init();
-    History.register('initContent', initContent);
-
-    Info.init(contentEl);
-
-    Menu.init();
-
-    Mokuji.init(contentEl);
-    Mokuji.register('restoreScrollPosition', restoreScrollPosition);
-
-    Search.init(contentEl);
+    Config.init(api);
+    History.init(api);
+    Info.init(api);
+    Menu.init(api);
+    Mokuji.init(api);
+    Search.init(api);
 
     initMenuButton();
     initSearchButton();

@@ -1,17 +1,29 @@
-export function createCategory(text) {
+export const Component = {
+    createCategory,
+    createDivider,
+    createLabelItem,
+    createCheckboxItem,
+    createNavigationItem,
+    createRadioItem,
+    createSeekbarItem,
+    toggleCheckboxItem,
+    initSeekbar,
+};
+
+function createCategory(text) {
     const div = document.createElement('div');
     div.className = 'config-category';
     div.textContent = text;
     return div;
 }
 
-export function createDivider() {
+function createDivider() {
     const div = document.createElement('div');
     div.className = 'config-divider';
     return div;
 }
 
-export function createLabelItem(labelText) {
+function createLabelItem(labelText) {
     const div = document.createElement('div');
     div.className = 'config-item';
 
@@ -24,7 +36,7 @@ export function createLabelItem(labelText) {
     return div;
 }
 
-export function createCheckboxItem(labelText) {
+function createCheckboxItem(labelText) {
     const div = document.createElement('div');
     div.className = 'config-item';
 
@@ -41,7 +53,7 @@ export function createCheckboxItem(labelText) {
     return div;
 }
 
-export function createNavigationItem(labelText) {
+function createNavigationItem(labelText) {
     const div = document.createElement('div');
     div.className = 'config-item';
 
@@ -58,7 +70,7 @@ export function createNavigationItem(labelText) {
     return div;
 }
 
-export function createRadioItem(labelText) {
+function createRadioItem(labelText) {
     const div = document.createElement('div');
     div.className = 'config-item';
 
@@ -77,7 +89,7 @@ export function createRadioItem(labelText) {
     return div;
 }
 
-export function createSeekbarItem(labelText, min, max, step) {
+function createSeekbarItem(labelText, min, max, step) {
     const div = document.createElement('div');
     div.className = 'config-item';
 
@@ -98,7 +110,7 @@ export function createSeekbarItem(labelText, min, max, step) {
     return div;
 }
 
-export function toggleCheckboxItem(item, storageKey, defaultEnabled, onEnable, onDisable) {
+function toggleCheckboxItem(item, storageKey, defaultEnabled, onEnable, onDisable) {
     const checkbox = item.querySelector('.config-checkbox');
 
     if (!item.getAttribute('data-value')) {
@@ -139,7 +151,7 @@ export function toggleCheckboxItem(item, storageKey, defaultEnabled, onEnable, o
     }
 }
 
-export function initSeekbar(item, storageKey, defaultValue, applyValue) {
+function initSeekbar(item, storageKey, defaultValue, applyValue) {
     const seekbar = item.querySelector('.config-seekbar');
     const stored = parseFloat(localStorage.getItem(storageKey) ?? defaultValue);
 

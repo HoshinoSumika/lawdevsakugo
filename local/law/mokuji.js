@@ -1,6 +1,5 @@
 export const Mokuji = {
     init,
-    register,
     toggle,
     update,
     clear,
@@ -8,6 +7,7 @@ export const Mokuji = {
 
 import { Shell } from '/lib/shell.js?v=20260101';
 
+let api;
 let lawContent;
 let lawContainer;
 let mokujiSpacer;
@@ -16,9 +16,10 @@ let mokujiSidebar;
 let mokujiModal;
 let mokujiModalContent;
 
-function init(el) {
-    lawContent = el;
-    lawContainer = el.parentNode;
+function init(value) {
+    api = value;
+    lawContent = api.getContent();
+    lawContainer = api.getContainer();
 
     mokujiSpacer = document.querySelector('#mokuji-spacer');
 
@@ -45,14 +46,6 @@ function init(el) {
     lawContainer.addEventListener('scroll', () => {
         sync(true);
     });
-}
-
-let restoreScrollPosition = () => {};
-
-function register(name, func) {
-    if (name === 'restoreScrollPosition') {
-        restoreScrollPosition = func;
-    }
 }
 
 function toggle() {
@@ -243,7 +236,7 @@ function resize() {
         }
         hide();
         if (wasDesktop !== null) {
-            restoreScrollPosition();
+            api.restoreScroll();
         }
     }
 

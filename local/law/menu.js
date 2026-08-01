@@ -5,18 +5,13 @@ export const Menu = {
 
 import { Shell } from '/lib/shell.js?v=20260101';
 
-import { Config } from './config.js?v=20260101';
-import { History } from './history.js?v=20260101';
-import { Info } from './info.js?v=20260101';
-import { Mokuji } from './mokuji.js?v=20260101';
-
 let modal;
 
-function init() {
+function init(api) {
     const menuItemConfig = document.querySelector('#menu-item-config');
     menuItemConfig.addEventListener('click', () => {
         hide();
-        Config.show();
+        api.onConfigSelect();
     });
 
     const menuItemIndex = document.querySelector('#menu-item-index');
@@ -27,13 +22,13 @@ function init() {
     const menuItemInfo = document.querySelector('#menu-item-info');
     menuItemInfo.addEventListener('click', () => {
         hide();
-        Info.show();
+        api.onInfoSelect();
     });
 
     const menuItemHistory = document.querySelector('#menu-item-history');
     menuItemHistory.addEventListener('click', () => {
         hide();
-        History.show();
+        api.onHistorySelect();
     });
 
     const menuItemDiff = document.querySelector('#menu-item-diff');
@@ -46,7 +41,7 @@ function init() {
     const menuItemMokuji = document.querySelector('#menu-item-mokuji');
     menuItemMokuji.addEventListener('click', () => {
         hide();
-        Mokuji.toggle();
+        api.onMokujiSelect();
     });
 
     const menuItemPrint = document.querySelector('#menu-item-print');

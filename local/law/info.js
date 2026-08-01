@@ -13,8 +13,8 @@ let modal;
 let lawContent;
 let infoContent;
 
-function init(el) {
-    lawContent = el;
+function init(api) {
+    lawContent = api.getContent();
 
     infoContent = document.createElement('div');
     infoContent.classList.add('info-content');

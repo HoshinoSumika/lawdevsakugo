@@ -8,13 +8,15 @@ import { Frame } from '/lib/frame.js?v=20260101';
 let frame;
 let searchContainer;
 let lawContent;
+let lawContainer;
 let searchContent;
 let searchInput;
 let searchClear;
 let searchResult;
 
-function init(el) {
-    lawContent = el;
+function init(api) {
+    lawContent = api.getContent();
+    lawContainer = api.getContainer();
 
     searchInput = document.querySelector('#search-input');
     searchInput.addEventListener('keydown', (e) => {
@@ -314,7 +316,7 @@ function scrollToElement(el, value) {
     hide();
     const elTop = el.offsetTop;
     const offset = -16;
-    smoothScroll(lawContent.parentNode, elTop + offset, 500);
+    smoothScroll(lawContainer, elTop + offset, 500);
     highlightText(el, value);
 
     const oldTimer = highlightTimers.get(el);

@@ -1,6 +1,5 @@
 export const History = {
     init,
-    register,
     show,
 };
 
@@ -10,10 +9,13 @@ import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 
+let api;
 let modal;
 let historyContent;
 
-function init() {
+function init(value) {
+    api = value;
+
     historyContent = document.createElement('div');
     historyContent.classList.add('history-content');
 
@@ -21,14 +23,6 @@ function init() {
     modal.setPlacement('left');
     modal.setTitle('改正履歴');
     modal.enableCloseButton(hide);
-}
-
-let initContent = () => {};
-
-function register(name, func) {
-    if (name === 'initContent') {
-        initContent = func;
-    }
 }
 
 function show() {
@@ -131,7 +125,7 @@ function renderContent() {
             if (item.style.fontWeight === 'bold') {
             } else {
                 window.history.pushState(null, '', '/' + id);
-                initContent();
+                api.onRevisionSelect();
             }
         });
         historyContent.appendChild(item);
