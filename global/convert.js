@@ -48,6 +48,7 @@ function transformXmlToHtml(xmlStr) {
 
     const tagMap = {
         TOC: 'section', MainProvision: 'section', SupplProvision: 'section', AppdxTable: 'section', AppdxFig: 'section',
+        AppdxStyle: 'section',
         Part: 'section', Chapter: 'section', Section: 'section', Subsection: 'section', Division: 'section',
         Article: 'section',
 
@@ -184,18 +185,10 @@ function moveRemarksAfterTableStruct(el) {
         const parent = table.parentNode;
         if (!parent) return;
 
-        let prev = table.previousElementSibling;
-        while (prev && prev.classList.contains('Remarks')) {
-            const current = prev;
-            prev = current.previousElementSibling;
-
-            parent.removeChild(current);
-            if (table.nextSibling) {
-                parent.insertBefore(current, table.nextSibling);
-            } else {
-                parent.appendChild(current);
-            }
-        }
+        const ref = table.nextSibling;
+        table.querySelectorAll(':scope > .Remarks').forEach(remarks => {
+            parent.insertBefore(remarks, ref);
+        });
     });
 
     return el;
@@ -391,22 +384,41 @@ function addSupplProvisionExtractLabel(el) {
 
 function addFigLinks(el) {
     const lawRevisionId = el.getAttribute('data-revision_info_law_revision_id');
-    if (!lawRevisionId) return el;
 
     el.querySelectorAll('.Fig[data-src]').forEach(fig => {
         const src = fig.getAttribute('data-src');
         if (!src) return;
 
+        const fileExtension = getFileExtension(src);
+        if (!lawRevisionId) {
+            const label = el.ownerDocument.createElement('span');
+            label.className = 'FigFile';
+            label.textContent = fileExtension;
+            fig.appendChild(label);
+            return;
+        }
+
         const url = new URL('https://laws.e-gov.go.jp/api/2/attachment/' + encodeURIComponent(lawRevisionId));
         url.searchParams.set('src', src);
 
         const link = el.ownerDocument.createElement('a');
+        link.className = 'FigFile';
         link.href = url.toString();
-        link.textContent = src;
+        link.textContent = fileExtension;
         fig.appendChild(link);
     });
 
     return el;
+}
+
+function getFileExtension(src) {
+    const path = src.split(/[?#]/, 1)[0];
+    const fileName = path.split('/').pop() || '';
+    const dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex === -1 || dotIndex === fileName.length - 1) {
+        return 'FILE';
+    }
+    return fileName.slice(dotIndex + 1).toUpperCase();
 }
 
 function addZenkakuSpaceAfterClass(el, targetClass) {

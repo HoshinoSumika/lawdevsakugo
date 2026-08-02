@@ -154,6 +154,7 @@ function getResultElement(element) {
         || element.closest('.AppdxTable')
         || element.closest('.AppdxNote')
         || element.closest('.AppdxFig')
+        || element.closest('.AppdxStyle')
         || element;
 }
 
