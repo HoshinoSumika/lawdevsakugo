@@ -20,6 +20,11 @@ main {
     transition: padding var(--transition-duration) ease;
 }
 
+body.landing-mode main {
+    padding-right: 32px;
+    padding-left: 32px;
+}
+
 #bar {
     z-index: 1;
     width: 100%;
