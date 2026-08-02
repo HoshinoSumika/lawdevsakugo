@@ -202,7 +202,7 @@ function initMessage() {
 
     bind('#message-toast', () => {
         Message.toast('保存しました。');
-        log('Message.toast（3秒で消える）');
+        log('Message.toast（4.8秒で消える）');
     });
 
     bind('#message-toast-long', () => {
@@ -212,12 +212,12 @@ function initMessage() {
 
     bind('#message-warning', () => {
         Message.warning('通信が不安定です。');
-        log('Message.warning（4秒で消える）');
+        log('Message.warning（4.8秒で消える）');
     });
 
     bind('#message-error', () => {
         Message.error('データを取得できませんでした。');
-        log('Message.error（×ボタンでのみ消える）');
+        log('Message.error（4.8秒で消える）');
     });
 
     bind('#message-progress-open', () => {

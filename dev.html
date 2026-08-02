@@ -68,7 +68,7 @@
                     <div id="message-progress-close" class="dev-button">progress 終了</div>
                     <div id="message-stack" class="dev-button">4種を同時に表示</div>
                 </div>
-                <div class="dev-note">tip は対象から吹き出しへマウスを移しても消えない。toast は3秒、warning は4秒で自動的に消える。error と progress は×ボタンか close() でしか消えない。複数出すと下から順に積み上がる。</div>
+                <div class="dev-note">tip は対象から吹き出しへマウスを移しても消えない。toast、warning、error は4.8秒で自動的に消える。第二引数で時間を指定でき、0の場合は自動的に消えない。progress の既定値は0。複数出すと下から順に積み上がる。</div>
             </div>
 
             <div class="dev-section">

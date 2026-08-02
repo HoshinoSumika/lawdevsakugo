@@ -1,4 +1,5 @@
 import { Device } from '/lib/device.js?v=20260101';
+import { Message } from '/lib/message.js?v=20260101';
 
 import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
@@ -154,5 +155,21 @@ async function initContent() {
     if (lawTitle) {
         document.title = lawTitle;
         document.querySelector('#header-title').innerHTML = '<span>' + lawTitle + '</span>';
+    }
+
+    notifyLawEffectivenessStatus(content);
+}
+
+function notifyLawEffectivenessStatus(content) {
+    const status = content.querySelector('.Law')?.dataset.revision_info_repeal_status;
+    const statusLabels = {
+        Repeal: '廃止',
+        Expire: '失効',
+        Suspend: '停止',
+        LossOfEffectiveness: '実効性喪失',
+    };
+
+    if (statusLabels[status]) {
+        Message.warning('この法令は「' + statusLabels[status] + '」となっています。');
     }
 }
