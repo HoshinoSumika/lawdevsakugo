@@ -3,28 +3,54 @@ export const Search = {
 };
 
 import { Route } from '/global/route.js?v=20260101';
+import { Service } from '/global/service.js?v=20260101';
 
 let searchInput;
 let searchIcon;
 let searchExec;
+let quickSearchResult;
+let searchFilterContainer;
+let searchFilterUnderline;
+let searchMessage;
 let searchResult;
 
 let selectedIndex = -1;
+let result;
+let searchVersion = 0;
+let renderVersion = 0;
 
 function init() {
     searchInput = document.querySelector('#search-input');
-    searchInput.value = '';
+    searchIcon = document.querySelector('#search-icon');
+    searchExec = document.querySelector('#search-exec');
+    quickSearchResult = document.querySelector('#quick-search-result');
+    searchFilterContainer = document.querySelector('#search-filter-container');
+    searchMessage = document.querySelector('#search-message');
+    searchResult = document.querySelector('#search-result');
+
     searchInput.addEventListener('keydown', (e) => {
-        const links = searchResult.querySelectorAll('a');
-        if (links.length === 0) {
+        if (document.body.classList.contains('result-mode')) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchInput.blur();
+                exec();
+            }
             return;
         }
+
+        const links = quickSearchResult.querySelectorAll('a');
         if (e.key === 'ArrowDown') {
+            if (links.length === 0) {
+                return;
+            }
             e.preventDefault();
             selectedIndex = Math.min(selectedIndex + 1, links.length - 1);
             updateSelection();
         }
         if (e.key === 'ArrowUp') {
+            if (links.length === 0) {
+                return;
+            }
             e.preventDefault();
             selectedIndex = Math.max(selectedIndex - 1, 0);
             updateSelection();
@@ -32,42 +58,63 @@ function init() {
         if (e.key === 'Enter') {
             const link = links[selectedIndex] || links[0];
             if (link) {
-                window.location.href = link.href;
+                e.preventDefault();
+                if (link.dataset.action === 'search') {
+                    exec();
+                } else {
+                    window.location.href = link.href;
+                }
             }
         }
     });
     searchInput.addEventListener('input', () => {
-        updateResult();
+        updateQuickResult();
     });
     searchInput.addEventListener('focus', () => {
-        if (searchInput.value) {
-            searchResult.style.display = '';
+        if (searchInput.value && document.body.classList.contains('landing-mode')) {
+            quickSearchResult.style.display = '';
         }
     });
     searchInput.addEventListener('blur', () => {
-        searchResult.style.display = 'none';
+        quickSearchResult.style.display = 'none';
     });
 
-    searchIcon = document.querySelector('#search-icon');
-
-    searchExec = document.querySelector('#search-exec');
     searchExec.addEventListener('click', () => {
-        if (searchInput.value) {
-            const url = new URL('./search.html', window.location);
-            url.searchParams.set('q', searchInput.value);
-            window.location.href = url;
-        }
+        exec();
     });
 
-    searchResult = document.querySelector('#search-result');
-    searchResult.addEventListener('touchstart', (e) => {
+    quickSearchResult.addEventListener('touchstart', (e) => {
         e.stopPropagation();
     });
-    searchResult.addEventListener('mousedown', (e) => {
+    quickSearchResult.addEventListener('mousedown', (e) => {
         e.preventDefault();
     });
 
-    searchInput.focus();
+    const filters = searchFilterContainer.querySelectorAll('.search-filter-item');
+    filters[0].classList.add('current');
+    Array.from(filters).forEach((filter) => {
+        filter.addEventListener('click', () => {
+            Array.from(filters).forEach((item) => {
+                item.classList.remove('current');
+            });
+            filter.classList.add('current');
+            moveUnderline();
+            updateSearchResult();
+        });
+    });
+
+    window.addEventListener('popstate', () => {
+        sync();
+    });
+    window.addEventListener('resize', () => {
+        resize();
+        if (document.body.classList.contains('result-mode')) {
+            moveUnderline();
+        }
+    });
+
+    resize();
+    sync();
 }
 
 const QUICK_SEARCH_DATA = [
@@ -170,15 +217,21 @@ function normalizeInput(input) {
     return normalized;
 }
 
-function updateResult() {
-    searchResult.innerHTML = '';
+function updateQuickResult() {
+    if (document.body.classList.contains('result-mode')) {
+        quickSearchResult.style.display = 'none';
+        searchExec.style.display = '';
+        return;
+    }
+
+    quickSearchResult.innerHTML = '';
     const value = normalizeInput(searchInput.value.trim().toLowerCase());
     if (!value) {
-        searchResult.style.display = 'none';
+        quickSearchResult.style.display = 'none';
         searchExec.style.display = 'none';
         return;
     } else {
-        searchResult.style.display = '';
+        quickSearchResult.style.display = '';
         searchExec.style.display = '';
     }
 
@@ -225,33 +278,37 @@ function updateResult() {
                 selectedIndex = index;
                 updateSelection();
             });
-            searchResult.appendChild(itemEl);
+            quickSearchResult.appendChild(itemEl);
         });
     }
-    if (true) {
-        const iconEl = document.createElement('div');
-        iconEl.innerHTML = icon;
-        const textEl = document.createElement('div');
-        textEl.textContent = searchInput.value + 'を検索';
-        const url = new URL('./search.html', window.location);
-        url.searchParams.set('q', searchInput.value);
-        const itemEl = document.createElement('a');
-        itemEl.href = url;
-        itemEl.appendChild(iconEl);
-        itemEl.appendChild(textEl);
-        itemEl.addEventListener('mouseenter', () => {
-            selectedIndex = searchResult.children.length - 1;
-            updateSelection();
-        });
-        searchResult.appendChild(itemEl);
-    }
+
+    const iconEl = document.createElement('div');
+    iconEl.innerHTML = icon;
+    const textEl = document.createElement('div');
+    textEl.textContent = searchInput.value + 'を検索';
+    const url = new URL('/', window.location);
+    url.searchParams.set('q', searchInput.value.trim());
+    const itemEl = document.createElement('a');
+    itemEl.href = url;
+    itemEl.dataset.action = 'search';
+    itemEl.appendChild(iconEl);
+    itemEl.appendChild(textEl);
+    itemEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        exec();
+    });
+    itemEl.addEventListener('mouseenter', () => {
+        selectedIndex = quickSearchResult.children.length - 1;
+        updateSelection();
+    });
+    quickSearchResult.appendChild(itemEl);
 
     selectedIndex = 0;
     updateSelection();
 }
 
 function updateSelection() {
-    const links = searchResult.querySelectorAll('a');
+    const links = quickSearchResult.querySelectorAll('a');
     links.forEach((link, index) => {
         if (index === selectedIndex) {
             link.classList.add('selected');
@@ -259,4 +316,210 @@ function updateSelection() {
             link.classList.remove('selected');
         }
     });
+}
+
+async function exec() {
+    const query = searchInput.value.trim();
+    if (!query) {
+        if (document.body.classList.contains('result-mode')) {
+            const url = new URL('/', window.location);
+            window.history.pushState(null, '', url);
+            showLanding();
+            searchInput.focus();
+        }
+        return;
+    }
+
+    const url = new URL('/', window.location);
+    url.searchParams.set('q', query);
+    window.history.pushState(null, '', url);
+    showResults();
+    await search(query);
+    updateSearchResult();
+}
+
+async function sync() {
+    const query = new URLSearchParams(window.location.search).get('q');
+    if (!query || !query.trim()) {
+        searchInput.value = '';
+        showLanding();
+        searchInput.focus();
+        return;
+    }
+
+    searchInput.value = query;
+    showResults();
+    await search(query);
+    updateSearchResult();
+}
+
+function showLanding() {
+    searchVersion = searchVersion + 1;
+    document.body.classList.add('landing-mode');
+    document.body.classList.remove('result-mode');
+    document.querySelector('#content').setAttribute('aria-hidden', 'true');
+    document.querySelector('#title').setAttribute('aria-hidden', 'false');
+    const buttonContainer = document.querySelector('.button-container');
+    buttonContainer.setAttribute('aria-hidden', 'false');
+    buttonContainer.removeAttribute('inert');
+    searchFilterContainer.setAttribute('aria-hidden', 'true');
+    searchResult.innerHTML = '';
+    searchMessage.textContent = '';
+    resetFilters();
+    updateQuickResult();
+}
+
+function showResults() {
+    document.body.classList.remove('landing-mode');
+    document.body.classList.add('result-mode');
+    document.querySelector('#content').setAttribute('aria-hidden', 'false');
+    document.querySelector('#title').setAttribute('aria-hidden', 'true');
+    const buttonContainer = document.querySelector('.button-container');
+    buttonContainer.setAttribute('aria-hidden', 'true');
+    buttonContainer.setAttribute('inert', '');
+    searchFilterContainer.setAttribute('aria-hidden', 'false');
+    quickSearchResult.style.display = 'none';
+    searchExec.style.display = '';
+    requestAnimationFrame(() => {
+        moveUnderline();
+    });
+}
+
+async function search(query) {
+    searchVersion = searchVersion + 1;
+    const currentVersion = searchVersion;
+
+    searchResult.innerHTML = '';
+    searchMessage.textContent = '検索中...';
+    searchMessage.style.display = '';
+
+    try {
+        const response = await Service.search(query);
+        if (currentVersion !== searchVersion) {
+            return;
+        }
+        result = response;
+        renderVersion = currentVersion;
+    } catch {
+        if (currentVersion !== searchVersion) {
+            return;
+        }
+        result = null;
+        renderVersion = currentVersion;
+    }
+}
+
+function updateSearchResult() {
+    if (renderVersion !== searchVersion) {
+        return;
+    }
+
+    document.querySelector('#content').scrollTop = 0;
+    searchResult.innerHTML = '';
+
+    if (!result) {
+        resetFilters();
+        searchMessage.textContent = 'データを取得できませんでした。';
+        return;
+    }
+    if (result.total_count === 0) {
+        resetFilters();
+        searchMessage.textContent = '検索結果が見つかりませんでした。';
+        return;
+    }
+
+    let laws = result.laws.slice();
+    const order = ['Constitution', 'Act', 'CabinetOrder', 'ImperialOrder', 'MinisterialOrdinance', 'Rule', 'Misc'];
+    laws.sort((a, b) => {
+        const ai = order.indexOf(a.law_info.law_type);
+        const bi = order.indexOf(b.law_info.law_type);
+        return (ai === -1 ? order.length : ai) - (bi === -1 ? order.length : bi);
+    });
+
+    const filterMap = {
+        Constitution: 'search-filter-item-constitution',
+        Act: 'search-filter-item-act',
+        CabinetOrder: 'search-filter-item-cabinet-order',
+        ImperialOrder: 'search-filter-item-imperial-order',
+        MinisterialOrdinance: 'search-filter-item-ministerial-ordinance',
+        Rule: 'search-filter-item-rule',
+        Misc: 'search-filter-item-misc'
+    };
+
+    const idToType = Object.fromEntries(Object.entries(filterMap).map(([type, id]) => {
+        return [id, type];
+    }));
+    const existingTypes = new Set(result.laws.map((data) => data.law_info.law_type));
+
+    Object.entries(filterMap).forEach(([type, id]) => {
+        const filter = searchFilterContainer.querySelector('#' + id);
+        if (!existingTypes.has(type)) {
+            if (filter.classList.contains('current')) {
+                filter.classList.remove('current');
+                searchFilterContainer.querySelector('.search-filter-item').classList.add('current');
+            }
+            filter.style.display = 'none';
+        } else {
+            filter.style.display = '';
+        }
+    });
+
+    moveUnderline();
+
+    const current = searchFilterContainer.querySelector('.current');
+    const activeType = current ? idToType[current.id] : null;
+    if (activeType) {
+        laws = laws.filter((data) => {
+            return data.law_info.law_type === activeType;
+        });
+    }
+
+    searchMessage.textContent = '';
+    searchMessage.style.display = 'none';
+
+    const fragment = document.createDocumentFragment();
+    laws.forEach((data) => {
+        const item = document.createElement('a');
+        item.href = Route.getLawHref(data.law_info.law_id);
+
+        const title = document.createElement('div');
+        title.textContent = data.revision_info.law_title;
+        const num = document.createElement('div');
+        num.textContent = data.law_info.law_num;
+
+        item.appendChild(title);
+        item.appendChild(num);
+        fragment.appendChild(item);
+    });
+    searchResult.appendChild(fragment);
+}
+
+function resetFilters() {
+    const filters = searchFilterContainer.querySelectorAll('.search-filter-item');
+    Array.from(filters).forEach((item, index) => {
+        item.style.display = index === 0 ? '' : 'none';
+        item.classList.toggle('current', index === 0);
+    });
+    moveUnderline();
+}
+
+function moveUnderline() {
+    const target = searchFilterContainer.querySelector('.current');
+    if (!target) {
+        return;
+    }
+
+    if (!searchFilterUnderline) {
+        searchFilterUnderline = document.createElement('div');
+        searchFilterUnderline.id = 'search-filter-underline';
+        searchFilterContainer.appendChild(searchFilterUnderline);
+    }
+
+    searchFilterUnderline.style.width = target.offsetWidth + 'px';
+    searchFilterUnderline.style.transform = 'translateX(' + target.offsetLeft + 'px)';
+}
+
+function resize() {
+    searchResult.classList.toggle('mobile', window.innerWidth < 1080);
+    searchResult.classList.toggle('desktop', window.innerWidth >= 1080);
 }

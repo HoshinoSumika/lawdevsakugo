@@ -3,6 +3,10 @@
     background-color: var(--color-smoke);
     border: 1px solid var(--color-hover);
     border-radius: var(--radius-normal);
+    transition: max-width var(--transition-duration) ease,
+                padding var(--transition-duration) ease,
+                border-color var(--transition-duration) ease,
+                background-color var(--transition-duration) ease;
 }
 
 #search-bar {
@@ -32,16 +36,19 @@
 #search-exec {
     right: 0;
     cursor: pointer;
+    padding: 0;
+    color: inherit; background: none;
+    border: none;
 }
 
-#search-result {
+#quick-search-result {
     overflow-y: auto;
     width: 100%; height: 100%; padding: 4px;
     user-select: none; -webkit-user-select: none;
     font-size: 0.9em;
 }
 
-#search-result > a {
+#quick-search-result > a {
     width: 100%; height: 40px;
     cursor: pointer;
     display: flex; justify-content: start; align-items: center; gap: 4px;
@@ -49,19 +56,148 @@
     text-decoration: none;
     border-radius: var(--radius-normal);
 }
-#search-result > a.selected {
+#quick-search-result > a.selected {
     background-color: var(--color-hover);
 }
 
-#search-result > a > div:nth-child(1) {
+#quick-search-result > a > div:nth-child(1) {
     aspect-ratio: 1 / 1; height: 100%;
     display: flex; justify-content: center; align-items: center;
 }
 
-#search-result > a > div:nth-child(2) {
+#quick-search-result > a > div:nth-child(2) {
     overflow: hidden;
     width: 100%; padding: 0px 16px 0px 0px;
     color: var(--color-black);
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+#search-filter-container,
+#search-border,
+#content {
+    display: none;
+}
+
+body.result-mode #search-container {
+    max-width: 704px;
+    padding: 32px 32px 16px 32px;
+    background-color: var(--color-white);
+    border-color: transparent;
+    border-radius: 0;
+}
+
+body.result-mode #search-bar {
+    background-color: var(--color-smoke);
+    border: 1px solid var(--color-hover);
+    border-radius: var(--radius-normal);
+}
+
+body.result-mode #quick-search-result {
+    display: none !important;
+}
+
+body.result-mode #search-filter-container {
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: relative;
+    width: 100%; max-width: 1080px; padding: 0 32px;
+    display: flex; justify-content: start; align-items: center; gap: 32px;
+}
+
+body.result-mode #search-filter-container:hover {
+    scrollbar-width: auto;
+}
+
+#search-filter-underline {
+    pointer-events: none;
+    position: absolute; bottom: 0; left: 0;
+    width: 0; height: 2px;
+    transition: transform var(--transition-duration) ease, width var(--transition-duration) ease;
+    background-color: var(--color-black);
+}
+
+.search-filter-item {
+    padding: 6px 0;
+    cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    display: flex; justify-content: center; align-items: center;
+    font: inherit;
+    white-space: nowrap;
+    color: var(--color-gray); background: none;
+    border: none;
+    transition: color var(--transition-duration) ease;
+}
+
+.search-filter-item:hover,
+.search-filter-item:active,
+.search-filter-item.current {
+    color: var(--color-black);
+}
+
+.search-filter-item.current {
+    font-weight: bold;
+}
+
+body.result-mode #search-border {
+    display: block;
+}
+
+body.result-mode #content {
+    width: 100%; height: 100%; padding: 12px 0;
+    display: flex; flex-direction: column; justify-content: start; align-items: center;
+}
+
+#search-message {
+    width: 100%; max-width: 1080px; padding: 12px 32px;
+}
+
+#search-result {
+    width: 100%; max-width: 1080px;
+    user-select: none; -webkit-user-select: none;
+}
+
+#search-result a {
+    cursor: pointer;
+    width: 100%;
+    display: flex; flex-direction: column; justify-content: start; align-items: center;
+    text-decoration: none;
+    color: var(--color-black);
+}
+
+#search-result.desktop a:hover,
+#search-result.desktop a:active {
+    text-decoration: underline;
+    background-color: var(--color-white);
+}
+
+#search-result.mobile a:hover {
+    text-decoration: none;
+    background-color: var(--color-hover);
+}
+
+#search-result.mobile a:active {
+    text-decoration: none;
+    background-color: var(--color-active);
+}
+
+#search-result a > div:nth-child(1) {
+    width: 100%; padding: 12px 32px 0 32px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#search-result a > div:nth-child(2) {
+    width: 100%; padding: 0 32px 12px 32px;
+    font-size: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    header,
+    #title,
+    .button-container,
+    #search-container,
+    #search-filter-underline {
+        transition: none;
+    }
 }
