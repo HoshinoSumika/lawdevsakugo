@@ -1,4 +1,5 @@
 import { Shell } from '/lib/shell.js?v=20260101';
+import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 
 export function createSelectionModal({ onCompare, onClose }) {
     const content = document.createElement('div');
@@ -187,15 +188,11 @@ function createRevisionItem(revision, onToggle) {
     text.className = 'diff-revision-text';
     const primary = document.createElement('div');
     primary.className = 'diff-revision-primary';
-    primary.textContent = revision.amendment_enforcement_comment
-        || formatDate(revision.amendment_enforcement_date)
-        || '制定時';
     const secondary = document.createElement('div');
     secondary.className = 'diff-revision-secondary';
-    secondary.textContent = revision.amendment_law_num || '制定時';
-    if (revision.current_revision_status === 'CurrentEnforced') {
-        secondary.textContent += '　（現行）';
-    }
+    const labels = formatRevision(revision);
+    primary.textContent = labels.primary;
+    secondary.textContent = labels.secondary;
     text.append(primary, secondary);
     item.appendChild(text);
 
@@ -215,7 +212,8 @@ function createColumnHeader(label, revision) {
     const title = document.createElement('strong');
     title.textContent = label;
     const detail = document.createElement('span');
-    detail.textContent = formatRevision(revision);
+    const labels = formatRevision(revision);
+    detail.textContent = labels.primary + '　' + labels.secondary;
     header.append(title, detail);
     return header;
 }
@@ -297,14 +295,20 @@ function collectTextNodes(node, result) {
 }
 
 function formatRevision(revision) {
-    const date = formatDate(revision.amendment_enforcement_date) || '制定時';
-    const lawNumber = revision.amendment_law_num || '制定時';
-    return date + '　' + lawNumber;
-}
+    const enforcementDate = revision.amendment_enforcement_date || '';
+    let primary = '';
+    if (revision.current_revision_status === 'UnEnforced') {
+        primary = revision.amendment_enforcement_comment
+            || Kaiseki.wareki(enforcementDate);
+        primary += '　施行予定';
+    } else if (revision.current_revision_status === 'CurrentEnforced') {
+        primary = Kaiseki.wareki(enforcementDate) + '　現在施行';
+    } else if (revision.current_revision_status === 'PreviousEnforced') {
+        primary = Kaiseki.wareki(enforcementDate) + '　施行';
+    }
 
-function formatDate(value) {
-    if (!value) return '';
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    if (!match) return value;
-    return `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日`;
+    const secondary = revision.amendment_law_num
+        ? '（' + revision.amendment_law_num + '）'
+        : '（新規制定）';
+    return { primary, secondary };
 }

@@ -319,7 +319,6 @@
 
     .diff-selection-guidance {
         padding: 8px 12px;
-        font-size: 12px;
     }
 
     .diff-revision-item {
@@ -335,14 +334,6 @@
 
     .diff-revision-item.selected .diff-selection-mark {
         border-width: 5px;
-    }
-
-    .diff-revision-primary {
-        font-size: 13px;
-    }
-
-    .diff-revision-secondary {
-        font-size: 11px;
     }
 
     .diff-comparison-modal {
