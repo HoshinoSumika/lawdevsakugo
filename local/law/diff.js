@@ -72,6 +72,7 @@ async function compareSelected(selected) {
     selectionModal.setBusy(true);
 
     try {
+        await waitForLoadingPaint();
         const [oldHtml, newHtml] = await loadLawTexts(
             [oldRevision, newRevision],
             revisionsLawId,
@@ -86,4 +87,12 @@ async function compareSelected(selected) {
     } finally {
         selectionModal.setBusy(false);
     }
+}
+
+function waitForLoadingPaint() {
+    return new Promise(resolve => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(resolve);
+        });
+    });
 }

@@ -6,11 +6,20 @@ export function createSelectionModal({ onCompare }) {
 
     const guidance = document.createElement('div');
     guidance.className = 'diff-selection-guidance';
+    guidance.setAttribute('role', 'status');
+    guidance.setAttribute('aria-live', 'polite');
     content.appendChild(guidance);
 
     const list = document.createElement('div');
     list.className = 'diff-revision-list';
     content.appendChild(list);
+
+    const loading = document.createElement('div');
+    loading.className = 'diff-loading';
+    loading.textContent = 'Loading...';
+    loading.setAttribute('role', 'status');
+    loading.setAttribute('aria-live', 'polite');
+    content.appendChild(loading);
 
     const modal = Shell.createModal(content);
     modal.setTitle('条文比較');
@@ -22,6 +31,7 @@ export function createSelectionModal({ onCompare }) {
     let revisions = [];
     let selectedIds = new Set();
     let busy = false;
+    let selectionNotice = '';
 
     const compareButton = modal.addRightButton('比較する', () => {
         if (busy || selectedIds.size !== 2) return;
@@ -31,14 +41,18 @@ export function createSelectionModal({ onCompare }) {
 
     function setLoading() {
         selectedIds = new Set();
+        selectionNotice = '';
         guidance.textContent = '比較する履歴を2件選択してください。';
-        list.innerHTML = '<div class="diff-message">Loading...</div>';
+        list.innerHTML = '';
+        setLoadingVisible(true);
         updateAction();
     }
 
     function setRevisions(value) {
         revisions = Array.isArray(value) ? value : [];
         selectedIds = new Set();
+        selectionNotice = '';
+        setLoadingVisible(false);
         list.innerHTML = '';
 
         if (revisions.length < 2) {
@@ -53,19 +67,25 @@ export function createSelectionModal({ onCompare }) {
         const id = revision.law_revision_id;
         if (selectedIds.has(id)) {
             selectedIds.delete(id);
+            selectionNotice = '';
             item.classList.remove('selected');
             item.setAttribute('aria-pressed', 'false');
         } else if (selectedIds.size < 2) {
             selectedIds.add(id);
+            selectionNotice = '';
             item.classList.add('selected');
             item.setAttribute('aria-pressed', 'true');
+        } else {
+            selectionNotice = '選択できる履歴は2件までです。いずれかの選択を解除してください。';
         }
         updateAction();
     }
 
     function updateAction() {
         const count = selectedIds.size;
-        guidance.textContent = `比較する履歴を2件選択してください（${count}/2）`;
+        guidance.textContent = selectionNotice
+            || `比較する履歴を2件選択してください（${count}/2）`;
+        guidance.classList.toggle('notice', Boolean(selectionNotice));
         const disabled = busy || count !== 2;
         compareButton.classList.toggle('diff-button-disabled', disabled);
         compareButton.setAttribute('aria-disabled', String(disabled));
@@ -74,18 +94,25 @@ export function createSelectionModal({ onCompare }) {
     function setBusy(value) {
         busy = value;
         content.classList.toggle('busy', busy);
-        compareButton.textContent = busy ? '読込中...' : '比較する';
+        compareButton.textContent = busy ? 'Loading...' : '比較する';
+        setLoadingVisible(busy);
         updateAction();
     }
 
     function setError(message) {
         selectedIds = new Set();
+        selectionNotice = '';
+        setLoadingVisible(false);
         list.innerHTML = '';
         const element = document.createElement('div');
         element.className = 'diff-message diff-error';
         element.textContent = message;
         list.appendChild(element);
         updateAction();
+    }
+
+    function setLoadingVisible(value) {
+        loading.classList.toggle('show', value);
     }
 
     setLoading();

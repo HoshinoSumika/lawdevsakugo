@@ -10,7 +10,21 @@
 
 .diff-selection-content.busy {
     pointer-events: none;
-    opacity: 0.7;
+}
+
+.diff-loading {
+    z-index: 2;
+    position: absolute;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: color-mix(in srgb, var(--color-white) 88%, transparent);
+    font-weight: bold;
+}
+
+.diff-loading.show {
+    display: flex;
 }
 
 .diff-selection-guidance {
@@ -19,6 +33,12 @@
     border-bottom: 1px solid var(--color-border);
     color: var(--color-gray);
     font-size: 14px;
+}
+
+.diff-selection-guidance.notice {
+    color: #7d4e00;
+    background: #fff8c5;
+    font-weight: bold;
 }
 
 .diff-revision-list {
@@ -50,7 +70,7 @@
     width: 22px;
     height: 22px;
     border: 2px solid var(--color-border);
-    border-radius: 0;
+    border-radius: 50%;
 }
 
 .diff-revision-item.selected .diff-selection-mark {
@@ -100,19 +120,10 @@
     border-radius: 0 !important;
 }
 
-.diff-selection-modal {
-    border-radius: 0 !important;
-}
-
 .diff-selection-modal,
 .diff-comparison-modal {
     font-size: 14px;
     line-height: 1.65;
-}
-
-.diff-selection-modal > div > div,
-.diff-comparison-modal > div > div {
-    border-radius: 0 !important;
 }
 
 .diff-comparison-content {
@@ -258,6 +269,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
+    .diff-selection-guidance.notice {
+        color: #f2cc60;
+        background: #3b2e08;
+    }
+
     .diff-article-cell.deletion.full-change {
         background: rgba(248, 81, 73, 0.18);
     }
