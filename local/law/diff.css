@@ -314,6 +314,7 @@
         height: 100dvh !important;
         max-height: none !important;
         border: 0 !important;
+        border-radius: 0 !important;
     }
 
     .diff-selection-guidance {

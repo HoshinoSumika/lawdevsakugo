@@ -1,6 +1,6 @@
 import { Shell } from '/lib/shell.js?v=20260101';
 
-export function createSelectionModal({ onCompare }) {
+export function createSelectionModal({ onCompare, onClose }) {
     const content = document.createElement('div');
     content.className = 'diff-selection-content';
 
@@ -25,7 +25,12 @@ export function createSelectionModal({ onCompare }) {
     modal.setTitle('条文比較');
     modal.setWidth('min(560px, 94vw)');
     modal.setHeight('min(720px, 86dvh)');
-    modal.enableCloseButton(modal.hide);
+    const dismiss = () => {
+        modal.hide();
+        onClose();
+    };
+    modal.enableCloseButton(dismiss);
+    modal.setDismiss(dismiss);
     content.parentElement.classList.add('diff-selection-modal');
 
     let revisions = [];

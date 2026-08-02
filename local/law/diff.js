@@ -13,6 +13,7 @@ let comparisonModal;
 let revisions = null;
 let revisionsLawId = '';
 let loadingPromise = null;
+let comparisonVersion = 0;
 
 function init(value) {
     api = value;
@@ -24,6 +25,7 @@ function init(value) {
     });
     selectionModal = createSelectionModal({
         onCompare: compareSelected,
+        onClose: cancelComparison,
     });
 }
 
@@ -68,25 +70,38 @@ async function show() {
 async function compareSelected(selected) {
     if (selected.length !== 2) return;
 
+    const functionVersion = ++comparisonVersion;
     const [oldRevision, newRevision] = orderChronologically(selected);
     selectionModal.setBusy(true);
 
     try {
         await waitForLoadingPaint();
+        if (functionVersion !== comparisonVersion) return;
         const [oldHtml, newHtml] = await loadLawTexts(
             [oldRevision, newRevision],
             revisionsLawId,
         );
+        if (functionVersion !== comparisonVersion) return;
         const rows = buildArticleDiff(oldHtml, newHtml);
+        await waitForNextFrame();
+        if (functionVersion !== comparisonVersion) return;
         comparisonModal.render({ oldRevision, newRevision, rows });
         selectionModal.hide();
         comparisonModal.show();
     } catch (error) {
+        if (functionVersion !== comparisonVersion) return;
         console.error(error);
         selectionModal.setError('比較する法令データを取得できませんでした。');
     } finally {
-        selectionModal.setBusy(false);
+        if (functionVersion === comparisonVersion) {
+            selectionModal.setBusy(false);
+        }
     }
+}
+
+function cancelComparison() {
+    comparisonVersion++;
+    selectionModal.setBusy(false);
 }
 
 function waitForLoadingPaint() {
@@ -95,4 +110,8 @@ function waitForLoadingPaint() {
             requestAnimationFrame(resolve);
         });
     });
+}
+
+function waitForNextFrame() {
+    return new Promise(resolve => requestAnimationFrame(resolve));
 }
