@@ -40,7 +40,7 @@ async function show() {
     }
 
     if (revisions && revisionsLawId === baseLawId) {
-        selectionModal.setRevisions(revisions);
+        selectionModal.setRevisions(revisions, lawId);
         return;
     }
 
@@ -58,7 +58,7 @@ async function show() {
         const loaded = await loadingPromise;
         if (revisionsLawId !== baseLawId) return;
         revisions = loaded;
-        selectionModal.setRevisions(revisions);
+        selectionModal.setRevisions(revisions, lawId);
     } catch (error) {
         console.error(error);
         selectionModal.setError('改正履歴を取得できませんでした。');

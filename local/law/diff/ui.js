@@ -54,7 +54,7 @@ export function createSelectionModal({ onCompare, onClose }) {
         updateAction();
     }
 
-    function setRevisions(value) {
+    function setRevisions(value, currentLawId) {
         revisions = Array.isArray(value) ? value : [];
         selectedIds = new Set();
         selectionNotice = '';
@@ -64,7 +64,20 @@ export function createSelectionModal({ onCompare, onClose }) {
         if (revisions.length < 2) {
             list.innerHTML = '<div class="diff-message">比較できる履歴がありません。</div>';
         } else {
-            revisions.forEach(revision => list.appendChild(createRevisionItem(revision, toggle)));
+            let scrollTarget = null;
+            revisions.forEach(revision => {
+                const item = createRevisionItem(revision, toggle);
+                if (matchesCurrentLaw(revision, currentLawId)) {
+                    selectedIds.add(revision.law_revision_id);
+                    item.classList.add('selected');
+                    item.setAttribute('aria-pressed', 'true');
+                    scrollTarget = item;
+                }
+                list.appendChild(item);
+            });
+            if (scrollTarget) {
+                requestAnimationFrame(() => scrollToRevision(scrollTarget));
+            }
         }
         updateAction();
     }
@@ -120,6 +133,13 @@ export function createSelectionModal({ onCompare, onClose }) {
         loading.classList.toggle('show', value);
     }
 
+    function scrollToRevision(item) {
+        const scrollOffset = 12;
+        const listRect = list.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        list.scrollTop += itemRect.top - listRect.top - scrollOffset;
+    }
+
     setLoading();
     return {
         show: modal.show,
@@ -129,6 +149,13 @@ export function createSelectionModal({ onCompare, onClose }) {
         setBusy,
         setError,
     };
+}
+
+function matchesCurrentLaw(revision, currentLawId) {
+    if (!currentLawId) return false;
+    if (revision.law_revision_id === currentLawId) return true;
+    return revision.current_revision_status === 'CurrentEnforced'
+        && revision.law_revision_id.split('_')[0] === currentLawId;
 }
 
 export function createComparisonModal({ onBack }) {
