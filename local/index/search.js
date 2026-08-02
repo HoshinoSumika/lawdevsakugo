@@ -32,7 +32,6 @@ function init() {
         if (document.body.classList.contains('result-mode')) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                searchInput.blur();
                 exec();
             }
             return;
@@ -329,6 +328,8 @@ async function exec() {
         }
         return;
     }
+
+    searchInput.blur();
 
     const url = new URL('/', window.location);
     url.searchParams.set('q', query);

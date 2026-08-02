@@ -170,6 +170,6 @@ function notifyLawEffectivenessStatus(content) {
     };
 
     if (statusLabels[status]) {
-        Message.warning('この法令は「' + statusLabels[status] + '」となっています。');
+        Message.warning('この法令は「' + statusLabels[status] + '」となっています。', 0);
     }
 }
