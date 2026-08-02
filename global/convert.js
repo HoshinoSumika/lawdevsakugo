@@ -78,7 +78,7 @@ function transformXmlToHtml(xmlStr) {
 
         Ruby: 'ruby', Rt: 'rt',
 
-        Sup: 'sup',
+        Sup: 'sup', Sub: 'sub',
     };
 
     function convertNode(xmlNode, htmlDoc) {
