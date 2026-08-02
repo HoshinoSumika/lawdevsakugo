@@ -153,6 +153,10 @@ section {
     text-indent: 0em;
 }
 
+.Fig[data-src]:empty::before {
+    content: attr(data-src);
+}
+
 /* List */
 
 .List, .Sublist1, .Sublist2, .Sublist3 {

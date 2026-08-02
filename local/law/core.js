@@ -1,5 +1,6 @@
 import { Device } from '/lib/device.js?v=20260101';
 import { Message } from '/lib/message.js?v=20260101';
+import { Storage } from '/lib/storage.js?v=20260101';
 
 import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
@@ -122,7 +123,9 @@ async function initContent() {
     await Cache.cleanup();
 
     try {
-        result = await Cache.getItem(id);
+        if (!Storage.get('dev', false)) {
+            result = await Cache.getItem(id);
+        }
     } catch (e) {
     }
     if (!result) {

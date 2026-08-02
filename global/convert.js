@@ -33,6 +33,7 @@ export function convert(xmlStr) {
     temp = addZenkakuSpaceAfterClass(temp, 'Subitem4Title');
     temp = addZenkakuSpaceAfterClass(temp, 'Subitem5Title');
     temp = addZenkakuSpaceAfterClass(temp, 'Column');
+    temp = addFigLinks(temp);
 
     return temp.outerHTML;
 }
@@ -383,6 +384,26 @@ function addSupplProvisionExtractLabel(el) {
             return;
         }
         label.appendChild(document.createTextNode(suffix));
+    });
+
+    return el;
+}
+
+function addFigLinks(el) {
+    const lawRevisionId = el.getAttribute('data-revision_info_law_revision_id');
+    if (!lawRevisionId) return el;
+
+    el.querySelectorAll('.Fig[data-src]').forEach(fig => {
+        const src = fig.getAttribute('data-src');
+        if (!src) return;
+
+        const url = new URL('https://laws.e-gov.go.jp/api/2/attachment/' + encodeURIComponent(lawRevisionId));
+        url.searchParams.set('src', src);
+
+        const link = el.ownerDocument.createElement('a');
+        link.href = url.toString();
+        link.textContent = src;
+        fig.appendChild(link);
     });
 
     return el;
