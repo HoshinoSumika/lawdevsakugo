@@ -33,7 +33,7 @@ export function createSelectionModal({ onCompare }) {
     let busy = false;
     let selectionNotice = '';
 
-    const compareButton = modal.addRightButton('比較する', () => {
+    const compareButton = modal.addRightButton('比較', () => {
         if (busy || selectedIds.size !== 2) return;
         const selected = revisions.filter(revision => selectedIds.has(revision.law_revision_id));
         onCompare(selected);
@@ -94,7 +94,6 @@ export function createSelectionModal({ onCompare }) {
     function setBusy(value) {
         busy = value;
         content.classList.toggle('busy', busy);
-        compareButton.textContent = busy ? 'Loading...' : '比較する';
         setLoadingVisible(busy);
         updateAction();
     }
