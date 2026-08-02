@@ -1,0 +1,365 @@
+.diff-selection-content {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.diff-selection-content.busy {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.diff-selection-guidance {
+    flex: none;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-gray);
+    font-size: 14px;
+}
+
+.diff-revision-list {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding: 8px 0;
+}
+
+.diff-revision-item {
+    width: 100%;
+    min-height: 68px;
+    padding: 10px 18px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.diff-revision-item:hover,
+.diff-revision-item:focus-visible {
+    background: var(--color-hover);
+    outline: none;
+}
+
+.diff-selection-mark {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--color-border);
+    border-radius: 0;
+}
+
+.diff-revision-item.selected .diff-selection-mark {
+    border: 6px solid #2f81f7;
+}
+
+.diff-revision-text {
+    min-width: 0;
+}
+
+.diff-revision-primary,
+.diff-revision-secondary {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.diff-revision-primary {
+    font-size: 15px;
+}
+
+.diff-revision-secondary {
+    color: var(--color-gray);
+    font-size: 13px;
+}
+
+.diff-message {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--color-gray);
+}
+
+.diff-error {
+    color: #cf222e;
+}
+
+.diff-button-disabled {
+    cursor: default !important;
+    opacity: 0.45;
+}
+
+.diff-comparison-modal {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.diff-selection-modal {
+    border-radius: 0 !important;
+}
+
+.diff-selection-modal,
+.diff-comparison-modal {
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.diff-selection-modal > div > div,
+.diff-comparison-modal > div > div {
+    border-radius: 0 !important;
+}
+
+.diff-comparison-content {
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.diff-comparison-scroll {
+    overflow: auto;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overscroll-behavior: contain;
+}
+
+.diff-columns-header,
+.diff-article-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.diff-columns-header {
+    z-index: 1;
+    position: sticky;
+    top: 0;
+    min-width: 720px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-smoke);
+}
+
+.diff-columns-header > div {
+    overflow: hidden;
+    padding: 8px 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.diff-columns-header > div + div {
+    border-left: 1px solid var(--color-border);
+}
+
+.diff-columns-header strong {
+    flex: none;
+}
+
+.diff-columns-header span {
+    overflow: hidden;
+    color: var(--color-gray);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.diff-comparison-body {
+    min-width: 720px;
+}
+
+.diff-article-row {
+    min-width: 720px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.diff-article-cell {
+    position: relative;
+    min-width: 0;
+    padding: 12px 24px 12px 42px;
+}
+
+.diff-article-cell + .diff-article-cell {
+    border-left: 1px solid var(--color-border);
+}
+
+.diff-article-cell.deletion {
+    box-shadow: inset 3px 0 #cf222e;
+}
+
+.diff-article-cell.addition {
+    box-shadow: inset 3px 0 #1a7f37;
+}
+
+.diff-article-cell.deletion.full-change {
+    background: #ffebe9;
+}
+
+.diff-article-cell.addition.full-change {
+    background: #dafbe1;
+}
+
+.diff-inline-deletion,
+.diff-inline-addition {
+    padding: 1px 0;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.diff-inline-deletion {
+    background: #ffb3ad;
+}
+
+.diff-inline-addition {
+    background: #9ee2b0;
+}
+
+.diff-article-cell.empty {
+    min-height: 48px;
+    padding: 0;
+    background: var(--color-smoke);
+}
+
+.diff-article-cell:not(.empty)::before {
+    content: attr(data-marker);
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 16px;
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+}
+
+.diff-article-cell.deletion::before {
+    color: #cf222e;
+}
+
+.diff-article-cell.addition::before {
+    color: #1a7f37;
+}
+
+.diff-article-cell .Article {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.diff-no-changes {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--color-gray);
+}
+
+@media (prefers-color-scheme: dark) {
+    .diff-article-cell.deletion.full-change {
+        background: rgba(248, 81, 73, 0.18);
+    }
+
+    .diff-article-cell.addition.full-change {
+        background: rgba(46, 160, 67, 0.2);
+    }
+
+    .diff-article-cell.deletion {
+        box-shadow: inset 4px 0 #f85149;
+    }
+
+    .diff-article-cell.addition {
+        box-shadow: inset 4px 0 #3fb950;
+    }
+
+    .diff-inline-deletion {
+        background: rgba(248, 81, 73, 0.48);
+    }
+
+    .diff-inline-addition {
+        background: rgba(46, 160, 67, 0.5);
+    }
+
+    .diff-article-cell.deletion::before,
+    .diff-error {
+        color: #ff7b72;
+    }
+
+    .diff-article-cell.addition::before {
+        color: #56d364;
+    }
+}
+
+@media (max-width: 720px) {
+    .diff-selection-modal {
+        width: 100vw !important;
+        height: 100dvh !important;
+        max-height: none !important;
+        border: 0 !important;
+    }
+
+    .diff-selection-guidance {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .diff-revision-item {
+        min-height: 60px;
+        padding: 8px 12px;
+        gap: 10px;
+    }
+
+    .diff-selection-mark {
+        width: 18px;
+        height: 18px;
+    }
+
+    .diff-revision-item.selected .diff-selection-mark {
+        border-width: 5px;
+    }
+
+    .diff-revision-primary {
+        font-size: 13px;
+    }
+
+    .diff-revision-secondary {
+        font-size: 11px;
+    }
+
+    .diff-comparison-modal {
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .diff-columns-header,
+    .diff-comparison-body,
+    .diff-article-row {
+        min-width: 600px;
+    }
+
+    .diff-columns-header,
+    .diff-article-row {
+        grid-template-columns: 300px 300px;
+    }
+
+    .diff-columns-header > div {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+
+    .diff-columns-header span {
+        font-size: 10px;
+    }
+
+    .diff-article-cell {
+        padding: 10px 12px 10px 28px;
+    }
+
+    .diff-article-cell:not(.empty)::before {
+        top: 11px;
+        left: 8px;
+        width: 12px;
+    }
+}

@@ -33,9 +33,8 @@ function init(api) {
 
     const menuItemDiff = document.querySelector('#menu-item-diff');
     menuItemDiff.addEventListener('click', () => {
-        const url = new URL('./diff.html', window.location);
-        url.searchParams.set('id', new URLSearchParams(window.location.search).get('id'));
-        window.location.href = url;
+        hide();
+        api.onDiffSelect();
     });
 
     const menuItemMokuji = document.querySelector('#menu-item-mokuji');
