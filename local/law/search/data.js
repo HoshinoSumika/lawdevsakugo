@@ -153,6 +153,7 @@ function getResultElement(element) {
         || element.closest('.SupplProvisionAppdxTable')
         || element.closest('.AppdxTable')
         || element.closest('.AppdxNote')
+        || element.closest('.AppdxFig')
         || element;
 }
 

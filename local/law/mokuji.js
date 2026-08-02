@@ -88,7 +88,8 @@ function generate() {
     str += '.MainProvision .SubsectionTitle, .MainProvision .DivisionTitle, ';
     str += '.SupplProvision .SupplProvisionLabel, ';
     str += '.AppdxTable .AppdxTableTitle, ';
-    str += '.AppdxNote .AppdxNoteTitle';
+    str += '.AppdxNote .AppdxNoteTitle, ';
+    str += '.AppdxFig .AppdxFigTitle';
     elements = Array.from(law.querySelectorAll(str));
 
     elements = elements.filter(el => {
@@ -134,11 +135,12 @@ function generate() {
         const isSupplProvisionAppdxTableTitle = el.classList.contains('SupplProvisionAppdxTableTitle');
         const isAppdxTableTitle = el.classList.contains('AppdxTableTitle');
         const isAppdxNoteTitle = el.classList.contains('AppdxNoteTitle');
+        const isAppdxFigTitle = el.classList.contains('AppdxFigTitle');
         if (isLawNum) {
             item.textContent = '法令情報';
         } else if (isMainProvision) {
             item.textContent = '本　則';
-        } else if (isSupplProvisionAppdxTableTitle || isAppdxTableTitle || isAppdxNoteTitle) {
+        } else if (isSupplProvisionAppdxTableTitle || isAppdxTableTitle || isAppdxNoteTitle || isAppdxFigTitle) {
             const nextEl = el.nextElementSibling;
             if (nextEl.classList.contains('RelatedArticleNum')) {
                 item.textContent = el.textContent + nextEl.textContent;

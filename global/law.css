@@ -16,7 +16,7 @@ section {
 
 .LawTitle, .ArticleRange,
 .SupplProvisionLabel, .SupplProvisionLabelAmendLawNum,
-.SupplProvisionAppdxTableTitle, .AppdxTableTitle, .AppdxNoteTitle,
+.SupplProvisionAppdxTableTitle, .AppdxTableTitle, .AppdxNoteTitle, .AppdxFigTitle,
 .AppdxStyleTitle, .AppdxFormatTitle,
 .RelatedArticleNum,
 .PartTitle, .ChapterTitle, .SectionTitle, .SubsectionTitle, .DivisionTitle,
@@ -138,6 +138,8 @@ section {
 }
 
 /* AppdxNote */
+
+/* AppdxFig */
 
 /* Style */
 

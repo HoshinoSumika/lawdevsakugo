@@ -47,7 +47,7 @@ function transformXmlToHtml(xmlStr) {
     }
 
     const tagMap = {
-        TOC: 'section', MainProvision: 'section', SupplProvision: 'section', AppdxTable: 'section',
+        TOC: 'section', MainProvision: 'section', SupplProvision: 'section', AppdxTable: 'section', AppdxFig: 'section',
         Part: 'section', Chapter: 'section', Section: 'section', Subsection: 'section', Division: 'section',
         Article: 'section',
 
@@ -66,7 +66,7 @@ function transformXmlToHtml(xmlStr) {
         Column: 'span',
         ListSentence: 'span', Sublist1Sentence: 'span', Sublist2Sentence: 'span', Sublist3Sentence: 'span',
 
-        SupplProvisionAppdxTableTitle: 'span', AppdxTableTitle: 'span', AppdxNoteTitle: 'span',
+        SupplProvisionAppdxTableTitle: 'span', AppdxTableTitle: 'span', AppdxNoteTitle: 'span', AppdxFigTitle: 'span',
         AppdxStyleTitle: 'span', AppdxFormatTitle: 'span',
         RelatedArticleNum: 'span',
 
