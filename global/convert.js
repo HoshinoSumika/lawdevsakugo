@@ -69,10 +69,14 @@ function transformXmlToHtml(xmlStr) {
         AppdxStyleTitle: 'span', AppdxFormatTitle: 'span',
         RelatedArticleNum: 'span',
 
+        ArithFormula: 'span',
+
         TableStruct: 'table', Table: 'tbody',
         TableRow: 'tr', TableColumn: 'td',
 
         Ruby: 'ruby', Rt: 'rt',
+
+        Sup: 'sup',
     };
 
     function convertNode(xmlNode, htmlDoc) {
