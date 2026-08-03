@@ -1,16 +1,36 @@
 export function buildArticleDiff(oldHtml, newHtml) {
     const oldArticles = extractArticles(oldHtml);
     const newArticles = extractArticles(newHtml);
+    const rows = computeArticleDiff(
+        serializeArticles(oldArticles),
+        serializeArticles(newArticles),
+    );
+    return hydrateArticleDiff(rows, oldArticles, newArticles);
+}
+
+export function prepareArticleDiff(oldHtml, newHtml) {
+    const oldArticles = extractArticles(oldHtml);
+    const newArticles = extractArticles(newHtml);
+    return {
+        oldArticles,
+        newArticles,
+        oldInput: serializeArticles(oldArticles),
+        newInput: serializeArticles(newArticles),
+    };
+}
+
+export function computeArticleDiff(oldArticles, newArticles) {
     const aligned = alignArticles(oldArticles, newArticles);
 
     return aligned.flatMap(row => {
-        const { oldArticle, newArticle } = row;
+        const oldArticle = getAlignedArticle(oldArticles, row.oldIndex);
+        const newArticle = getAlignedArticle(newArticles, row.newIndex);
         if (!oldArticle || !newArticle) return [row];
-        if (normalizedText(oldArticle) === normalizedText(newArticle)) return [];
+        if (normalizedText(oldArticle.text) === normalizedText(newArticle.text)) return [];
 
         const changes = diffText(
-            oldArticle.element.textContent,
-            newArticle.element.textContent,
+            oldArticle.text,
+            newArticle.text,
         );
         return [{
             ...row,
@@ -20,17 +40,34 @@ export function buildArticleDiff(oldHtml, newHtml) {
     });
 }
 
+export function hydrateArticleDiff(rows, oldArticles, newArticles) {
+    return rows.map(({ oldIndex, newIndex, ...row }) => ({
+        ...row,
+        oldArticle: getAlignedArticle(oldArticles, oldIndex),
+        newArticle: getAlignedArticle(newArticles, newIndex),
+    }));
+}
+
 export function extractArticles(html) {
     const container = document.createElement('div');
     container.innerHTML = html || '';
     const mainProvision = container.querySelector('.MainProvision');
     if (!mainProvision) return [];
 
+    let elements = Array.from(mainProvision.querySelectorAll('.Article'))
+        .filter(article => !article.closest('.SupplProvision'));
+    let type = 'article';
+    if (elements.length === 0) {
+        elements = Array.from(mainProvision.querySelectorAll(
+            ':scope > .ParagraphContainer, :scope > .Paragraph',
+        ));
+        type = 'paragraph';
+    }
+
     const occurrences = new Map();
-    return Array.from(mainProvision.querySelectorAll('.Article'))
-        .filter(article => !article.closest('.SupplProvision'))
+    return elements
         .map((article, index) => {
-            const baseKey = getArticleKey(article, index);
+            const baseKey = getArticleKey(article, index, type);
             const occurrence = (occurrences.get(baseKey) || 0) + 1;
             occurrences.set(baseKey, occurrence);
             return {
@@ -40,19 +77,34 @@ export function extractArticles(html) {
         });
 }
 
-function getArticleKey(article, index) {
-    const number = article.getAttribute('data-num');
-    if (number) return 'num:' + number;
-
-    const title = article.querySelector('.ArticleTitle')?.textContent.trim();
-    if (title) return 'title:' + title;
-    return 'index:' + index;
+function serializeArticles(articles) {
+    return articles.map(article => ({
+        key: article.key,
+        text: article.element.textContent,
+    }));
 }
 
-function normalizedText(article) {
-    return article.element.textContent
+function getArticleKey(article, index, type) {
+    const keyElement = type === 'paragraph' && article.classList.contains('ParagraphContainer')
+        ? article.querySelector(':scope > .Paragraph')
+        : article;
+    const number = keyElement?.getAttribute('data-num');
+    if (number) return type + '-num:' + number;
+
+    const titleSelector = type === 'article' ? '.ArticleTitle' : '.ParagraphNum';
+    const title = keyElement?.querySelector(titleSelector)?.textContent.trim();
+    if (title) return type + '-title:' + title;
+    return type + '-index:' + index;
+}
+
+function normalizedText(text) {
+    return text
         .normalize('NFC')
         .replace(/[\s\u3000]+/gu, '');
+}
+
+function getAlignedArticle(articles, index) {
+    return Number.isInteger(index) ? articles[index] : null;
 }
 
 function diffText(oldText, newText) {
@@ -238,14 +290,14 @@ function alignArticles(oldArticles, newArticles) {
     let j = 0;
     while (i < oldLength || j < newLength) {
         if (i < oldLength && j < newLength && oldArticles[i].key === newArticles[j].key) {
-            rows.push({ oldArticle: oldArticles[i], newArticle: newArticles[j] });
+            rows.push({ oldIndex: i, newIndex: j });
             i++;
             j++;
         } else if (j >= newLength || (i < oldLength && lcs[i + 1][j] >= lcs[i][j + 1])) {
-            rows.push({ oldArticle: oldArticles[i], newArticle: null });
+            rows.push({ oldIndex: i, newIndex: null });
             i++;
         } else {
-            rows.push({ oldArticle: null, newArticle: newArticles[j] });
+            rows.push({ oldIndex: null, newIndex: j });
             j++;
         }
     }

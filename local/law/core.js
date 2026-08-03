@@ -122,26 +122,41 @@ async function initContent() {
     }
 
     let result;
-    await Cache.init('LawFullTextBeta');
-    await Cache.cleanup();
+    let cache = null;
 
     try {
+        cache = await Cache.open('LawFullTextBeta');
+        await cache.cleanup();
         if (!Storage.get('dev', false)) {
-            result = await Cache.getItem(id);
+            result = await cache.getItem(id);
         }
     } catch (e) {
+        console.error(e);
     }
     if (!result) {
         result = await Service.getLawFullText(id);
-        if (result) {
-            await Cache.setItem(id, result);
+        if (result && cache) {
+            try {
+                await cache.setItem(id, result);
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
     if (!result) {
+        cache?.close();
         message.innerHTML = 'データを取得できませんでした。';
         return;
     }
-    await Cache.cleanup();
+    if (cache) {
+        try {
+            await cache.cleanup();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            cache.close();
+        }
+    }
 
     if (functionVersion < contentVersion) {
         return;

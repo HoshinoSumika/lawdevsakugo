@@ -3,71 +3,69 @@ import { Cache } from '/global/cache.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 
 export async function loadRevisions(lawId) {
-    await Cache.init('LawRevisionsBeta');
-    await Cache.cleanup();
+    const cache = await openCache('LawRevisionsBeta');
 
-    let revisions = null;
     try {
-        if (!Storage.get('dev', false)) {
-            revisions = await Cache.getItem(lawId);
+        let revisions = null;
+        if (cache && shouldUseCache()) {
+            revisions = await getCachedItem(cache, lawId);
         }
-    } catch (error) {
-        console.error(error);
-    }
 
-    if (!Array.isArray(revisions)) {
-        const data = await Service.getLawRevisions(lawId);
-        revisions = data?.revisions;
-        if (Array.isArray(revisions)) {
-            await Cache.setItem(lawId, revisions);
+        if (!Array.isArray(revisions)) {
+            const data = await Service.getLawRevisions(lawId);
+            revisions = data?.revisions;
+            if (Array.isArray(revisions) && cache) {
+                await setCachedItem(cache, lawId, revisions);
+            }
         }
+
+        if (!Array.isArray(revisions)) {
+            throw new Error('Law revisions are unavailable');
+        }
+
+        const normalizedRevisions = normalizeCurrentRevision(revisions);
+        return normalizedRevisions.map((revision, historyIndex) => ({
+            ...revision,
+            _diffHistoryIndex: historyIndex,
+        }));
+    } finally {
+        await closeCache(cache);
     }
-
-    await Cache.cleanup();
-
-    if (!Array.isArray(revisions)) {
-        throw new Error('Law revisions are unavailable');
-    }
-
-    const normalizedRevisions = normalizeCurrentRevision(revisions);
-    return normalizedRevisions.map((revision, historyIndex) => ({
-        ...revision,
-        _diffHistoryIndex: historyIndex,
-    }));
 }
 
 export async function loadLawTexts(revisions, baseLawId) {
-    await Cache.init('LawFullTextBeta');
-    await Cache.cleanup();
+    const cache = await openCache('LawFullTextBeta');
 
-    const results = [];
-    for (const revision of revisions) {
-        const requestId = getRequestId(revision, baseLawId);
-        let html = null;
+    try {
+        const settled = await Promise.allSettled(revisions.map(async revision => {
+            const requestId = getRequestId(revision, baseLawId);
+            let html = null;
 
-        try {
-            if (!Storage.get('dev', false)) {
-                html = await Cache.getItem(requestId);
+            if (cache && shouldUseCache()) {
+                html = await getCachedItem(cache, requestId);
             }
-        } catch (error) {
-            console.error(error);
-        }
 
-        if (!html) {
-            html = await Service.getLawFullText(requestId);
-            if (html) {
-                await Cache.setItem(requestId, html);
+            if (!html) {
+                html = await Service.getLawFullText(requestId);
+                if (html && cache) {
+                    await setCachedItem(cache, requestId, html);
+                }
             }
-        }
 
-        if (!html) {
-            throw new Error('Law full text is unavailable: ' + requestId);
+            if (!html) {
+                throw new Error('Law full text is unavailable: ' + requestId);
+            }
+            return html;
+        }));
+
+        const failed = settled.find(result => result.status === 'rejected');
+        if (failed) {
+            throw failed.reason;
         }
-        results.push(html);
+        return settled.map(result => result.value);
+    } finally {
+        await closeCache(cache);
     }
-
-    await Cache.cleanup();
-    return results;
 }
 
 export function orderChronologically(revisions) {
@@ -107,4 +105,56 @@ function normalizeCurrentRevision(revisions) {
         break;
     }
     return normalized;
+}
+
+async function openCache(name) {
+    try {
+        const cache = await Cache.open(name);
+        try {
+            await cache.cleanup();
+        } catch (error) {
+            console.error(error);
+        }
+        return cache;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+async function closeCache(cache) {
+    if (!cache) return;
+    try {
+        await cache.cleanup();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        cache.close();
+    }
+}
+
+async function getCachedItem(cache, key) {
+    try {
+        return await cache.getItem(key);
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+async function setCachedItem(cache, key, value) {
+    try {
+        await cache.setItem(key, value);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function shouldUseCache() {
+    try {
+        return !Storage.get('dev', false);
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
 }

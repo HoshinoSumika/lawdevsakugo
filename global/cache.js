@@ -1,28 +1,32 @@
 export const Cache = {
-    init,
-    setItem,
-    getItem,
-    removeItem,
-    clear,
-    getSize,
-    getMaxSize,
-    setMaxSize,
-    getMaxTime,
-    setMaxTime,
-    cleanup,
+    open,
 };
 
 import { Storage } from '/lib/storage.js?v=20260101';
 
-let dbName = null;
-let dbInstance = null;
 const STORAGE_NAME_CONTENT = 'Content';
 const STORAGE_NAME_SIZE = 'Size';
 const STORAGE_NAME_TIME = 'Time';
 const DB_VERSION = 1;
 
-function init(name) {
-    dbName = name;
+async function open(name) {
+    const database = await openDatabase(name);
+    return {
+        setItem: (key, value) => setItem(key, value, database),
+        getItem: key => getItem(key, database),
+        removeItem: key => removeItem(key, database),
+        clear: () => clear(database),
+        getSize: () => getSize(database),
+        getMaxSize: () => getMaxSize(name),
+        setMaxSize: size => setMaxSize(size, name),
+        getMaxTime: () => getMaxTime(name),
+        setMaxTime: time => setMaxTime(time, name),
+        cleanup: () => cleanup(database, name),
+        close: () => database.close(),
+    };
+}
+
+function openDatabase(name) {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(name, DB_VERSION);
 
@@ -40,15 +44,14 @@ function init(name) {
         };
 
         request.onsuccess = e => {
-            dbInstance = e.target.result;
-            dbInstance.onversionchange = () => {
+            const database = e.target.result;
+            database.onversionchange = () => {
                 try {
-                    dbInstance.close();
+                    database.close();
                 } catch {
                 }
-                dbInstance = null;
             };
-            resolve();
+            resolve(database);
         };
 
         request.onerror = e => {
@@ -57,14 +60,14 @@ function init(name) {
     });
 }
 
-function setItem(key, value) {
+function setItem(key, value, database) {
     return new Promise((resolve, reject) => {
-        if (!dbInstance) {
+        if (!database) {
             reject(new Error('DB is not initialized'));
             return;
         }
 
-        const tx = dbInstance.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
+        const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
         const contentStore = tx.objectStore(STORAGE_NAME_CONTENT);
         const sizeStore = tx.objectStore(STORAGE_NAME_SIZE);
         const timeStore = tx.objectStore(STORAGE_NAME_TIME);
@@ -81,15 +84,15 @@ function setItem(key, value) {
     });
 }
 
-function getItem(key) {
+function getItem(key, database) {
     return new Promise(async (resolve, reject) => {
-        if (!dbInstance) {
+        if (!database) {
             reject(new Error('DB is not initialized'));
             return;
         }
 
         try {
-            const tx = dbInstance.transaction(STORAGE_NAME_CONTENT, 'readonly');
+            const tx = database.transaction(STORAGE_NAME_CONTENT, 'readonly');
             const store = tx.objectStore(STORAGE_NAME_CONTENT);
             const request = store.get(key);
 
@@ -105,14 +108,14 @@ function getItem(key) {
     });
 }
 
-function removeItem(key) {
+function removeItem(key, database) {
     return new Promise((resolve, reject) => {
-        if (!dbInstance) {
+        if (!database) {
             reject(new Error('DB is not initialized'));
             return;
         }
 
-        const tx = dbInstance.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
+        const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
         tx.objectStore(STORAGE_NAME_CONTENT).delete(key);
         tx.objectStore(STORAGE_NAME_SIZE).delete(key);
         tx.objectStore(STORAGE_NAME_TIME).delete(key);
@@ -122,14 +125,14 @@ function removeItem(key) {
     });
 }
 
-function clear() {
+function clear(database) {
     return new Promise((resolve, reject) => {
-        if (!dbInstance) {
+        if (!database) {
             reject(new Error('DB is not initialized'));
             return;
         }
 
-        const tx = dbInstance.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
+        const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
         tx.objectStore(STORAGE_NAME_CONTENT).clear();
         tx.objectStore(STORAGE_NAME_SIZE).clear();
         tx.objectStore(STORAGE_NAME_TIME).clear();
@@ -139,14 +142,14 @@ function clear() {
     });
 }
 
-function getSize() {
+function getSize(database) {
     return new Promise((resolve, reject) => {
-        if (!dbInstance) {
+        if (!database) {
             reject(new Error('DB is not initialized'));
             return;
         }
 
-        const tx = dbInstance.transaction(STORAGE_NAME_SIZE, 'readonly');
+        const tx = database.transaction(STORAGE_NAME_SIZE, 'readonly');
         const store = tx.objectStore(STORAGE_NAME_SIZE);
 
         const sizes = [];
@@ -169,41 +172,44 @@ function getSize() {
 const KEY_MAX_SIZE = 'storage-max-size';
 const VALUE_MAX_SIZE = 20 * 1024 * 1024;
 
-function getMaxSize() {
-    return Storage.get(KEY_MAX_SIZE + '-' + dbName, VALUE_MAX_SIZE);
+function getMaxSize(name) {
+    return Storage.get(KEY_MAX_SIZE + '-' + name, VALUE_MAX_SIZE);
 }
 
-function setMaxSize(size) {
+function setMaxSize(size, name) {
     if (size === VALUE_MAX_SIZE) {
-        Storage.remove(KEY_MAX_SIZE + '-' + dbName);
+        Storage.remove(KEY_MAX_SIZE + '-' + name);
     } else {
-        Storage.set(KEY_MAX_SIZE + '-' + dbName, size);
+        Storage.set(KEY_MAX_SIZE + '-' + name, size);
     }
 }
 
 const KEY_MAX_TIME = 'storage-max-time';
 const VALUE_MAX_TIME = 1 * 8 * 60 * 60 * 1000;
 
-function getMaxTime() {
-    return Storage.get(KEY_MAX_TIME + '-' + dbName, VALUE_MAX_TIME);
+function getMaxTime(name) {
+    return Storage.get(KEY_MAX_TIME + '-' + name, VALUE_MAX_TIME);
 }
 
-function setMaxTime(time) {
+function setMaxTime(time, name) {
     if (time === VALUE_MAX_TIME) {
-        Storage.remove(KEY_MAX_TIME + '-' + dbName);
+        Storage.remove(KEY_MAX_TIME + '-' + name);
     } else {
-        Storage.set(KEY_MAX_TIME + '-' + dbName, time);
+        Storage.set(KEY_MAX_TIME + '-' + name, time);
     }
 }
 
-async function cleanup() {
-    const maxTime = getMaxTime();
-    const maxSize = getMaxSize();
+async function cleanup(database, name) {
+    if (!database) {
+        throw new Error('DB is not initialized');
+    }
+    const maxTime = getMaxTime(name);
+    const maxSize = getMaxSize(name);
     const now = Date.now();
     let currentSize = 0;
     const allItems = [];
     await new Promise((resolve, reject) => {
-        const tx = dbInstance.transaction([STORAGE_NAME_TIME, STORAGE_NAME_SIZE], 'readonly');
+        const tx = database.transaction([STORAGE_NAME_TIME, STORAGE_NAME_SIZE], 'readonly');
         const timeStore = tx.objectStore(STORAGE_NAME_TIME);
         const sizeStore = tx.objectStore(STORAGE_NAME_SIZE);
         let fetchedCount = 0;
@@ -243,7 +249,7 @@ async function cleanup() {
     }
     if (keysToDelete.length > 0) {
         await new Promise((resolve, reject) => {
-            const tx = dbInstance.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
+            const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
             const contentStore = tx.objectStore(STORAGE_NAME_CONTENT);
             const sizeStore = tx.objectStore(STORAGE_NAME_SIZE);
             const timeStore = tx.objectStore(STORAGE_NAME_TIME);

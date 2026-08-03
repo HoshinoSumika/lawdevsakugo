@@ -46,22 +46,36 @@ async function updateContent() {
     }
     if (!revisions) {
         historyContent.innerHTML = '<div style="width: 100%; height: 32px; text-align: center;">' + 'Loading...' + '</div>';
-        await Cache.init('LawRevisionsBeta');
-        await Cache.cleanup();
+        let cache = null;
         try {
-            revisions = await Cache.getItem(id);
+            cache = await Cache.open('LawRevisionsBeta');
+            await cache.cleanup();
+            revisions = await cache.getItem(id);
             check();
         } catch (e) {
+            console.error(e);
         }
         if (!revisions) {
             const data = await Service.getLawRevisions(id);
             revisions = data ? data.revisions : null;
             check();
-            if (revisions) {
-                await Cache.setItem(id, revisions);
+            if (revisions && cache) {
+                try {
+                    await cache.setItem(id, revisions);
+                } catch (error) {
+                    console.error(error);
+                }
             }
         }
-        await Cache.cleanup();
+        if (cache) {
+            try {
+                await cache.cleanup();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                cache.close();
+            }
+        }
     }
     if (revisions) {
         historyContent.innerHTML = '';
