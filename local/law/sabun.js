@@ -405,13 +405,14 @@ function createArticleCell(article, type, ranges, className) {
     }
 
     cell.classList.add(type);
+    cell.dataset.marker = type === 'deletion' ? '−' : '+';
+
     if (ranges) {
-        Convert.wrap(article.element, ranges, className);
+        cell.appendChild(Convert.wrap(article.element, ranges, className));
     } else {
         cell.classList.add('full-change');
+        cell.appendChild(article.element);
     }
-    cell.dataset.marker = type === 'deletion' ? '−' : '+';
-    cell.appendChild(article.element);
     return cell;
 }
 

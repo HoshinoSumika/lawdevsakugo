@@ -1,7 +1,7 @@
+import { Convert } from '/lib/convert.js?v=20260101';
 import { Device } from '/lib/device.js?v=20260101';
 import { Message } from '/lib/message.js?v=20260101';
 
-import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Route } from '/global/route.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
@@ -13,6 +13,21 @@ import { Menu } from './menu.js?v=20260101';
 import { Mokuji } from './mokuji.js?v=20260101';
 import { Sabun } from './sabun.js?v=20260101';
 import { Search } from './search.js?v=20260101';
+
+const PAREN = {
+    pair: ['（', '）'],
+    quote: ['「', '」'],
+    className: 'tag-paren',
+};
+
+const TERMS = {
+    '及び': 'tag-conj-h',
+    '並びに': 'tag-conj-h',
+    '又は': 'tag-conj-s',
+    '若しくは': 'tag-conj-s',
+    'とき': 'tag-condition',
+    '場合': 'tag-condition',
+};
 
 const contentEl = document.querySelector('#content');
 const scrollEl = contentEl.parentElement;
@@ -129,12 +144,22 @@ async function initContent() {
         return;
     }
 
-    content.innerHTML = result;
+    const source = document.createElement('div');
+    source.innerHTML = result;
+
+    let law = source.firstElementChild;
+    if (!law) {
+        message.innerHTML = 'データを取得できませんでした。';
+        return;
+    }
+
+    law = Convert.nest(law, PAREN);
+    law = Convert.term(law, TERMS);
+
+    content.innerHTML = '';
+    content.appendChild(law);
     content.style.minHeight = '';
     message.innerHTML = '';
-
-    Kaiseki.tagParen(content);
-    Kaiseki.tagTerm(content);
 
     Info.update();
     Mokuji.update();
