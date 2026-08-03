@@ -3,6 +3,10 @@ export const Highlight = {
     clear,
 };
 
+import { Convert } from '/lib/convert.js?v=20260101';
+
+const HIGHLIGHT_CLASS = 'highlight';
+
 function apply(root, value) {
     clear(root);
 
@@ -12,83 +16,36 @@ function apply(root, value) {
 
     const hiddenRt = [];
     root.querySelectorAll('rt').forEach(rt => {
-        hiddenRt.push({ parent: rt.parentNode, next: rt.nextSibling, node: rt });
-        rt.remove();
+        const placeholder = document.createComment('rt');
+        rt.replaceWith(placeholder);
+        hiddenRt.push({ placeholder, node: rt });
     });
 
+    Convert.wrap(root, findRanges(root.textContent, value), HIGHLIGHT_CLASS);
+
+    hiddenRt.forEach(({ placeholder, node }) => {
+        placeholder.replaceWith(node);
+    });
+}
+
+function findRanges(text, value) {
     const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escaped, 'g');
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    let buffer = '';
-    let node;
+    const pattern = new RegExp(escaped, 'g');
+    const ranges = [];
 
-    while ((node = walker.nextNode())) {
-        nodes.push({ node, text: node.textContent });
-        buffer += node.textContent;
-    }
-
-    const matches = [];
     let match;
-    while ((match = regex.exec(buffer)) !== null) {
-        const startIndex = match.index;
-        const endIndex = regex.lastIndex;
-        let count = 0;
-        let startInfo = null;
-        let endInfo = null;
-
-        for (const info of nodes) {
-            const length = info.text.length;
-            if (!startInfo && count + length > startIndex) {
-                startInfo = { node: info.node, offset: startIndex - count };
-            }
-            if (!endInfo && count + length >= endIndex) {
-                endInfo = { node: info.node, offset: endIndex - count };
-                break;
-            }
-            count += length;
-        }
-
-        if (startInfo && endInfo) {
-            matches.push({ startInfo, endInfo });
-        }
+    while ((match = pattern.exec(text)) !== null) {
+        ranges.push({ start: match.index, end: pattern.lastIndex });
     }
-
-    for (let i = matches.length - 1; i >= 0; i--) {
-        const { startInfo, endInfo } = matches[i];
-        const range = document.createRange();
-        range.setStart(startInfo.node, startInfo.offset);
-        range.setEnd(endInfo.node, endInfo.offset);
-
-        const startRuby = startInfo.node.parentNode.closest('ruby');
-        const endRuby = endInfo.node.parentNode.closest('ruby');
-        if (startRuby && endRuby && startRuby === endRuby) {
-            range.setStartBefore(startRuby);
-            range.setEndAfter(endRuby);
-        } else if (startRuby) {
-            range.setStartBefore(startRuby);
-        } else if (endRuby) {
-            range.setEndAfter(endRuby);
-        }
-
-        const fragment = range.extractContents();
-        const span = document.createElement('span');
-        span.className = 'highlight';
-        span.appendChild(fragment);
-        range.insertNode(span);
-    }
-
-    hiddenRt.forEach(({ parent, next, node: rt }) => {
-        parent.insertBefore(rt, next);
-    });
+    return ranges;
 }
 
 function clear(root) {
     const highlighted = [];
-    if (root.classList.contains('highlight')) {
+    if (root.classList.contains(HIGHLIGHT_CLASS)) {
         highlighted.push(root);
     }
-    root.querySelectorAll('.highlight').forEach(element => {
+    root.querySelectorAll('.' + HIGHLIGHT_CLASS).forEach(element => {
         highlighted.push(element);
     });
     highlighted.forEach(element => {
