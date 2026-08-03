@@ -5,11 +5,10 @@ export const Diff = {
 
 import { buildArticleDiff } from './diff/compare.js?v=20260101';
 import { loadLawTexts, loadRevisions, orderChronologically } from './diff/data.js?v=20260101';
-import { createComparisonModal, createSelectionModal } from './diff/ui.js?v=20260101';
+import { createDiffModal } from './diff/ui.js?v=20260101';
 
 let api;
-let selectionModal;
-let comparisonModal;
+let diffModal;
 let revisions = null;
 let revisionsLawId = '';
 let loadingPromise = null;
@@ -17,30 +16,24 @@ let comparisonVersion = 0;
 
 function init(value) {
     api = value;
-    comparisonModal = createComparisonModal({
-        onBack: () => {
-            comparisonModal.hide();
-            selectionModal.show();
-        },
-    });
-    selectionModal = createSelectionModal({
+    diffModal = createDiffModal({
         onCompare: compareSelected,
         onClose: cancelComparison,
     });
 }
 
 async function show() {
-    selectionModal.show();
+    diffModal.show();
 
     const lawId = api.getLawId();
     const baseLawId = lawId.split('_')[0];
     if (!baseLawId) {
-        selectionModal.setError('法令IDを取得できませんでした。');
+        diffModal.setError('法令IDを取得できませんでした。');
         return;
     }
 
     if (revisions && revisionsLawId === baseLawId) {
-        selectionModal.setRevisions(revisions, lawId);
+        diffModal.setRevisions(revisions, lawId);
         return;
     }
 
@@ -51,17 +44,17 @@ async function show() {
 
     revisionsLawId = baseLawId;
     revisions = null;
-    selectionModal.setLoading();
+    diffModal.setLoading();
     loadingPromise = loadRevisions(baseLawId);
 
     try {
         const loaded = await loadingPromise;
         if (revisionsLawId !== baseLawId) return;
         revisions = loaded;
-        selectionModal.setRevisions(revisions, lawId);
+        diffModal.setRevisions(revisions, lawId);
     } catch (error) {
         console.error(error);
-        selectionModal.setError('改正履歴を取得できませんでした。');
+        diffModal.setError('改正履歴を取得できませんでした。');
     } finally {
         loadingPromise = null;
     }
@@ -72,7 +65,7 @@ async function compareSelected(selected) {
 
     const functionVersion = ++comparisonVersion;
     const [oldRevision, newRevision] = orderChronologically(selected);
-    selectionModal.setBusy(true);
+    diffModal.setBusy(true);
 
     try {
         await waitForLoadingPaint();
@@ -85,23 +78,21 @@ async function compareSelected(selected) {
         const rows = buildArticleDiff(oldHtml, newHtml);
         await waitForNextFrame();
         if (functionVersion !== comparisonVersion) return;
-        comparisonModal.render({ oldRevision, newRevision, rows });
-        selectionModal.hide();
-        comparisonModal.show();
+        diffModal.showComparison({ oldRevision, newRevision, rows });
     } catch (error) {
         if (functionVersion !== comparisonVersion) return;
         console.error(error);
-        selectionModal.setError('比較する法令データを取得できませんでした。');
+        diffModal.setError('比較する法令データを取得できませんでした。');
     } finally {
         if (functionVersion === comparisonVersion) {
-            selectionModal.setBusy(false);
+            diffModal.setBusy(false);
         }
     }
 }
 
 function cancelComparison() {
     comparisonVersion++;
-    selectionModal.setBusy(false);
+    diffModal.setBusy(false);
 }
 
 function waitForLoadingPaint() {

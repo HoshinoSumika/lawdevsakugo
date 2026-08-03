@@ -1,5 +1,4 @@
-.diff-selection-content {
-    position: relative;
+.diff-content {
     overflow: hidden;
     width: 100%;
     display: flex;
@@ -8,7 +7,21 @@
     flex-direction: column;
 }
 
-.diff-selection-content.busy {
+.diff-view {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    display: none;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.diff-view.active {
+    display: flex;
+}
+
+.diff-selection-view.busy {
     pointer-events: none;
 }
 
@@ -124,15 +137,12 @@
 .diff-comparison-modal {
     font-size: 14px;
     line-height: 1.65;
+    transition: transform var(--transition-duration) ease, width var(--transition-duration) ease, height var(--transition-duration) ease, border-radius var(--transition-duration) ease !important;
 }
 
-.diff-comparison-content {
-    overflow: hidden;
-    width: 100%;
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    flex-direction: column;
+.diff-selection-modal.diff-no-transition,
+.diff-comparison-modal.diff-no-transition {
+    transition: none !important;
 }
 
 .diff-comparison-scroll {
@@ -161,25 +171,12 @@
 .diff-columns-header > div {
     overflow: hidden;
     padding: 8px 16px;
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .diff-columns-header > div + div {
     border-left: 1px solid var(--color-border);
-}
-
-.diff-columns-header strong {
-    flex: none;
-}
-
-.diff-columns-header span {
-    overflow: hidden;
-    color: var(--color-gray);
-    font-size: 13px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
 .diff-comparison-body {
@@ -354,10 +351,6 @@
 
     .diff-columns-header > div {
         padding: 6px 10px;
-        gap: 8px;
-    }
-
-    .diff-columns-header span {
         font-size: 10px;
     }
 

@@ -1,26 +1,34 @@
 import { Shell } from '/lib/shell.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 
-export function createSelectionModal({ onCompare, onClose }) {
+export function createDiffModal({ onCompare, onClose }) {
     const content = document.createElement('div');
-    content.className = 'diff-selection-content';
+    content.className = 'diff-content';
+
+    const selectionView = document.createElement('div');
+    selectionView.className = 'diff-view diff-selection-view';
+    content.appendChild(selectionView);
 
     const guidance = document.createElement('div');
     guidance.className = 'diff-selection-guidance';
     guidance.setAttribute('role', 'status');
     guidance.setAttribute('aria-live', 'polite');
-    content.appendChild(guidance);
+    selectionView.appendChild(guidance);
 
     const list = document.createElement('div');
     list.className = 'diff-revision-list';
-    content.appendChild(list);
+    selectionView.appendChild(list);
 
     const loading = document.createElement('div');
     loading.className = 'diff-loading';
     loading.textContent = 'Loading...';
     loading.setAttribute('role', 'status');
     loading.setAttribute('aria-live', 'polite');
-    content.appendChild(loading);
+    selectionView.appendChild(loading);
+
+    const comparisonView = document.createElement('div');
+    comparisonView.className = 'diff-view diff-comparison-view';
+    content.appendChild(comparisonView);
 
     const modal = Shell.createModal(content);
     modal.setTitle('条文比較');
@@ -32,18 +40,92 @@ export function createSelectionModal({ onCompare, onClose }) {
     };
     modal.enableCloseButton(dismiss);
     modal.setDismiss(dismiss);
-    content.parentElement.classList.add('diff-selection-modal');
+    const modalElement = content.parentElement;
 
     let revisions = [];
     let selectedIds = new Set();
     let busy = false;
     let selectionNotice = '';
+    let compareButton = null;
+    let renderVersion = 0;
 
-    const compareButton = modal.addRightButton('比較', () => {
-        if (busy || selectedIds.size !== 2) return;
-        const selected = revisions.filter(revision => selectedIds.has(revision.law_revision_id));
-        onCompare(selected);
-    });
+    function showSelection() {
+        renderVersion++;
+        comparisonView.innerHTML = '';
+        selectionView.classList.add('active');
+        comparisonView.classList.remove('active');
+        modalElement.classList.add('diff-selection-modal');
+        modalElement.classList.remove('diff-comparison-modal');
+        modal.disableBackButton();
+        modal.clearNav();
+        compareButton = modal.addRightButton('比較', () => {
+            if (busy || selectedIds.size !== 2) return;
+            const selected = revisions.filter(revision => selectedIds.has(revision.law_revision_id));
+            onCompare(selected);
+        });
+        updateAction();
+    }
+
+    function resetSelection() {
+        modalElement.classList.add('diff-no-transition');
+        showSelection();
+        void modalElement.offsetWidth;
+        modalElement.classList.remove('diff-no-transition');
+    }
+
+    function showComparison({ oldRevision, newRevision, rows }) {
+        const version = ++renderVersion;
+        comparisonView.innerHTML = '';
+        selectionView.classList.remove('active');
+        comparisonView.classList.add('active');
+        modalElement.classList.remove('diff-selection-modal');
+        modalElement.classList.add('diff-comparison-modal');
+        modal.clearNav();
+        compareButton = null;
+        modal.enableBackButton(showSelection);
+
+        afterResize(() => {
+            if (version !== renderVersion) return;
+            renderComparison({ oldRevision, newRevision, rows });
+        });
+    }
+
+    function afterResize(callback) {
+        void modalElement.offsetWidth;
+        const animations = modalElement.getAnimations()
+            .filter(animation => animation.transitionProperty === 'width'
+                || animation.transitionProperty === 'height');
+        if (animations.length === 0) {
+            callback();
+            return;
+        }
+        Promise.all(animations.map(animation => animation.finished))
+            .then(callback, callback);
+    }
+
+    function renderComparison({ oldRevision, newRevision, rows }) {
+        const scroll = document.createElement('div');
+        scroll.className = 'diff-comparison-scroll';
+
+        const header = document.createElement('div');
+        header.className = 'diff-columns-header';
+        header.appendChild(createColumnHeader(oldRevision));
+        header.appendChild(createColumnHeader(newRevision));
+        scroll.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'diff-comparison-body';
+        if (rows.length === 0) {
+            const message = document.createElement('div');
+            message.className = 'diff-no-changes';
+            message.textContent = '本文の条文に差分はありません。';
+            body.appendChild(message);
+        } else {
+            rows.forEach(row => body.appendChild(createDiffRow(row)));
+        }
+        scroll.appendChild(body);
+        comparisonView.appendChild(scroll);
+    }
 
     function setLoading() {
         selectedIds = new Set();
@@ -103,8 +185,9 @@ export function createSelectionModal({ onCompare, onClose }) {
     function updateAction() {
         const count = selectedIds.size;
         guidance.textContent = selectionNotice
-            || `比較する履歴を2件選択してください（${count}/2）`;
+            || `比較する履歴を2件選択してください（${count}/2）。`;
         guidance.classList.toggle('notice', Boolean(selectionNotice));
+        if (!compareButton) return;
         const disabled = busy || count !== 2;
         compareButton.classList.toggle('diff-button-disabled', disabled);
         compareButton.setAttribute('aria-disabled', String(disabled));
@@ -112,7 +195,7 @@ export function createSelectionModal({ onCompare, onClose }) {
 
     function setBusy(value) {
         busy = value;
-        content.classList.toggle('busy', busy);
+        selectionView.classList.toggle('busy', busy);
         setLoadingVisible(busy);
         updateAction();
     }
@@ -122,10 +205,10 @@ export function createSelectionModal({ onCompare, onClose }) {
         selectionNotice = '';
         setLoadingVisible(false);
         list.innerHTML = '';
-        const element = document.createElement('div');
-        element.className = 'diff-message diff-error';
-        element.textContent = message;
-        list.appendChild(element);
+        const item = document.createElement('div');
+        item.className = 'diff-message diff-error';
+        item.textContent = message;
+        list.appendChild(item);
         updateAction();
     }
 
@@ -140,10 +223,15 @@ export function createSelectionModal({ onCompare, onClose }) {
         list.scrollTop += itemRect.top - listRect.top - scrollOffset;
     }
 
+    showSelection();
     setLoading();
     return {
-        show: modal.show,
+        show: () => {
+            resetSelection();
+            modal.show();
+        },
         hide: modal.hide,
+        showComparison,
         setLoading,
         setRevisions,
         setBusy,
@@ -156,47 +244,6 @@ function matchesCurrentLaw(revision, currentLawId) {
     if (revision.law_revision_id === currentLawId) return true;
     return revision.current_revision_status === 'CurrentEnforced'
         && revision.law_revision_id.split('_')[0] === currentLawId;
-}
-
-export function createComparisonModal({ onBack }) {
-    const content = document.createElement('div');
-    content.className = 'diff-comparison-content';
-
-    const modal = Shell.createModal(content);
-    modal.setTitle('条文比較');
-    modal.setWidth('100vw');
-    modal.setHeight('100dvh');
-    modal.enableBackButton(onBack);
-    modal.enableCloseButton(modal.hide);
-    content.parentElement.classList.add('diff-comparison-modal');
-
-    function render({ oldRevision, newRevision, rows }) {
-        content.innerHTML = '';
-
-        const scroll = document.createElement('div');
-        scroll.className = 'diff-comparison-scroll';
-
-        const header = document.createElement('div');
-        header.className = 'diff-columns-header';
-        header.appendChild(createColumnHeader('古い履歴', oldRevision));
-        header.appendChild(createColumnHeader('新しい履歴', newRevision));
-        scroll.appendChild(header);
-
-        const body = document.createElement('div');
-        body.className = 'diff-comparison-body';
-        if (rows.length === 0) {
-            const message = document.createElement('div');
-            message.className = 'diff-no-changes';
-            message.textContent = '本文の条文に差分はありません。';
-            body.appendChild(message);
-        } else {
-            rows.forEach(row => body.appendChild(createDiffRow(row)));
-        }
-        scroll.appendChild(body);
-        content.appendChild(scroll);
-    }
-
-    return { show: modal.show, hide: modal.hide, render };
 }
 
 function createRevisionItem(revision, onToggle) {
@@ -234,14 +281,10 @@ function createRevisionItem(revision, onToggle) {
     return item;
 }
 
-function createColumnHeader(label, revision) {
+function createColumnHeader(revision) {
     const header = document.createElement('div');
-    const title = document.createElement('strong');
-    title.textContent = label;
-    const detail = document.createElement('span');
     const labels = formatRevision(revision);
-    detail.textContent = labels.primary + '　' + labels.secondary;
-    header.append(title, detail);
+    header.textContent = labels.primary + labels.secondary;
     return header;
 }
 
