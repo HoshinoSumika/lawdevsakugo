@@ -1,23 +1,4 @@
-export function buildArticleDiff(oldHtml, newHtml) {
-    const oldArticles = extractArticles(oldHtml);
-    const newArticles = extractArticles(newHtml);
-    const rows = computeArticleDiff(
-        serializeArticles(oldArticles),
-        serializeArticles(newArticles),
-    );
-    return hydrateArticleDiff(rows, oldArticles, newArticles);
-}
-
-export function prepareArticleDiff(oldHtml, newHtml) {
-    const oldArticles = extractArticles(oldHtml);
-    const newArticles = extractArticles(newHtml);
-    return {
-        oldArticles,
-        newArticles,
-        oldInput: serializeArticles(oldArticles),
-        newInput: serializeArticles(newArticles),
-    };
-}
+const MAX_EDIT_DISTANCE = 1000;
 
 export function computeArticleDiff(oldArticles, newArticles) {
     const aligned = alignArticles(oldArticles, newArticles);
@@ -38,63 +19,6 @@ export function computeArticleDiff(oldArticles, newArticles) {
             newRanges: changes.newRanges,
         }];
     });
-}
-
-export function hydrateArticleDiff(rows, oldArticles, newArticles) {
-    return rows.map(({ oldIndex, newIndex, ...row }) => ({
-        ...row,
-        oldArticle: getAlignedArticle(oldArticles, oldIndex),
-        newArticle: getAlignedArticle(newArticles, newIndex),
-    }));
-}
-
-export function extractArticles(html) {
-    const container = document.createElement('div');
-    container.innerHTML = html || '';
-    const mainProvision = container.querySelector('.MainProvision');
-    if (!mainProvision) return [];
-
-    let elements = Array.from(mainProvision.querySelectorAll('.Article'))
-        .filter(article => !article.closest('.SupplProvision'));
-    let type = 'article';
-    if (elements.length === 0) {
-        elements = Array.from(mainProvision.querySelectorAll(
-            ':scope > .ParagraphContainer, :scope > .Paragraph',
-        ));
-        type = 'paragraph';
-    }
-
-    const occurrences = new Map();
-    return elements
-        .map((article, index) => {
-            const baseKey = getArticleKey(article, index, type);
-            const occurrence = (occurrences.get(baseKey) || 0) + 1;
-            occurrences.set(baseKey, occurrence);
-            return {
-                key: baseKey + ':' + occurrence,
-                element: article,
-            };
-        });
-}
-
-function serializeArticles(articles) {
-    return articles.map(article => ({
-        key: article.key,
-        text: article.element.textContent,
-    }));
-}
-
-function getArticleKey(article, index, type) {
-    const keyElement = type === 'paragraph' && article.classList.contains('ParagraphContainer')
-        ? article.querySelector(':scope > .Paragraph')
-        : article;
-    const number = keyElement?.getAttribute('data-num');
-    if (number) return type + '-num:' + number;
-
-    const titleSelector = type === 'article' ? '.ArticleTitle' : '.ParagraphNum';
-    const title = keyElement?.querySelector(titleSelector)?.textContent.trim();
-    if (title) return type + '-title:' + title;
-    return type + '-index:' + index;
 }
 
 function normalizedText(text) {
@@ -136,10 +60,7 @@ function diffText(oldText, newText) {
     const operations = myersDiff(oldMiddle, newMiddle);
 
     if (!operations) {
-        return {
-            oldRanges: rangeForTokens(oldMiddle),
-            newRanges: rangeForTokens(newMiddle),
-        };
+        return { oldRanges: null, newRanges: null };
     }
 
     const oldRanges = [];
@@ -162,8 +83,6 @@ function toCharacterTokens(text) {
         return token;
     });
 }
-
-const MAX_EDIT_DISTANCE = 1000;
 
 function myersDiff(oldTokens, newTokens) {
     const maxDistance = oldTokens.length + newTokens.length;
@@ -260,11 +179,6 @@ function appendRange(ranges, start, end) {
     } else {
         ranges.push({ start, end });
     }
-}
-
-function rangeForTokens(tokens) {
-    if (tokens.length === 0) return [];
-    return [{ start: tokens[0].start, end: tokens[tokens.length - 1].end }];
 }
 
 function alignArticles(oldArticles, newArticles) {

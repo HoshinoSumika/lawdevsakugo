@@ -1,5 +1,10 @@
+import { Scroll } from '/lib/scroll.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
+
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
+
+const SCROLL_DELAY = 200;
+const SCROLL_DURATION = 800;
 
 export function createDiffModal({ onCompare, onClose }) {
     const content = document.createElement('div');
@@ -158,7 +163,7 @@ export function createDiffModal({ onCompare, onClose }) {
                 list.appendChild(item);
             });
             if (scrollTarget) {
-                requestAnimationFrame(() => scrollToRevision(scrollTarget));
+                setTimeout(() => scrollToRevision(scrollTarget), SCROLL_DELAY);
             }
         }
         updateAction();
@@ -195,8 +200,18 @@ export function createDiffModal({ onCompare, onClose }) {
 
     function setBusy(value) {
         busy = value;
+        if (busy) {
+            selectionNotice = '';
+        }
         selectionView.classList.toggle('busy', busy);
         setLoadingVisible(busy);
+        updateAction();
+        return busy ? afterPaint() : Promise.resolve();
+    }
+
+    function setComparisonError(message) {
+        selectionNotice = message;
+        setLoadingVisible(false);
         updateAction();
     }
 
@@ -217,10 +232,12 @@ export function createDiffModal({ onCompare, onClose }) {
     }
 
     function scrollToRevision(item) {
+        if (!item.isConnected) return;
         const scrollOffset = 12;
         const listRect = list.getBoundingClientRect();
         const itemRect = item.getBoundingClientRect();
-        list.scrollTop += itemRect.top - listRect.top - scrollOffset;
+        const top = list.scrollTop + itemRect.top - listRect.top - scrollOffset;
+        Scroll.smooth(list, top, SCROLL_DURATION);
     }
 
     showSelection();
@@ -230,13 +247,21 @@ export function createDiffModal({ onCompare, onClose }) {
             resetSelection();
             modal.show();
         },
-        hide: modal.hide,
         showComparison,
         setLoading,
         setRevisions,
         setBusy,
+        setComparisonError,
         setError,
     };
+}
+
+function afterPaint() {
+    return new Promise(resolve => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(resolve);
+        });
+    });
 }
 
 function matchesCurrentLaw(revision, currentLawId) {

@@ -1,8 +1,6 @@
 import { Device } from '/lib/device.js?v=20260101';
 import { Message } from '/lib/message.js?v=20260101';
-import { Storage } from '/lib/storage.js?v=20260101';
 
-import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Route } from '/global/route.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
@@ -121,41 +119,10 @@ async function initContent() {
         return;
     }
 
-    let result;
-    let cache = null;
-
-    try {
-        cache = await Cache.open('LawFullTextBeta');
-        await cache.cleanup();
-        if (!Storage.get('dev', false)) {
-            result = await cache.getItem(id);
-        }
-    } catch (e) {
-        console.error(e);
-    }
+    const result = await Service.getLawFullText(id);
     if (!result) {
-        result = await Service.getLawFullText(id);
-        if (result && cache) {
-            try {
-                await cache.setItem(id, result);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-    }
-    if (!result) {
-        cache?.close();
         message.innerHTML = 'データを取得できませんでした。';
         return;
-    }
-    if (cache) {
-        try {
-            await cache.cleanup();
-        } catch (error) {
-            console.error(error);
-        } finally {
-            cache.close();
-        }
     }
 
     if (functionVersion < contentVersion) {

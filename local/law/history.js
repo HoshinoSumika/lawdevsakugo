@@ -3,11 +3,14 @@ export const History = {
     show,
 };
 
+import { Scroll } from '/lib/scroll.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
 
-import { Cache } from '/global/cache.js?v=20260101';
 import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
+
+const SCROLL_DELAY = 200;
+const SCROLL_DURATION = 800;
 
 let api;
 let modal;
@@ -26,8 +29,8 @@ function init(value) {
 }
 
 function show() {
-    updateContent();
     modal.show();
+    updateContent();
 }
 
 function hide() {
@@ -35,6 +38,7 @@ function hide() {
 }
 
 let revisions;
+let revisionsLawId = '';
 
 async function updateContent() {
     let id = api.getLawId();
@@ -44,38 +48,10 @@ async function updateContent() {
     if (id.includes('_')) {
         id = id.split('_')[0];
     }
-    if (!revisions) {
+    if (!revisions || revisionsLawId !== id) {
         historyContent.innerHTML = '<div style="width: 100%; height: 32px; text-align: center;">' + 'Loading...' + '</div>';
-        let cache = null;
-        try {
-            cache = await Cache.open('LawRevisionsBeta');
-            await cache.cleanup();
-            revisions = await cache.getItem(id);
-            check();
-        } catch (e) {
-            console.error(e);
-        }
-        if (!revisions) {
-            const data = await Service.getLawRevisions(id);
-            revisions = data ? data.revisions : null;
-            check();
-            if (revisions && cache) {
-                try {
-                    await cache.setItem(id, revisions);
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-        }
-        if (cache) {
-            try {
-                await cache.cleanup();
-            } catch (error) {
-                console.error(error);
-            } finally {
-                cache.close();
-            }
-        }
+        revisionsLawId = id;
+        revisions = await Service.getLawRevisions(id);
     }
     if (revisions) {
         historyContent.innerHTML = '';
@@ -145,32 +121,12 @@ function renderContent() {
     });
 
     if (scrollTarget) {
-        historyContent.scrollTop = scrollTarget.offsetTop - parseFloat(window.getComputedStyle(historyContent).paddingTop);
+        setTimeout(() => scrollToRevision(scrollTarget), SCROLL_DELAY);
     }
 }
 
-function check() {
-    if (!Array.isArray(revisions) || revisions.length === 0) {
-        return;
-    }
-
-    const hasCurrentEnforced = revisions.some(revision => revision.current_revision_status === 'CurrentEnforced');
-    if (hasCurrentEnforced) {
-        return;
-    }
-
-    let foundUnEnforced = false;
-
-    for (const revision of revisions) {
-        if (revision.current_revision_status === 'UnEnforced') {
-            foundUnEnforced = true;
-            continue;
-        }
-
-        if (revision.current_revision_status === 'PreviousEnforced') {
-            revision.current_revision_status = 'CurrentEnforced';
-        }
-
-        break;
-    }
+function scrollToRevision(item) {
+    if (!item.isConnected) return;
+    const paddingTop = parseFloat(window.getComputedStyle(historyContent).paddingTop);
+    Scroll.smooth(historyContent, item.offsetTop - paddingTop, SCROLL_DURATION);
 }
