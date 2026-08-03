@@ -3,16 +3,15 @@ export const Sabun = {
     show,
 };
 
+import { Convert } from '/lib/convert.js?v=20260101';
 import { Scroll } from '/lib/scroll.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
 
 import { Diff } from '/global/diff.js?v=20260101';
-import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 
 const DELETION_CLASS = 'diff-inline-deletion';
 const ADDITION_CLASS = 'diff-inline-addition';
-const SCROLL_DELAY = 200;
 const SCROLL_DURATION = 800;
 
 let api;
@@ -138,7 +137,13 @@ async function compare() {
             notice = '比較する法令データを取得できませんでした。';
             return;
         }
-        showComparisonView(oldRevision, newRevision, buildRows(oldHtml, newHtml));
+
+        const rows = buildRows(oldHtml, newHtml);
+        if (!rows) {
+            notice = '法令データから条文を抽出できませんでした。';
+            return;
+        }
+        showComparisonView(oldRevision, newRevision, rows);
     } finally {
         if (version === requestVersion) {
             setBusy(false);
@@ -245,7 +250,7 @@ function renderRevisions(currentLawId) {
     renderSelection();
 
     if (scrollTarget) {
-        setTimeout(() => scrollToRevision(scrollTarget), SCROLL_DELAY);
+        afterResize(() => scrollToRevision(scrollTarget));
     }
 }
 
@@ -363,11 +368,11 @@ function formatRevision(revision) {
     const enforcementDate = revision.amendment_enforcement_date || '';
     let primary = '';
     if (revision.current_revision_status === 'UnEnforced') {
-        primary = (revision.amendment_enforcement_comment || Kaiseki.wareki(enforcementDate)) + '　施行予定';
+        primary = (revision.amendment_enforcement_comment || Convert.date(enforcementDate)) + '　施行予定';
     } else if (revision.current_revision_status === 'CurrentEnforced') {
-        primary = Kaiseki.wareki(enforcementDate) + '　現在施行';
+        primary = Convert.date(enforcementDate) + '　現在施行';
     } else if (revision.current_revision_status === 'PreviousEnforced') {
-        primary = Kaiseki.wareki(enforcementDate) + '　施行';
+        primary = Convert.date(enforcementDate) + '　施行';
     }
 
     const secondary = revision.amendment_law_num
@@ -383,15 +388,15 @@ function createColumnHeader(revision) {
     return header;
 }
 
-function createDiffRow({ oldItem, newItem, highlighted }) {
+function createDiffRow({ oldItem, newItem, oldRanges, newRanges }) {
     const row = document.createElement('div');
     row.className = 'diff-article-row';
-    row.appendChild(createArticleCell(oldItem, 'deletion', highlighted));
-    row.appendChild(createArticleCell(newItem, 'addition', highlighted));
+    row.appendChild(createArticleCell(oldItem, 'deletion', oldRanges, DELETION_CLASS));
+    row.appendChild(createArticleCell(newItem, 'addition', newRanges, ADDITION_CLASS));
     return row;
 }
 
-function createArticleCell(article, type, highlighted) {
+function createArticleCell(article, type, ranges, className) {
     const cell = document.createElement('div');
     cell.className = 'diff-article-cell';
     if (!article) {
@@ -400,7 +405,9 @@ function createArticleCell(article, type, highlighted) {
     }
 
     cell.classList.add(type);
-    if (!highlighted) {
+    if (ranges) {
+        Convert.wrap(article.element, ranges, className);
+    } else {
         cell.classList.add('full-change');
     }
     cell.dataset.marker = type === 'deletion' ? '−' : '+';
@@ -409,27 +416,25 @@ function createArticleCell(article, type, highlighted) {
 }
 
 function buildRows(oldHtml, newHtml) {
-    return Diff.compare(extractArticles(oldHtml), extractArticles(newHtml), {
-        deletionClass: DELETION_CLASS,
-        additionClass: ADDITION_CLASS,
-    });
+    const oldArticles = extractArticles(oldHtml);
+    const newArticles = extractArticles(newHtml);
+    if (!oldArticles || !newArticles) return null;
+    return Diff.compare(oldArticles, newArticles);
 }
 
 function extractArticles(html) {
     const container = document.createElement('div');
     container.innerHTML = html;
     const mainProvision = container.querySelector('.MainProvision');
-    if (!mainProvision) return [];
+    if (!mainProvision) return null;
 
-    let elements = Array.from(mainProvision.querySelectorAll('.Article'))
-        .filter(element => !element.closest('.SupplProvision'));
+    let elements = Array.from(mainProvision.querySelectorAll('.Article'));
     let type = 'article';
     if (elements.length === 0) {
-        elements = Array.from(mainProvision.querySelectorAll(
-            ':scope > .ParagraphContainer, :scope > .Paragraph',
-        ));
+        elements = Array.from(mainProvision.querySelectorAll(':scope > .ParagraphContainer'));
         type = 'paragraph';
     }
+    if (elements.length === 0) return null;
 
     return elements.map((element, index) => ({
         key: getArticleKey(element, index, type),
@@ -439,7 +444,7 @@ function extractArticles(html) {
 }
 
 function getArticleKey(element, index, type) {
-    const target = element.classList.contains('ParagraphContainer')
+    const target = type === 'paragraph'
         ? element.querySelector(':scope > .Paragraph')
         : element;
 

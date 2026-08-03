@@ -2,22 +2,13 @@ export const Diff = {
     compare,
 };
 
-const DEFAULT_DELETION_CLASS = 'diff-deletion';
-const DEFAULT_ADDITION_CLASS = 'diff-addition';
-const DEFAULT_MAX_EDIT_DISTANCE = 1000;
+const MAX_EDIT_DISTANCE = 1000;
 
-function compare(oldItems, newItems, options) {
-    const settings = {
-        deletionClass: DEFAULT_DELETION_CLASS,
-        additionClass: DEFAULT_ADDITION_CLASS,
-        maxEditDistance: DEFAULT_MAX_EDIT_DISTANCE,
-        ...options,
-    };
-
+function compare(oldItems, newItems) {
     const rows = [];
     alignItems(oldItems, newItems).forEach(({ oldItem, newItem }) => {
         if (!oldItem || !newItem) {
-            rows.push({ oldItem, newItem, highlighted: false });
+            rows.push({ oldItem, newItem, oldRanges: null, newRanges: null });
             return;
         }
         if (normalizeText(oldItem.text) === normalizeText(newItem.text)) return;
@@ -25,16 +16,9 @@ function compare(oldItems, newItems, options) {
         const { oldRanges, newRanges } = diffText(
             oldItem.text,
             newItem.text,
-            settings.maxEditDistance,
+            MAX_EDIT_DISTANCE,
         );
-        if (!oldRanges) {
-            rows.push({ oldItem, newItem, highlighted: false });
-            return;
-        }
-
-        highlightRanges(oldItem.element, oldRanges, settings.deletionClass);
-        highlightRanges(newItem.element, newRanges, settings.additionClass);
-        rows.push({ oldItem, newItem, highlighted: true });
+        rows.push({ oldItem, newItem, oldRanges, newRanges });
     });
     return rows;
 }
@@ -212,60 +196,6 @@ function backtrack(trace, oldChars, newChars) {
         oldIndex--;
         newIndex--;
     }
-    while (oldIndex > 0) {
-        operations.push({ type: 'delete', value: oldChars[oldIndex - 1] });
-        oldIndex--;
-    }
-    while (newIndex > 0) {
-        operations.push({ type: 'insert', value: newChars[newIndex - 1] });
-        newIndex--;
-    }
 
     return operations.reverse();
-}
-
-function highlightRanges(element, ranges, className) {
-    if (!element || ranges.length === 0) return;
-
-    const owner = element.ownerDocument;
-    const textNodes = [];
-    collectTextNodes(element, textNodes);
-
-    let offset = 0;
-    textNodes.forEach(textNode => {
-        const nodeStart = offset;
-        const nodeEnd = nodeStart + textNode.data.length;
-        offset = nodeEnd;
-
-        const parts = ranges
-            .filter(range => range.start < nodeEnd && range.end > nodeStart)
-            .map(range => ({
-                start: Math.max(range.start, nodeStart) - nodeStart,
-                end: Math.min(range.end, nodeEnd) - nodeStart,
-            }));
-        if (parts.length === 0) return;
-
-        const fragment = owner.createDocumentFragment();
-        let cursor = 0;
-        parts.forEach(part => {
-            fragment.append(textNode.data.slice(cursor, part.start));
-            const highlight = owner.createElement('span');
-            highlight.className = className;
-            highlight.textContent = textNode.data.slice(part.start, part.end);
-            fragment.appendChild(highlight);
-            cursor = part.end;
-        });
-        fragment.append(textNode.data.slice(cursor));
-        textNode.replaceWith(fragment);
-    });
-}
-
-function collectTextNodes(node, result) {
-    node.childNodes.forEach(child => {
-        if (child.nodeType === Node.TEXT_NODE) {
-            result.push(child);
-        } else {
-            collectTextNodes(child, result);
-        }
-    });
 }

@@ -3,10 +3,10 @@ export const History = {
     show,
 };
 
+import { Convert } from '/lib/convert.js?v=20260101';
 import { Scroll } from '/lib/scroll.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
 
-import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 
 const SCROLL_DELAY = 200;
@@ -78,14 +78,14 @@ function renderContent() {
                 str = '<div>' + enforcementComment + '　施行予定' + '</div>';
             } else {
                 const enforcementDate = revision.amendment_enforcement_date || '';
-                str = '<div>' + Kaiseki.wareki(enforcementDate) + '　施行予定' + '</div>';
+                str = '<div>' + Convert.date(enforcementDate) + '　施行予定' + '</div>';
             }
         } else if (revision.current_revision_status === 'CurrentEnforced') {
             const enforcementDate = revision.amendment_enforcement_date || '';
-            str = '<div>' + Kaiseki.wareki(enforcementDate) + '　現在施行' + '</div>';
+            str = '<div>' + Convert.date(enforcementDate) + '　現在施行' + '</div>';
         } else if (revision.current_revision_status === 'PreviousEnforced') {
             const enforcementDate = revision.amendment_enforcement_date || '';
-            str = '<div>' + Kaiseki.wareki(enforcementDate) + '　施行' + '</div>';
+            str = '<div>' + Convert.date(enforcementDate) + '　施行' + '</div>';
         }
         if (revision.amendment_law_num) {
             str += '<div>' + '（' + revision.amendment_law_num + '）' + '</div>';

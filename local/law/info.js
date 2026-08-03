@@ -5,9 +5,8 @@ export const Info = {
     clear,
 };
 
+import { Convert } from '/lib/convert.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
-
-import { Kaiseki } from '/global/kaiseki.js?v=20260101';
 
 let modal;
 let lawContent;
@@ -101,7 +100,7 @@ function updateContent() {
         const th = document.createElement('th');
         th.textContent = '公布日';
         const td = document.createElement('td');
-        td.textContent = Kaiseki.wareki(value);
+        td.textContent = Convert.date(value);
         tr.appendChild(th);
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -113,7 +112,7 @@ function updateContent() {
         const th = document.createElement('th');
         th.textContent = '施行日';
         const td = document.createElement('td');
-        td.textContent = Kaiseki.wareki(value);
+        td.textContent = Convert.date(value);
         tr.appendChild(th);
         tr.appendChild(td);
         tbody.appendChild(tr);
