@@ -7,11 +7,11 @@ import { Service } from '/global/service.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';
 
 import { Config } from './config.js?v=20260101';
-import { Diff } from './diff.js?v=20260101';
 import { History } from './history.js?v=20260101';
 import { Info } from './info.js?v=20260101';
 import { Menu } from './menu.js?v=20260101';
 import { Mokuji } from './mokuji.js?v=20260101';
+import { Sabun } from './sabun.js?v=20260101';
 import { Search } from './search.js?v=20260101';
 
 const contentEl = document.querySelector('#content');
@@ -25,7 +25,7 @@ const api = {
     onDisplayChange: () => Mokuji.update(),
     onRevisionSelect: (id) => moveToLaw(id),
     onConfigSelect: () => Config.show(),
-    onDiffSelect: () => Diff.show(),
+    onDiffSelect: () => Sabun.show(),
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
     onMokujiSelect: () => Mokuji.toggle(),
@@ -35,11 +35,11 @@ window.addEventListener('DOMContentLoaded', () => {
     Theme.init(api);
 
     Config.init(api);
-    Diff.init(api);
     History.init(api);
     Info.init(api);
     Menu.init(api);
     Mokuji.init(api);
+    Sabun.init(api);
     Search.init(api);
 
     initMenuButton();
