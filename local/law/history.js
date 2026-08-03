@@ -120,6 +120,7 @@ function renderContent() {
         historyContent.appendChild(item);
     });
 
+    historyContent.scrollTop = 0;
     if (scrollTarget) {
         setTimeout(() => scrollToRevision(scrollTarget), SCROLL_DELAY);
     }

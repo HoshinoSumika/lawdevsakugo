@@ -162,6 +162,7 @@ export function createDiffModal({ onCompare, onClose }) {
                 }
                 list.appendChild(item);
             });
+            list.scrollTop = 0;
             if (scrollTarget) {
                 setTimeout(() => scrollToRevision(scrollTarget), SCROLL_DELAY);
             }
