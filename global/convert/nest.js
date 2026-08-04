@@ -1,89 +1,101 @@
-export function nest(element, options) {
-    const [open, close] = options.pair;
-    const quote = options.quote || [];
+function analyze(text, pair, quote) {
+    const [open, close] = pair;
     const [quoteOpen, quoteClose] = quote;
+    const ignored = new Uint8Array(text.length);
 
-    const marks = [open, close];
-    if (quote.length > 0) {
-        marks.push(quoteOpen, quoteClose);
-    }
+    let quoteStart = -1;
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] === quoteOpen && quoteStart < 0) {
+            quoteStart = i;
+        } else if (text[i] === quoteClose && quoteStart >= 0) {
+            const stack = [];
 
-    const pattern = new RegExp('(' + marks.map(escapePattern).join('|') + ')');
-    const owner = element.ownerDocument;
-
-    let quoteDepth = 0;
-
-    function convertElement(node, hasOpenAncestor) {
-        const savedQuoteDepth = quoteDepth;
-        const clone = node.cloneNode(false);
-        const success = convertChildren(Array.from(node.childNodes), clone, hasOpenAncestor);
-        quoteDepth = savedQuoteDepth;
-        return success ? clone : node.cloneNode(true);
-    }
-
-    function convertChildren(nodes, parent, hasOpenAncestor) {
-        const entryQuoteDepth = quoteDepth;
-        const stack = [];
-
-        function appendNode(node) {
-            const target = stack.length ? stack[stack.length - 1] : parent;
-            target.appendChild(node);
-        }
-
-        function appendText(text) {
-            appendNode(owner.createTextNode(text));
-        }
-
-        for (let node of nodes) {
-            if (node.nodeType === Node.TEXT_NODE) {
-                for (let part of node.nodeValue.split(pattern)) {
-                    if (!part) continue;
-
-                    if (part === quoteOpen) {
-                        quoteDepth++;
-                        appendText(part);
-                    } else if (part === quoteClose) {
-                        appendText(part);
-                        quoteDepth = Math.max(quoteDepth - 1, 0);
-                    } else if (part === open && quoteDepth === 0) {
-                        const span = owner.createElement('span');
-                        span.className = options.className;
-                        span.textContent = open;
-                        appendNode(span);
-                        stack.push(span);
-                    } else if (part === close && quoteDepth === 0) {
-                        if (stack.length === 0) {
-                            console.log(hasOpenAncestor
-                                ? 'Nesting across elements : ' + open + close
-                                : 'Missing open : ' + open);
-                            return false;
-                        }
-                        stack[stack.length - 1].appendChild(owner.createTextNode(close));
-                        stack.pop();
-                    } else {
-                        appendText(part);
-                    }
+            for (let j = quoteStart + 1; j < i; j++) {
+                if (text[j] === open) {
+                    stack.push(j);
+                } else if (text[j] === close) {
+                    if (stack.length) stack.pop();
+                    else ignored[j] = 1;
                 }
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-                appendNode(convertElement(node, hasOpenAncestor || stack.length > 0));
-            } else {
-                appendNode(node.cloneNode(true));
             }
+            for (const j of stack) ignored[j] = 1;
+            quoteStart = -1;
         }
-
-        if (stack.length > 0) {
-            console.log('Missing close : ' + close + ' : ' + stack.map(el => el.outerHTML));
-            return false;
-        }
-        if (quoteDepth > entryQuoteDepth) {
-            console.log('Unclosed quote : ' + quoteOpen);
-        }
-        return true;
     }
 
-    return convertElement(element, false);
+    const events = new Int8Array(text.length);
+    const stack = [];
+
+    for (let i = 0; i < text.length; i++) {
+        if (ignored[i]) continue;
+
+        if (text[i] === open) {
+            stack.push(i);
+        } else if (text[i] === close && stack.length) {
+            events[stack.pop()] = 1;
+            events[i] = -1;
+        }
+    }
+
+    const levels = new Uint16Array(text.length);
+    let depth = 0;
+
+    for (let i = 0; i < text.length; i++) {
+        if (events[i] === 1) depth++;
+        levels[i] = depth;
+        if (events[i] === -1) depth--;
+    }
+
+    return { events, ignored, levels };
 }
 
-function escapePattern(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function nest(element, options = {}) {
+    const pair = options.pair || ['（', '）'];
+    const quote = options.quote || ['「', '」'];
+    const className = options.className || 'bracket';
+    const clone = element.cloneNode(true);
+    const textNodes = [];
+
+    (function collect(node) {
+        for (const child of node.childNodes) {
+            if (child.nodeType === 3) textNodes.push(child);
+            else if (child.nodeType === 1) collect(child);
+        }
+    })(clone);
+
+    const text = textNodes.map(node => node.nodeValue).join('');
+    const { levels } = analyze(text, pair, quote);
+    const document = clone.ownerDocument;
+    let offset = 0;
+
+    for (const node of textNodes) {
+        const fragment = document.createDocumentFragment();
+        const length = node.nodeValue.length;
+        let start = 0;
+
+        while (start < length) {
+            const depth = levels[offset + start];
+            let end = start + 1;
+            while (end < length && levels[offset + end] === depth) end++;
+
+            const value = text.slice(offset + start, offset + end);
+            if (depth === 0) {
+                fragment.append(value);
+            } else {
+                const span = document.createElement('span');
+                span.className = `${className} ${className}--${depth}`;
+                span.dataset.bracketDepth = String(depth);
+                span.textContent = value;
+                fragment.append(span);
+            }
+            start = end;
+        }
+
+        node.replaceWith(fragment);
+        offset += length;
+    }
+
+    return clone;
 }
+
+export { nest };

@@ -71,11 +71,12 @@ function showParenColor() {
 
     const style = document.createElement('style');
     style.id = 'style-paren-color';
-    style.textContent = '.Sentence .tag-paren { color: ' + c1 + '; }';
-    style.textContent += '.Sentence .tag-paren > .tag-paren { color: ' + c2 + '; }';
-    style.textContent += '.Sentence .tag-paren > .tag-paren > .tag-paren { color: ' + c3 + '; }';
-    style.textContent += '.Sentence .tag-paren > .tag-paren > .tag-paren > .tag-paren { color: ' + c4 + '; }';
-    style.textContent += '.Sentence .tag-paren > .tag-paren > .tag-paren > .tag-paren > .tag-paren { color: ' + c5 + '; }';
+    style.textContent = '.Sentence .tag-paren { color: ' + c5 + '; }';
+    style.textContent += '.Sentence .tag-paren--1 { color: ' + c1 + '; }';
+    style.textContent += '.Sentence .tag-paren--2 { color: ' + c2 + '; }';
+    style.textContent += '.Sentence .tag-paren--3 { color: ' + c3 + '; }';
+    style.textContent += '.Sentence .tag-paren--4 { color: ' + c4 + '; }';
+    style.textContent += '.Sentence .tag-paren--5 { color: ' + c5 + '; }';
     document.head.appendChild(style);
 }
 
@@ -109,7 +110,6 @@ function showParenBackground() {
     const style = document.createElement('style');
     style.id = 'style-paren-background';
     style.textContent = '.Sentence .tag-paren { background: ' + background + '; }';
-    style.textContent += '.Sentence .tag-paren .tag-paren { background: none; }';
     document.head.appendChild(style);
 }
 
@@ -130,7 +130,6 @@ function showParenFontSize() {
     const style = document.createElement('style');
     style.id = 'style-paren-font-size';
     style.textContent = '.Sentence .tag-paren { font-size: ' + size + 'em; }';
-    style.textContent += '.Sentence .tag-paren .tag-paren { font-size: 1em; }';
     document.head.appendChild(style);
 }
 
