@@ -52,7 +52,8 @@ function analyze(text, pair, quote) {
 function nest(element, options = {}) {
     const pair = options.pair || ['（', '）'];
     const quote = options.quote || ['「', '」'];
-    const className = options.className || 'bracket';
+    const className = options.className || 'paren';
+    const dataName = options.dataName || 'depth';
     const clone = element.cloneNode(true);
     const textNodes = [];
 
@@ -83,8 +84,8 @@ function nest(element, options = {}) {
                 fragment.append(value);
             } else {
                 const span = document.createElement('span');
-                span.className = `${className} ${className}--${depth}`;
-                span.dataset.bracketDepth = String(depth);
+                span.className = className;
+                span.setAttribute('data-' + dataName, String(depth));
                 span.textContent = value;
                 fragment.append(span);
             }

@@ -72,11 +72,11 @@ function showParenColor() {
     const style = document.createElement('style');
     style.id = 'style-paren-color';
     style.textContent = '.Sentence .tag-paren { color: ' + c5 + '; }';
-    style.textContent += '.Sentence .tag-paren--1 { color: ' + c1 + '; }';
-    style.textContent += '.Sentence .tag-paren--2 { color: ' + c2 + '; }';
-    style.textContent += '.Sentence .tag-paren--3 { color: ' + c3 + '; }';
-    style.textContent += '.Sentence .tag-paren--4 { color: ' + c4 + '; }';
-    style.textContent += '.Sentence .tag-paren--5 { color: ' + c5 + '; }';
+    style.textContent += '.Sentence .tag-paren[data-depth="1"] { color: ' + c1 + '; }';
+    style.textContent += '.Sentence .tag-paren[data-depth="2"] { color: ' + c2 + '; }';
+    style.textContent += '.Sentence .tag-paren[data-depth="3"] { color: ' + c3 + '; }';
+    style.textContent += '.Sentence .tag-paren[data-depth="4"] { color: ' + c4 + '; }';
+    style.textContent += '.Sentence .tag-paren[data-depth="5"] { color: ' + c5 + '; }';
     document.head.appendChild(style);
 }
 

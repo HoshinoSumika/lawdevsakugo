@@ -18,6 +18,7 @@ const PAREN = {
     pair: ['（', '）'],
     quote: ['「', '」'],
     className: 'tag-paren',
+    dataName: 'depth',
 };
 
 const TERMS = {
