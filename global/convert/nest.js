@@ -1,5 +1,3 @@
-import { escapePattern } from '/global/convert/escape.js?v=20260101';
-
 export function nest(element, options) {
     const [open, close] = options.pair;
     const quote = options.quote || [];
@@ -84,4 +82,8 @@ export function nest(element, options) {
     }
 
     return convertElement(element, false);
+}
+
+function escapePattern(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

@@ -1,5 +1,3 @@
-import { escapePattern } from '/global/convert/escape.js?v=20260101';
-
 export function term(element, terms) {
     const words = Object.keys(terms).filter(word => word.length > 0);
     if (words.length === 0) {
@@ -44,4 +42,8 @@ export function term(element, terms) {
         old.replaceWith(fragment);
     });
     return element;
+}
+
+function escapePattern(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
