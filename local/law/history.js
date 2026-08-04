@@ -3,10 +3,10 @@ export const History = {
     show,
 };
 
-import { Convert } from '/lib/convert.js?v=20260101';
 import { Scroll } from '/lib/scroll.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
 
+import { Convert } from '/global/convert.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 
 const SCROLL_DELAY = 200;

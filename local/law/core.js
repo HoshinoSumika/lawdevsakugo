@@ -1,7 +1,7 @@
-import { Convert } from '/lib/convert.js?v=20260101';
 import { Device } from '/lib/device.js?v=20260101';
 import { Message } from '/lib/message.js?v=20260101';
 
+import { Convert } from '/global/convert.js?v=20260101';
 import { Route } from '/global/route.js?v=20260101';
 import { Service } from '/global/service.js?v=20260101';
 import { Theme } from '/global/theme.js?v=20260101';

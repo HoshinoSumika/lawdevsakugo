@@ -5,8 +5,9 @@ export const Info = {
     clear,
 };
 
-import { Convert } from '/lib/convert.js?v=20260101';
 import { Shell } from '/lib/shell.js?v=20260101';
+
+import { Convert } from '/global/convert.js?v=20260101';
 
 let modal;
 let lawContent;

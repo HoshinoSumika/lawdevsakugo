@@ -7,7 +7,7 @@ export const Service = {
 import { Storage } from '/lib/storage.js?v=20260101';
 
 import { Cache } from '/global/cache.js?v=20260101';
-import { convert } from '/global/convert.js?v=20260101';
+import { Convert } from '/global/convert.js?v=20260101';
 
 const CACHE_NAME_FULL_TEXT = 'LawFullTextBeta';
 const CACHE_NAME_REVISIONS = 'LawRevisionsBeta';
@@ -94,7 +94,7 @@ async function fetchLawFullText(id) {
         const res = await fetch(url);
         if (res.ok) {
             let result = await res.text();
-            result = convert(result);
+            result = Convert.henkan(result);
             return result;
         }
     } catch (e) {
@@ -108,7 +108,7 @@ async function fetchLawFullText(id) {
         const res = await fetch(proxyUrl);
         if (res.ok) {
             let result = await res.text();
-            result = convert(result);
+            result = Convert.henkan(result);
             return result;
         }
     } catch (e) {
