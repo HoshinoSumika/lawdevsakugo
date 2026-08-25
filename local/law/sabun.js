@@ -61,13 +61,18 @@ function init(value) {
 
     modal = Shell.createModal(content);
     modal.setTitle('条文比較');
-    modal.setWidth('min(560px, 94vw)');
-    modal.setHeight('min(720px, 86dvh)');
     modal.enableCloseButton(hide);
     modal.setDismiss(hide);
     modalElement = content.parentElement;
+    clearModalStyles();
 
     showSelectionView();
+}
+
+function clearModalStyles() {
+    ['width', 'height', 'maxHeight', 'border', 'borderRadius', 'transition'].forEach(property => {
+        modalElement.style[property] = '';
+    });
 }
 
 async function show() {
@@ -318,6 +323,7 @@ function renderGuidance() {
     if (!compareButton) return;
     const disabled = busy || selectedIds.length !== 2;
     compareButton.classList.toggle('diff-button-disabled', disabled);
+    compareButton.style.cursor = disabled ? 'default' : 'pointer';
     compareButton.setAttribute('aria-disabled', String(disabled));
 }
 

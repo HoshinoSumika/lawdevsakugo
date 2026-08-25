@@ -1,18 +1,3 @@
-@media print {
-    html, body,
-    body > main {
-        overflow: visible !important;
-        height: auto !important;
-    }
-    body > :not(main),
-    body > main > :not(#content) {
-        display: none !important;
-    }
-    body > main {
-        display: block !important;
-    }
-}
-
 html, body {
     overflow: hidden;
     height: 100%;
@@ -48,4 +33,19 @@ main {
 
 #content {
     flex: 0 1 auto;
+}
+
+@media print {
+    html, body,
+    body > main {
+        overflow: visible;
+        height: auto;
+    }
+    body > :not(main),
+    body > main > :not(#content) {
+        display: none;
+    }
+    body > main {
+        display: block;
+    }
 }

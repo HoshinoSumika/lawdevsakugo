@@ -89,7 +89,7 @@ body.result-mode #search-bar {
 }
 
 body.result-mode #quick-search-result {
-    display: none !important;
+    display: none;
 }
 
 body.result-mode #search-filter-container {
