@@ -56,17 +56,6 @@ function init(api) {
     fragment.appendChild(preferenceItemStructure);
     fragment.appendChild(Component.createDivider());
 
-    fragment.appendChild(Component.createCategory('条文比較'));
-    fragment.appendChild(Component.createDivider());
-
-    const preferenceItemDiffDeletion = Component.createNavigationItem('削除部分');
-    fragment.appendChild(preferenceItemDiffDeletion);
-    fragment.appendChild(Component.createDivider());
-
-    const preferenceItemDiffAddition = Component.createNavigationItem('追加部分');
-    fragment.appendChild(preferenceItemDiffAddition);
-    fragment.appendChild(Component.createDivider());
-
     fragment.appendChild(Component.createCategory('外観'));
     fragment.appendChild(Component.createDivider());
 
@@ -92,6 +81,10 @@ function init(api) {
 
     const preferenceItemWidthLimit = Component.createNavigationItem('横幅制限');
     fragment.appendChild(preferenceItemWidthLimit);
+    fragment.appendChild(Component.createDivider());
+
+    const preferenceItemDiff = Component.createNavigationItem('条文比較');
+    fragment.appendChild(preferenceItemDiff);
     fragment.appendChild(Component.createDivider());
 
     preferenceContent = document.createElement('div');
@@ -195,8 +188,7 @@ function init(api) {
     });
 
     Library.showDiffStyle();
-    initDiffPage(preferenceItemDiffDeletion, 'deletion', '削除部分');
-    initDiffPage(preferenceItemDiffAddition, 'addition', '追加部分');
+    initDiffPage(preferenceItemDiff);
 
     const applyWidthLimitSize = (value) => {
         Config.setWidthLimitSize(value);
@@ -588,30 +580,51 @@ const DIFF_COLOR_OPTIONS = Object.keys(COLOR_OPTIONS).reduce((options, color) =>
     return options;
 }, { 'standard': { label: '標準' } });
 
-function initDiffPage(item, type, title) {
+const DIFF_TYPE_PAGES = [
+    { type: 'deletion', title: '削除部分' },
+    { type: 'addition', title: '追加部分' },
+];
+
+function initDiffPage(item) {
     item.addEventListener('click', () => {
         const page = openPage();
 
-        page.appendChild(Component.createCategory(title));
+        page.appendChild(Component.createCategory('条文比較'));
         page.appendChild(Component.createDivider());
 
-        appendRadioNavItem(page, {
-            title: '表示',
-            options: DIFF_STYLE_OPTIONS,
-            defaultKey: type === 'deletion' ? 'strike' : 'color',
-            get: () => Config.getDiffStyle(type),
-            set: (value) => Config.setDiffStyle(type, value),
-            onChanged: refreshDiffStyle,
-        });
-
-        appendColorNavItems(page, [{
-            title: '色',
-            options: DIFF_COLOR_OPTIONS,
-            get: () => Config.getDiffColor(type),
-            set: (color) => Config.setDiffColor(type, color),
-            onChanged: refreshDiffStyle,
-        }]);
+        for (const { type, title } of DIFF_TYPE_PAGES) {
+            const navItem = Component.createNavigationItem(title);
+            navItem.addEventListener('click', () => {
+                openDiffTypePage(type, title);
+            });
+            page.appendChild(navItem);
+            page.appendChild(Component.createDivider());
+        }
     });
+}
+
+function openDiffTypePage(type, title) {
+    const page = openPage();
+
+    page.appendChild(Component.createCategory(title));
+    page.appendChild(Component.createDivider());
+
+    appendRadioNavItem(page, {
+        title: '表示',
+        options: DIFF_STYLE_OPTIONS,
+        defaultKey: type === 'deletion' ? 'strike' : 'color',
+        get: () => Config.getDiffStyle(type),
+        set: (value) => Config.setDiffStyle(type, value),
+        onChanged: refreshDiffStyle,
+    });
+
+    appendColorNavItems(page, [{
+        title: '色',
+        options: DIFF_COLOR_OPTIONS,
+        get: () => Config.getDiffColor(type),
+        set: (color) => Config.setDiffColor(type, color),
+        onChanged: refreshDiffStyle,
+    }]);
 }
 
 const WORD_DEFAULT_COLOR = 'coral';

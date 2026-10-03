@@ -90,7 +90,6 @@ function clearModalTransition() {
 async function show() {
     const version = ++requestVersion;
 
-    clearModalTransition();
     modalElement.classList.add('diff-no-transition');
     showSelectionView();
     flushStyles();
@@ -178,6 +177,7 @@ function getRequestId(revision) {
 }
 
 function showSelectionView() {
+    clearModalTransition();
     comparisonVersion++;
     comparisonView.innerHTML = '';
     selectionView.classList.add('active');
@@ -191,6 +191,7 @@ function showSelectionView() {
 }
 
 function showComparisonView(oldRevision, newRevision, rows) {
+    clearModalTransition();
     const version = ++comparisonVersion;
     comparisonView.innerHTML = '';
     selectionView.classList.remove('active');
