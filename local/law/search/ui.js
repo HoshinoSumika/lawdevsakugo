@@ -12,23 +12,45 @@ const FADE_DURATION = 180;
 const HIDE_DELAY = 200;
 const DESKTOP_QUERY = '(min-width: 801px)';
 
-let frame;
-let searchContainer;
+let createFrame;
+let frame = null;
+let searchContent;
+let searchContainer = null;
 let searchInput;
 let searchClear;
 let searchResult;
 let resizeAnimation = null;
 let hideTimer = null;
 let isShown = false;
+let selectedIndex = -1;
 
 function init({ createPanel, onInput, onClear }) {
+    createFrame = createPanel;
     searchInput = document.querySelector('#search-input');
     searchClear = document.querySelector('#search-clear');
     searchResult = document.querySelector('#search-result');
 
     searchInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter' && document.activeElement === searchInput) {
-            searchInput.blur();
+        if (event.isComposing) {
+            return;
+        }
+        const items = getSelectableItems();
+        if (event.key === 'ArrowDown' && items.length > 0) {
+            event.preventDefault();
+            select(Math.min(selectedIndex + 1, items.length - 1), true);
+        }
+        if (event.key === 'ArrowUp' && items.length > 0) {
+            event.preventDefault();
+            select(Math.max(selectedIndex - 1, 0), true);
+        }
+        if (event.key === 'Enter') {
+            const item = items[selectedIndex] || items[0];
+            if (item) {
+                event.preventDefault();
+                item.click();
+            } else if (document.activeElement === searchInput) {
+                searchInput.blur();
+            }
         }
     });
     searchInput.addEventListener('input', () => {
@@ -49,9 +71,12 @@ function init({ createPanel, onInput, onClear }) {
         }
     });
 
-    const searchContent = document.querySelector('#search-content');
+    searchContent = document.querySelector('#search-content');
     searchContent.classList.add('search-content');
+    searchContent.remove();
+}
 
+function buildFrame() {
     searchContainer = document.createElement('div');
     searchContainer.classList.add('search-container');
     searchContainer.addEventListener('click', event => {
@@ -67,7 +92,7 @@ function init({ createPanel, onInput, onClear }) {
     overlay.style.alignItems = 'start';
     overlay.appendChild(searchContainer);
 
-    frame = createPanel(overlay);
+    frame = createFrame(overlay);
 
     const panel = frame.getPanel();
     panel.classList.add('search-overlay');
@@ -95,6 +120,8 @@ function show(lawContent) {
 
     isShown = true;
     clearTimeout(hideTimer);
+    destroyFrame();
+    buildFrame();
     frame.show();
     requestAnimationFrame(() => {
         searchContainer.classList.add('show');
@@ -111,6 +138,9 @@ function show(lawContent) {
 }
 
 function hide() {
+    if (!frame) {
+        return;
+    }
     isShown = false;
     searchContainer.classList.remove('show');
     frame.hide();
@@ -119,7 +149,22 @@ function hide() {
     hideTimer = setTimeout(() => {
         searchInput.value = '';
         searchInput.style.display = 'none';
+        destroyFrame();
     }, HIDE_DELAY);
+}
+
+function destroyFrame() {
+    if (!frame) {
+        return;
+    }
+    if (resizeAnimation) {
+        resizeAnimation.cancel();
+        resizeAnimation = null;
+    }
+    searchContent.remove();
+    frame.destroy();
+    frame = null;
+    searchContainer = null;
 }
 
 function isDesktop() {
@@ -165,6 +210,21 @@ function getQuery() {
     return searchInput.value;
 }
 
+function getSelectableItems() {
+    return Array.from(searchResult.querySelectorAll(':scope > .search-result-item'));
+}
+
+function select(index, isKeyboard) {
+    const items = getSelectableItems();
+    selectedIndex = items.length > 0 ? Math.max(0, Math.min(index, items.length - 1)) : -1;
+    items.forEach((item, position) => {
+        item.classList.toggle('selected', position === selectedIndex);
+    });
+    if (isKeyboard && items[selectedIndex]) {
+        items[selectedIndex].scrollIntoView({ block: 'nearest' });
+    }
+}
+
 function render(result, options) {
     const wasHidden = searchResult.style.display === 'none';
 
@@ -179,6 +239,7 @@ function renderResult(result, { query, isUnlimited, highlight, onExpand, onSelec
     if (!query) {
         searchResult.innerHTML = '';
         searchResult.style.display = 'none';
+        selectedIndex = -1;
         return;
     }
 
@@ -203,6 +264,7 @@ function renderResult(result, { query, isUnlimited, highlight, onExpand, onSelec
 
     searchResult.style.display = '';
     searchResult.scrollTop = restore;
+    select(isUnlimited ? selectedIndex : 0, false);
 }
 
 function createResultItem(element, query, highlight, onSelect) {
@@ -221,15 +283,18 @@ function createResultItem(element, query, highlight, onSelect) {
     }
 
     item.appendChild(contentClone);
+    item.className = 'search-result-item';
     item.addEventListener('click', () => onSelect(element));
+    item.addEventListener('mouseenter', () => select(getSelectableItems().indexOf(item), false));
     return item;
 }
 
 function createExpandItem(limit, onExpand) {
     const item = document.createElement('div');
-    item.className = 'limit';
+    item.className = 'limit search-result-item';
     item.textContent = 'すべての検索結果を表示';
     item.textContent += '（現在は' + limit + '件のみ表示）';
     item.addEventListener('click', onExpand);
+    item.addEventListener('mouseenter', () => select(getSelectableItems().indexOf(item), false));
     return item;
 }

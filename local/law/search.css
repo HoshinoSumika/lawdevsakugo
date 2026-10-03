@@ -106,7 +106,7 @@
 #search-result > div:not(:first-child) {
     border-top: 1px solid var(--color-smoke);
 }
-#search-result > div:hover {
+#search-result > div.selected {
     background-color: var(--color-hover);
 }
 #search-result > div:active {
