@@ -63,8 +63,13 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 .shell-nav-action {
+    position: relative; z-index: 1;
     display: none;
     height: var(--size-shell-nav-action); padding: 8px; gap: 4px;
+    transition: box-shadow var(--transition-duration) ease;
+}
+.shell-nav-action.is-raised {
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.12);
 }
 .shell-nav-action.is-on {
     display: flex;

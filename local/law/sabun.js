@@ -61,7 +61,7 @@ function init(value) {
 
     modal = Shell.createModal(content);
     modal.setTitle('条文比較');
-    modal.disableShade();
+    modal.disableTitleShade();
     modal.enableCloseButton(hide);
     modal.setDismiss(hide);
     modalElement = content.closest('.shell-modal');
@@ -98,6 +98,7 @@ async function show() {
     revisions = [];
     revisionsLawId = baseLawId;
     list.innerHTML = '';
+    modal.updateShade(list);
     setBusy(true);
 
     const loaded = await Service.getLawRevisions(baseLawId);
@@ -252,6 +253,7 @@ function renderRevisions(currentLawId) {
     });
     list.scrollTop = 0;
     renderSelection();
+    modal.updateShade(list);
 
     if (scrollTarget) {
         afterResize(() => scrollToRevision(scrollTarget));
@@ -337,6 +339,7 @@ function showListMessage(text, isError) {
     message.textContent = text;
     list.appendChild(message);
     renderGuidance();
+    modal.updateShade(list);
 }
 
 function setBusy(value) {
