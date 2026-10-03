@@ -1,8 +1,10 @@
 export const Config = {
     init,
     show,
+    getWords,
 };
 
+import { Message } from '/lib/message.js';
 import { Page } from '/lib/page.js';
 import { Shell } from '/lib/shell.js';
 import { Storage } from '/lib/storage.js';
@@ -22,6 +24,8 @@ let configContent;
 let lawContent;
 let isOpen = false;
 
+const pageActions = new WeakMap();
+
 function init(api) {
     lawContent = api.getContent();
 
@@ -40,35 +44,16 @@ function init(api) {
     fragment.appendChild(Component.createCategory('強調表示'));
     fragment.appendChild(Component.createDivider());
 
-    const configItemParen = Component.createCheckboxItem('括弧を強調表示');
+    const configItemParen = Component.createNavigationItem('括弧の強調表示');
     fragment.appendChild(configItemParen);
     fragment.appendChild(Component.createDivider());
 
-    const configItemParenNav = Component.createNavigationItem('括弧の強調表示の詳細設定');
-    fragment.appendChild(configItemParenNav);
+    const configItemWord = Component.createNavigationItem('語句の強調表示');
+    fragment.appendChild(configItemWord);
     fragment.appendChild(Component.createDivider());
 
-    const configItemConj = Component.createCheckboxItem('接続詞を強調表示');
-    fragment.appendChild(configItemConj);
-    fragment.appendChild(Component.createDivider());
-
-    const configItemConjNav = Component.createNavigationItem('接続詞の強調表示の詳細設定');
-    fragment.appendChild(configItemConjNav);
-    fragment.appendChild(Component.createDivider());
-
-    const configItemTitle = Component.createCheckboxItem('編・章・節・款・目を強調表示');
-    fragment.appendChild(configItemTitle);
-    fragment.appendChild(Component.createDivider());
-
-    const configItemTitleNav = Component.createNavigationItem('編・章・節・款・目の強調表示の詳細設定');
-    fragment.appendChild(configItemTitleNav);
-    fragment.appendChild(Component.createDivider());
-
-    fragment.appendChild(Component.createCategory('機能'));
-    fragment.appendChild(Component.createDivider());
-
-    const configItemWidthLimit = Component.createCheckboxItem('横幅制限');
-    fragment.appendChild(configItemWidthLimit);
+    const configItemStructure = Component.createNavigationItem('構成の強調表示');
+    fragment.appendChild(configItemStructure);
     fragment.appendChild(Component.createDivider());
 
     fragment.appendChild(Component.createCategory('外観'));
@@ -92,6 +77,10 @@ function init(api) {
 
     const configItemLetterSpacing = Component.createSeekbarItem('字間', '0.00', '0.20', '0.01');
     fragment.appendChild(configItemLetterSpacing);
+    fragment.appendChild(Component.createDivider());
+
+    const configItemWidthLimit = Component.createNavigationItem('横幅制限');
+    fragment.appendChild(configItemWidthLimit);
     fragment.appendChild(Component.createDivider());
 
     configContent = document.createElement('div');
@@ -154,29 +143,44 @@ function init(api) {
         Library.hideParenFontSize();
     };
 
-    initToggleWithNav(configItemParen, configItemParenNav, 'paren-highlight', false, showParenAll, hideParenAll);
-    initParenDetailPage(configItemParenNav);
+    initTogglePage(configItemParen, {
+        title: '括弧の強調表示',
+        label: '強調表示',
+        storageKey: 'paren-highlight',
+        defaultEnabled: false,
+        onEnable: showParenAll,
+        onDisable: hideParenAll,
+        appendDetail: appendParenDetail,
+    });
 
-    const showConjAll = () => {
-        Library.showConjColor();
-        Library.showConditionColor();
-    };
+    Library.showWordColor();
+    configItemWord.addEventListener('click', () => {
+        openWordListPage(api.onWordsChange);
+    });
 
-    const hideConjAll = () => {
-        Library.hideConjColor();
-        Library.hideConditionColor();
-    };
+    Library.showStructureStyle();
+    configItemStructure.addEventListener('click', () => {
+        openStructureListPage();
+    });
 
-    initToggleWithNav(configItemConj, configItemConjNav, 'conj-highlight', false, showConjAll, hideConjAll);
-    initConjDetailPage(configItemConjNav);
-
-    initToggleWithNav(configItemTitle, configItemTitleNav, 'title-highlight', false, Library.showTitleColor, Library.hideTitleColor);
-    initTitleDetailPage(configItemTitleNav);
-
-    Component.toggleCheckboxItem(configItemWidthLimit, 'width-limit', true, Library.enableWidthLimit, Library.disableWidthLimit);
-    configItemWidthLimit.addEventListener('click', () => {
-        Component.toggleCheckboxItem(configItemWidthLimit, 'width-limit', true, Library.enableWidthLimit, Library.disableWidthLimit);
+    const applyWidthLimitSize = (value) => {
+        if (Storage.get('width-limit', null) !== 'disable') {
+            Library.enableWidthLimit(value);
+        }
         api.restoreScroll();
+    };
+
+    initTogglePage(configItemWidthLimit, {
+        title: '横幅制限',
+        label: '横幅制限',
+        storageKey: 'width-limit',
+        defaultEnabled: true,
+        onEnable: Library.enableWidthLimit,
+        onDisable: Library.disableWidthLimit,
+        onToggle: api.restoreScroll,
+        appendDetail: (page) => {
+            appendWidthLimitDetail(page, applyWidthLimitSize);
+        },
     });
 
     initThemePage(configItemTheme);
@@ -235,6 +239,12 @@ function updateNav() {
         current.enableBackButton(closePage);
         current.setTitle('');
     }
+
+    current.clearNav();
+    for (const action of pageActions.get(pageManager.getCurrent()) || []) {
+        current.addRightButton(action.label, action.onClick);
+    }
+
     current.updateShade(pageManager.getCurrent());
 }
 
@@ -243,19 +253,35 @@ function closePage() {
     updateNav();
 }
 
-function initToggleWithNav(checkbox, nav, storageKey, defaultValue, showFn, hideFn) {
-    const updateNavVisibility = () => {
-        const isOn = checkbox.getAttribute('data-value') === 'enable';
-        nav.style.display = isOn ? '' : 'none';
-        nav.nextElementSibling.style.display = isOn ? '' : 'none';
-    };
+function initTogglePage(item, { title, label, storageKey, defaultEnabled, onEnable, onDisable, onToggle, appendDetail }) {
+    const stored = Storage.get(storageKey, null);
+    const enabled = defaultEnabled ? stored !== 'disable' : stored === 'enable';
 
-    Component.toggleCheckboxItem(checkbox, storageKey, defaultValue, showFn, hideFn);
-    updateNavVisibility();
+    if (enabled) {
+        onEnable();
+    } else {
+        onDisable();
+    }
 
-    checkbox.addEventListener('click', () => {
-        Component.toggleCheckboxItem(checkbox, storageKey, defaultValue, showFn, hideFn);
-        updateNavVisibility();
+    item.addEventListener('click', () => {
+        const page = openPage();
+
+        page.appendChild(Component.createCategory(title));
+        page.appendChild(Component.createDivider());
+
+        const toggle = Component.createCheckboxItem(label);
+        Component.toggleCheckboxItem(toggle, storageKey, defaultEnabled, onEnable, onDisable);
+        toggle.addEventListener('click', () => {
+            Component.toggleCheckboxItem(toggle, storageKey, defaultEnabled, onEnable, onDisable);
+            if (onToggle) {
+                onToggle();
+            }
+        });
+
+        page.appendChild(toggle);
+        page.appendChild(Component.createDivider());
+
+        appendDetail(page);
     });
 }
 
@@ -271,12 +297,15 @@ function createRefresher(styleId, hideFn, showFn) {
 const refreshParenColor = createRefresher('style-paren-color', Library.hideParenColor, Library.showParenColor);
 const refreshParenBackground = createRefresher('style-paren-background', Library.hideParenBackground, Library.showParenBackground);
 const refreshParenFontSize = createRefresher('style-paren-font-size', Library.hideParenFontSize, Library.showParenFontSize);
-const refreshConjColor = createRefresher('style-conj-color', Library.hideConjColor, Library.showConjColor);
-const refreshConditionColor = createRefresher('style-condition-color', Library.hideConditionColor, Library.showConditionColor);
-const refreshTitleColor = createRefresher('style-title-color', Library.hideTitleColor, Library.showTitleColor);
+const refreshStructureStyle = createRefresher('style-structure', Library.hideStructureStyle, Library.showStructureStyle);
+const refreshWordColor = createRefresher('style-word-color', Library.hideWordColor, Library.showWordColor);
 
-function openPage() {
+function openPage(actions) {
     const page = document.createElement('div');
+
+    if (actions) {
+        pageActions.set(page, actions);
+    }
 
     pageManager.open(page);
     updateNav();
@@ -298,38 +327,10 @@ function initPage(item, { title, options, defaultKey, storageKey, onSelect }) {
         page.appendChild(Component.createCategory(title));
         page.appendChild(Component.createDivider());
 
-        const raw = Storage.get(storageKey, null);
-        const currentKey = (raw && options[raw]) ? raw : defaultKey;
-        const items = {};
-
-        for (const k of Object.keys(options)) {
-            const option = Component.createRadioItem(options[k].label);
-            const checkmark = option.querySelector('.config-checkmark');
-
-            if (k === currentKey) {
-                checkmark.style.visibility = 'visible';
-            }
-
-            option.addEventListener('click', () => {
-                for (const x of Object.keys(items)) {
-                    items[x].querySelector('.config-checkmark').style.visibility = 'hidden';
-                }
-
-                checkmark.style.visibility = 'visible';
-                onSelect(k);
-                valueEl.textContent = options[k].label;
-
-                if (k === defaultKey) {
-                    Storage.remove(storageKey);
-                } else {
-                    Storage.set(storageKey, k);
-                }
-            });
-
-            items[k] = option;
-            page.appendChild(option);
-            page.appendChild(Component.createDivider());
-        }
+        appendRadioItems(page, storageKey, defaultKey, options, (k) => {
+            onSelect(k);
+            valueEl.textContent = options[k].label;
+        });
     });
 }
 
@@ -340,8 +341,29 @@ function initRadioSelectPage(navItem, title, storageKey, defaultKey, onChanged, 
     page.appendChild(Component.createDivider());
 
     const valueEl = navItem.querySelector('.config-value');
+
+    appendRadioItems(page, storageKey, defaultKey, options, (k) => {
+        valueEl.textContent = options[k].label;
+        onChanged();
+    });
+}
+
+function appendRadioItems(page, storageKey, defaultKey, options, onChanged) {
     const raw = Storage.get(storageKey, null);
     const currentKey = (raw && options[raw]) ? raw : defaultKey;
+
+    appendRadioOptions(page, options, currentKey, (k) => {
+        if (k === defaultKey) {
+            Storage.remove(storageKey);
+        } else {
+            Storage.set(storageKey, k);
+        }
+
+        onChanged(k);
+    });
+}
+
+function appendRadioOptions(page, options, currentKey, onSelect) {
     const items = {};
 
     for (const k of Object.keys(options)) {
@@ -358,15 +380,7 @@ function initRadioSelectPage(navItem, title, storageKey, defaultKey, onChanged, 
             }
 
             checkmark.style.visibility = 'visible';
-            valueEl.textContent = options[k].label;
-
-            if (k === defaultKey) {
-                Storage.remove(storageKey);
-            } else {
-                Storage.set(storageKey, k);
-            }
-
-            onChanged();
+            onSelect(k);
         });
 
         items[k] = option;
@@ -386,17 +400,90 @@ const COLOR_OPTIONS = {
     'inherit': { label: 'なし' },
 };
 
+const CUSTOM_COLOR_DEFAULT = '#808080';
+
+function getColorLabel(color) {
+    return COLOR_OPTIONS[color] ? COLOR_OPTIONS[color].label : color;
+}
+
+function appendColorOptions(page, currentColor, onSelect) {
+    const checkmarks = [];
+
+    const check = (checkmark) => {
+        for (const x of checkmarks) {
+            x.style.visibility = 'hidden';
+        }
+        checkmark.style.visibility = 'visible';
+    };
+
+    for (const color of Object.keys(COLOR_OPTIONS)) {
+        const option = Component.createRadioItem(COLOR_OPTIONS[color].label);
+        const checkmark = option.querySelector('.config-checkmark');
+        checkmarks.push(checkmark);
+
+        if (color === currentColor) {
+            checkmark.style.visibility = 'visible';
+        }
+
+        option.addEventListener('click', () => {
+            check(checkmark);
+            onSelect(color);
+        });
+
+        page.appendChild(option);
+        page.appendChild(Component.createDivider());
+    }
+
+    const customItem = Component.createColorItem('カスタム');
+    const picker = customItem.querySelector('.config-color');
+    const customCheckmark = customItem.querySelector('.config-checkmark');
+    checkmarks.push(customCheckmark);
+
+    if (COLOR_OPTIONS[currentColor]) {
+        picker.value = CUSTOM_COLOR_DEFAULT;
+    } else {
+        picker.value = currentColor;
+        customCheckmark.style.visibility = 'visible';
+    }
+
+    picker.addEventListener('input', () => {
+        check(customCheckmark);
+        onSelect(picker.value);
+    });
+
+    customItem.addEventListener('click', (e) => {
+        if (e.target === picker) {
+            return;
+        }
+        check(customCheckmark);
+        onSelect(picker.value);
+    });
+
+    page.appendChild(customItem);
+    page.appendChild(Component.createDivider());
+}
+
 function appendColorNavItems(page, levels) {
     for (const level of levels) {
         const navItem = Component.createNavigationItem(level.title);
         const valueEl = navItem.querySelector('.config-value');
-
-        const stored = Storage.get(level.storageKey, null);
-        const currentKey = (stored && COLOR_OPTIONS[stored]) ? stored : level.defaultKey;
-        valueEl.textContent = COLOR_OPTIONS[currentKey].label;
+        valueEl.textContent = getColorLabel(Storage.get(level.storageKey, level.defaultKey));
 
         navItem.addEventListener('click', () => {
-            initRadioSelectPage(navItem, level.title, level.storageKey, level.defaultKey, level.onChanged, COLOR_OPTIONS);
+            const colorPage = openPage();
+
+            colorPage.appendChild(Component.createCategory(level.title));
+            colorPage.appendChild(Component.createDivider());
+
+            appendColorOptions(colorPage, Storage.get(level.storageKey, level.defaultKey), (color) => {
+                if (color === level.defaultKey) {
+                    Storage.remove(level.storageKey);
+                } else {
+                    Storage.set(level.storageKey, color);
+                }
+                valueEl.textContent = getColorLabel(color);
+                level.onChanged();
+            });
         });
 
         page.appendChild(navItem);
@@ -426,82 +513,286 @@ const PAREN_FONT_SIZE_OPTIONS = {
     '0.80': { label: '80%' },
 };
 
-function initParenDetailPage(item) {
-    item.addEventListener('click', () => {
-        const page = openPage();
+function appendParenDetail(page) {
+    page.appendChild(Component.createCategory('括弧階層'));
+    page.appendChild(Component.createDivider());
 
-        page.appendChild(Component.createCategory('括弧階層'));
-        page.appendChild(Component.createDivider());
+    appendColorNavItems(page, PAREN_COLOR_LEVELS);
 
-        appendColorNavItems(page, PAREN_COLOR_LEVELS);
+    page.appendChild(Component.createCategory('括弧全体'));
+    page.appendChild(Component.createDivider());
 
-        page.appendChild(Component.createCategory('括弧全体'));
-        page.appendChild(Component.createDivider());
+    const bgNavItem = Component.createNavigationItem('背景');
+    const bgValueEl = bgNavItem.querySelector('.config-value');
 
-        const bgNavItem = Component.createNavigationItem('背景');
-        const bgValueEl = bgNavItem.querySelector('.config-value');
+    const bgStored = Storage.get('paren-background', null);
+    const bgCurrentKey = (bgStored && PAREN_BACKGROUND_OPTIONS[bgStored]) ? bgStored : 'color';
+    bgValueEl.textContent = PAREN_BACKGROUND_OPTIONS[bgCurrentKey].label;
 
-        const bgStored = Storage.get('paren-background', null);
-        const bgCurrentKey = (bgStored && PAREN_BACKGROUND_OPTIONS[bgStored]) ? bgStored : 'color';
-        bgValueEl.textContent = PAREN_BACKGROUND_OPTIONS[bgCurrentKey].label;
+    bgNavItem.addEventListener('click', () => {
+        initRadioSelectPage(bgNavItem, '背景', 'paren-background', 'color', refreshParenBackground, PAREN_BACKGROUND_OPTIONS);
+    });
 
-        bgNavItem.addEventListener('click', () => {
-            initRadioSelectPage(bgNavItem, '背景', 'paren-background', 'color', refreshParenBackground, PAREN_BACKGROUND_OPTIONS);
+    page.appendChild(bgNavItem);
+    page.appendChild(Component.createDivider());
+
+    const fsNavItem = Component.createNavigationItem('文字サイズ');
+    const fsValueEl = fsNavItem.querySelector('.config-value');
+
+    const fsStored = Storage.get('paren-font-size', null);
+    const fsCurrentKey = (fsStored && PAREN_FONT_SIZE_OPTIONS[fsStored]) ? fsStored : '1.00';
+    fsValueEl.textContent = PAREN_FONT_SIZE_OPTIONS[fsCurrentKey].label;
+
+    fsNavItem.addEventListener('click', () => {
+        initRadioSelectPage(fsNavItem, '文字サイズ', 'paren-font-size', '1.00', refreshParenFontSize, PAREN_FONT_SIZE_OPTIONS);
+    });
+
+    page.appendChild(fsNavItem);
+    page.appendChild(Component.createDivider());
+}
+
+const WORD_DEFAULT_COLOR = 'coral';
+
+function getWords() {
+    return Library.getWords().map(entry => entry.word);
+}
+
+function saveWords(words) {
+    Storage.set('highlight-words', words);
+    refreshWordColor();
+}
+
+function getWordValue(entry) {
+    return entry.enabled === false ? 'オフ' : getColorLabel(entry.color);
+}
+
+function openWordListPage(onWordsChange) {
+    const page = openPage();
+
+    page.appendChild(Component.createCategory('語句の強調表示'));
+    page.appendChild(Component.createDivider());
+
+    const group = document.createElement('div');
+    group.className = 'config-group';
+    page.appendChild(group);
+
+    const inputItem = Component.createInputItem('語句を入力', '追加');
+    const field = inputItem.querySelector('.config-input');
+    const button = inputItem.querySelector('.config-button');
+    page.appendChild(inputItem);
+    page.appendChild(Component.createDivider());
+
+    const renderWords = () => {
+        group.replaceChildren();
+
+        Library.getWords().forEach((entry, index) => {
+            const navItem = Component.createNavigationItem(entry.word);
+            const valueEl = navItem.querySelector('.config-value');
+            valueEl.textContent = getWordValue(entry);
+
+            navItem.addEventListener('click', () => {
+                openWordPage(index, valueEl, () => {
+                    renderWords();
+                    onWordsChange();
+                });
+            });
+
+            group.appendChild(navItem);
+            group.appendChild(Component.createDivider());
         });
+    };
 
-        page.appendChild(bgNavItem);
-        page.appendChild(Component.createDivider());
+    const addWord = () => {
+        const word = field.value.trim();
+        if (!word) {
+            return;
+        }
 
-        const fsNavItem = Component.createNavigationItem('文字サイズ');
-        const fsValueEl = fsNavItem.querySelector('.config-value');
+        const words = Library.getWords();
+        if (words.some(entry => entry.word === word)) {
+            Message.warn('「' + word + '」は追加済みです。');
+            return;
+        }
 
-        const fsStored = Storage.get('paren-font-size', null);
-        const fsCurrentKey = (fsStored && PAREN_FONT_SIZE_OPTIONS[fsStored]) ? fsStored : '1.00';
-        fsValueEl.textContent = PAREN_FONT_SIZE_OPTIONS[fsCurrentKey].label;
+        words.push({ word: word, color: WORD_DEFAULT_COLOR, enabled: true });
+        saveWords(words);
+        field.value = '';
+        renderWords();
+        onWordsChange();
+    };
 
-        fsNavItem.addEventListener('click', () => {
-            initRadioSelectPage(fsNavItem, '文字サイズ', 'paren-font-size', '1.00', refreshParenFontSize, PAREN_FONT_SIZE_OPTIONS);
+    button.addEventListener('click', addWord);
+    field.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+            addWord();
+        }
+    });
+
+    renderWords();
+}
+
+function openWordPage(index, valueEl, onRemove) {
+    const entry = Library.getWords()[index];
+
+    const remove = () => {
+        const words = Library.getWords();
+        words.splice(index, 1);
+        saveWords(words);
+        closePage();
+        onRemove();
+    };
+
+    const page = openPage(Library.isDefaultWord(entry.word) ? null : [{ label: '削除', onClick: remove }]);
+
+    const updateEntry = (change) => {
+        const words = Library.getWords();
+        change(words[index]);
+        saveWords(words);
+        valueEl.textContent = getWordValue(words[index]);
+    };
+
+    page.appendChild(Component.createCategory('「' + entry.word + '」'));
+    page.appendChild(Component.createDivider());
+
+    appendSwitch(page, '強調表示', entry.enabled !== false, (enabled) => {
+        updateEntry((target) => {
+            target.enabled = enabled;
         });
+    });
 
-        page.appendChild(fsNavItem);
-        page.appendChild(Component.createDivider());
+    page.appendChild(Component.createCategory('色'));
+    page.appendChild(Component.createDivider());
+
+    appendColorOptions(page, entry.color, (color) => {
+        updateEntry((target) => {
+            target.color = color;
+        });
     });
 }
 
-const CONJ_COLOR_LEVELS = [
-    { title: '選択的接続詞の色', storageKey: 'conj-color-s', defaultKey: 'deepskyblue', onChanged: refreshConjColor },
-    { title: '併合的接続詞の色', storageKey: 'conj-color-h', defaultKey: 'deepskyblue', onChanged: refreshConjColor },
-    { title: '条件を表す接続助詞の色', storageKey: 'conj-color-c', defaultKey: 'deeppink', onChanged: refreshConditionColor },
-];
+function appendSwitch(page, label, checked, onChange) {
+    const item = Component.createCheckboxItem(label);
+    const checkbox = item.querySelector('.config-checkbox');
+    checkbox.classList.toggle('checked', checked);
 
-function initConjDetailPage(item) {
     item.addEventListener('click', () => {
-        const page = openPage();
+        const next = !checkbox.classList.contains('checked');
+        checkbox.classList.toggle('checked', next);
+        onChange(next);
+    });
 
-        page.appendChild(Component.createCategory('接続詞の強調表示'));
+    page.appendChild(item);
+    page.appendChild(Component.createDivider());
+}
+
+function getStructureValue(structure) {
+    return structure.enabled ? getColorLabel(structure.color) : 'オフ';
+}
+
+function saveStructure(structure) {
+    const stored = Storage.get('highlight-structures', null);
+    const settings = (stored && typeof stored === 'object') ? stored : {};
+
+    settings[structure.key] = {
+        enabled: structure.enabled,
+        color: structure.color,
+        bold: structure.bold,
+        italic: structure.italic,
+        underline: structure.underline,
+        emphasis: structure.emphasis,
+    };
+
+    Storage.set('highlight-structures', settings);
+    refreshStructureStyle();
+}
+
+function openStructureListPage() {
+    const page = openPage();
+
+    let group = '';
+
+    for (const structure of Library.getStructures()) {
+        if (structure.group !== group) {
+            group = structure.group;
+            page.appendChild(Component.createCategory(group));
+            page.appendChild(Component.createDivider());
+        }
+
+        const navItem = Component.createNavigationItem(structure.label);
+        const valueEl = navItem.querySelector('.config-value');
+        valueEl.textContent = getStructureValue(structure);
+
+        navItem.addEventListener('click', () => {
+            openStructurePage(structure.key, valueEl);
+        });
+
+        page.appendChild(navItem);
         page.appendChild(Component.createDivider());
+    }
+}
 
-        appendColorNavItems(page, CONJ_COLOR_LEVELS);
+function openStructurePage(key, valueEl) {
+    const page = openPage();
+    const structure = Library.getStructures().find(x => x.key === key);
+
+    const update = (change) => {
+        change(structure);
+        saveStructure(structure);
+        valueEl.textContent = getStructureValue(structure);
+    };
+
+    page.appendChild(Component.createCategory(structure.label));
+    page.appendChild(Component.createDivider());
+
+    appendSwitch(page, '強調表示', structure.enabled, (enabled) => {
+        update((target) => {
+            target.enabled = enabled;
+        });
+    });
+
+    page.appendChild(Component.createCategory('書式'));
+    page.appendChild(Component.createDivider());
+
+    appendSwitch(page, '太字', structure.bold, (bold) => {
+        update((target) => {
+            target.bold = bold;
+        });
+    });
+
+    appendSwitch(page, '斜体', structure.italic, (italic) => {
+        update((target) => {
+            target.italic = italic;
+        });
+    });
+
+    appendSwitch(page, '下線', structure.underline, (underline) => {
+        update((target) => {
+            target.underline = underline;
+        });
+    });
+
+    appendSwitch(page, '傍点', structure.emphasis, (emphasis) => {
+        update((target) => {
+            target.emphasis = emphasis;
+        });
+    });
+
+    page.appendChild(Component.createCategory('色'));
+    page.appendChild(Component.createDivider());
+
+    appendColorOptions(page, structure.color, (color) => {
+        update((target) => {
+            target.color = color;
+        });
     });
 }
 
-const TITLE_COLOR_LEVELS = [
-    { title: '編の色', storageKey: 'title-color-part', defaultKey: 'deeppink', onChanged: refreshTitleColor },
-    { title: '章の色', storageKey: 'title-color-chapter', defaultKey: 'deepskyblue', onChanged: refreshTitleColor },
-    { title: '節の色', storageKey: 'title-color-section', defaultKey: 'mediumorchid', onChanged: refreshTitleColor },
-    { title: '款の色', storageKey: 'title-color-subsection', defaultKey: 'mediumseagreen', onChanged: refreshTitleColor },
-    { title: '目の色', storageKey: 'title-color-division', defaultKey: 'coral', onChanged: refreshTitleColor },
-];
+function appendWidthLimitDetail(page, applyValue) {
+    const sizeItem = Component.createSeekbarItem('幅', '640', '1040', '20');
+    Component.initSeekbar(sizeItem, 'width-limit-size', 800, applyValue);
 
-function initTitleDetailPage(item) {
-    item.addEventListener('click', () => {
-        const page = openPage();
-
-        page.appendChild(Component.createCategory('編・章・節・款・目の強調表示'));
-        page.appendChild(Component.createDivider());
-
-        appendColorNavItems(page, TITLE_COLOR_LEVELS);
-    });
+    page.appendChild(sizeItem);
+    page.appendChild(Component.createDivider());
 }
 
 function initThemePage(item) {

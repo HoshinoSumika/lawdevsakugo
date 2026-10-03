@@ -6,6 +6,8 @@ export const Component = {
     createNavigationItem,
     createRadioItem,
     createSeekbarItem,
+    createInputItem,
+    createColorItem,
     toggleCheckboxItem,
     initSeekbar,
 };
@@ -108,6 +110,49 @@ function createSeekbarItem(labelText, min, max, step) {
 
     div.appendChild(label);
     div.appendChild(input);
+
+    return div;
+}
+
+function createInputItem(placeholder, buttonText) {
+    const div = document.createElement('div');
+    div.className = 'config-item config-input-item';
+
+    const input = document.createElement('input');
+    input.className = 'config-input';
+    input.type = 'text';
+    input.placeholder = placeholder;
+
+    const button = document.createElement('div');
+    button.className = 'config-button';
+    button.textContent = buttonText;
+
+    div.appendChild(input);
+    div.appendChild(button);
+
+    return div;
+}
+
+function createColorItem(labelText) {
+    const div = document.createElement('div');
+    div.className = 'config-item';
+
+    const label = document.createElement('div');
+    label.className = 'config-label';
+    label.textContent = labelText;
+
+    const picker = document.createElement('input');
+    picker.className = 'config-color';
+    picker.type = 'color';
+
+    const checkmark = document.createElement('div');
+    checkmark.className = 'config-checkmark';
+    checkmark.textContent = '✓';
+    checkmark.style.visibility = 'hidden';
+
+    div.appendChild(label);
+    div.appendChild(picker);
+    div.appendChild(checkmark);
 
     return div;
 }

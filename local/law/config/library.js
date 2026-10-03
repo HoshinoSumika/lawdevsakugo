@@ -9,12 +9,13 @@ export const Library = {
     hideParenBackground,
     showParenFontSize,
     hideParenFontSize,
-    showConjColor,
-    hideConjColor,
-    showConditionColor,
-    hideConditionColor,
-    showTitleColor,
-    hideTitleColor,
+    getWords,
+    isDefaultWord,
+    showWordColor,
+    hideWordColor,
+    getStructures,
+    showStructureStyle,
+    hideStructureStyle,
     disableWidthLimit,
     enableWidthLimit,
     setFontFamily,
@@ -138,95 +139,119 @@ function hideParenFontSize() {
     if (style) style.remove();
 }
 
-function getConjColor(type) {
-    return Storage.get('conj-color-' + type, 'deepskyblue');
+const DEFAULT_WORDS = [
+    { word: '又は', color: 'deepskyblue', enabled: false },
+    { word: '若しくは', color: 'deepskyblue', enabled: false },
+    { word: '及び', color: 'deepskyblue', enabled: false },
+    { word: '並びに', color: 'deepskyblue', enabled: false },
+    { word: 'とき', color: 'deeppink', enabled: false },
+    { word: '場合', color: 'deeppink', enabled: false },
+];
+
+function getWords() {
+    const stored = Storage.get('highlight-words', null);
+    const words = Array.isArray(stored) ? stored : [];
+
+    const defaults = DEFAULT_WORDS.map((entry) => {
+        return words.find(word => word.word === entry.word) || Object.assign({}, entry);
+    });
+    const others = words.filter(word => !isDefaultWord(word.word));
+
+    return defaults.concat(others);
 }
 
-function showConjColor() {
-    if (document.getElementById('style-conj-color')) return;
+function isDefaultWord(word) {
+    return DEFAULT_WORDS.some(entry => entry.word === word);
+}
 
-    const colorS = getConjColor('s');
-    const colorH = getConjColor('h');
+function showWordColor() {
+    if (document.getElementById('style-word-color')) return;
 
     const style = document.createElement('style');
-    style.id = 'style-conj-color';
-    style.textContent = '.Sentence .tag-conj-s { color: ' + colorS + '; }';
-    style.textContent += '.Sentence .tag-conj-h { color: ' + colorH + '; }';
+    style.id = 'style-word-color';
+    style.textContent = getWords().map((entry, index) => {
+        if (entry.enabled === false) {
+            return '';
+        }
+        return '.Sentence .tag-word-' + index + ' { color: ' + entry.color + '; }';
+    }).join('');
     document.head.appendChild(style);
 }
 
-function hideConjColor() {
-    const style = document.getElementById('style-conj-color');
+function hideWordColor() {
+    const style = document.getElementById('style-word-color');
     if (style) style.remove();
 }
 
-function getConditionColor() {
-    return Storage.get('conj-color-c', 'deeppink');
+const STRUCTURES = [
+    { key: 'part', label: '編', group: '編・章・節・款・目', selector: '.PartTitle', color: 'deeppink' },
+    { key: 'chapter', label: '章', group: '編・章・節・款・目', selector: '.ChapterTitle', color: 'deepskyblue' },
+    { key: 'section', label: '節', group: '編・章・節・款・目', selector: '.SectionTitle', color: 'mediumorchid' },
+    { key: 'subsection', label: '款', group: '編・章・節・款・目', selector: '.SubsectionTitle', color: 'mediumseagreen' },
+    { key: 'division', label: '目', group: '編・章・節・款・目', selector: '.DivisionTitle', color: 'coral' },
+    { key: 'caption', label: '条見出し', group: '条・項・号', selector: '.ArticleCaption, .ParagraphCaption', color: 'gray' },
+    { key: 'article', label: '条番号', group: '条・項・号', selector: '.ArticleTitle', color: 'deepskyblue' },
+    { key: 'paragraph', label: '項番号', group: '条・項・号', selector: '.ParagraphNum', color: 'mediumseagreen' },
+    { key: 'item', label: '号番号', group: '条・項・号', selector: '.ItemTitle', color: 'coral' },
+    { key: 'subitem', label: '号の細分の番号', group: '条・項・号', selector: '.Subitem1Title, .Subitem2Title, .Subitem3Title, .Subitem4Title, .Subitem5Title', color: 'goldenrod' },
+    { key: 'suppl-provision', label: '附則', group: 'その他', selector: '.SupplProvisionLabel', color: 'deeppink' },
+];
+
+function getStructures() {
+    const stored = Storage.get('highlight-structures', null);
+    const settings = (stored && typeof stored === 'object') ? stored : {};
+
+    return STRUCTURES.map((structure) => {
+        return Object.assign({ enabled: false, bold: true, italic: false, underline: false, emphasis: false }, structure, settings[structure.key]);
+    });
 }
 
-function showConditionColor() {
-    if (document.getElementById('style-condition-color')) return;
-
-    const color = getConditionColor();
+function showStructureStyle() {
+    if (document.getElementById('style-structure')) return;
 
     const style = document.createElement('style');
-    style.id = 'style-condition-color';
-    style.textContent = '.Sentence .tag-condition { color: ' + color + '; }';
+    style.id = 'style-structure';
+    style.textContent = getStructures().map((structure) => {
+        if (!structure.enabled) {
+            return '';
+        }
+        let rule = 'color: ' + structure.color + ';';
+        rule += ' font-weight: ' + (structure.bold ? 'bold' : 'normal') + ';';
+        rule += ' font-style: ' + (structure.italic ? 'italic' : 'normal') + ';';
+        rule += ' text-decoration: ' + (structure.underline ? 'underline' : 'none') + ';';
+        rule += ' text-emphasis: ' + (structure.emphasis ? 'filled sesame' : 'none') + ';';
+        rule += ' -webkit-text-emphasis: ' + (structure.emphasis ? 'filled sesame' : 'none') + ';';
+        return structure.selector + ' { ' + rule + ' }';
+    }).join('');
     document.head.appendChild(style);
 }
 
-function hideConditionColor() {
-    const style = document.getElementById('style-condition-color');
+function hideStructureStyle() {
+    const style = document.getElementById('style-structure');
     if (style) style.remove();
 }
 
-const TITLE_COLOR_DEFAULTS = {
-    'part': 'deeppink',
-    'chapter': 'deepskyblue',
-    'section': 'mediumorchid',
-    'subsection': 'mediumseagreen',
-    'division': 'coral',
-};
-
-function getTitleColor(type) {
-    return Storage.get('title-color-' + type, TITLE_COLOR_DEFAULTS[type]);
+function getWidthLimitSize() {
+    const size = Storage.get('width-limit-size', 800);
+    return typeof size === 'number' ? size : 800;
 }
 
-function showTitleColor() {
-    if (document.getElementById('style-title-color')) return;
-
-    const partColor = getTitleColor('part');
-    const chapterColor = getTitleColor('chapter');
-    const sectionColor = getTitleColor('section');
-    const subsectionColor = getTitleColor('subsection');
-    const divisionColor = getTitleColor('division');
-
-    const style = document.createElement('style');
-    style.id = 'style-title-color';
-    style.textContent = '.PartTitle { color: ' + partColor + '; }';
-    style.textContent += '.ChapterTitle { color: ' + chapterColor + '; }';
-    style.textContent += '.SectionTitle { color: ' + sectionColor + '; }';
-    style.textContent += '.SubsectionTitle { color: ' + subsectionColor + '; }';
-    style.textContent += '.DivisionTitle { color: ' + divisionColor + '; }';
-    document.head.appendChild(style);
-}
-
-function hideTitleColor() {
-    const style = document.getElementById('style-title-color');
-    if (style) style.remove();
+function setWidthLimit(value) {
+    let style = document.getElementById('style-width-limit');
+    if (!style) {
+        style = document.createElement('style');
+        style.id = 'style-width-limit';
+        document.head.appendChild(style);
+    }
+    style.textContent = ':root { --width-limit: ' + value + '; }';
 }
 
 function disableWidthLimit() {
-    if (document.getElementById('style-width-limit')) return;
-    const style = document.createElement('style');
-    style.id = 'style-width-limit';
-    style.textContent = ':root { --width-limit: 9999px; }';
-    document.head.appendChild(style);
+    setWidthLimit('9999px');
 }
 
-function enableWidthLimit() {
-    const style = document.getElementById('style-width-limit');
-    if (style) style.remove();
+function enableWidthLimit(size) {
+    setWidthLimit((typeof size === 'number' ? size : getWidthLimitSize()) + 'px');
 }
 
 function setFontFamily(key) {

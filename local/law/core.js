@@ -21,15 +21,6 @@ const PAREN = {
     dataName: 'depth',
 };
 
-const TERMS = {
-    '及び': 'tag-conj-h',
-    '並びに': 'tag-conj-h',
-    '又は': 'tag-conj-s',
-    '若しくは': 'tag-conj-s',
-    'とき': 'tag-condition',
-    '場合': 'tag-condition',
-};
-
 const contentEl = document.querySelector('#content');
 const scrollEl = contentEl.parentElement;
 
@@ -39,6 +30,7 @@ const api = {
     getLawId: () => Route.getLawId(),
     restoreScroll: () => restoreScrollPosition(),
     onDisplayChange: () => Mokuji.update(),
+    onWordsChange: () => applyWords(),
     onRevisionSelect: (id) => moveToLaw(id),
     onConfigSelect: () => Config.show(),
     onDiffSelect: () => Sabun.show(),
@@ -155,7 +147,7 @@ async function initContent() {
     }
 
     law = Convert.nest(law, PAREN);
-    law = Convert.term(law, TERMS);
+    law = Convert.term(law, buildWordTerms());
 
     content.innerHTML = '';
     content.appendChild(law);
@@ -172,6 +164,27 @@ async function initContent() {
     }
 
     notifyLawEffectivenessStatus(content);
+}
+
+function buildWordTerms() {
+    const terms = {};
+    Config.getWords().forEach((word, index) => {
+        terms[word] = 'tag-word tag-word-' + index;
+    });
+    return terms;
+}
+
+function applyWords() {
+    const law = contentEl.firstElementChild;
+    if (!law) {
+        return;
+    }
+
+    law.querySelectorAll('.tag-word').forEach((span) => {
+        span.replaceWith(span.textContent);
+    });
+    law.normalize();
+    Convert.term(law, buildWordTerms());
 }
 
 function notifyLawEffectivenessStatus(content) {

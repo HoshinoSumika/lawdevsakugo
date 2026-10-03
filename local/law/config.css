@@ -103,3 +103,47 @@
     background: var(--color-white);
     border: 1px solid var(--color-gray); border-radius: 16px;
 }
+
+.config-group {
+    display: contents;
+}
+
+.config-input-item {
+    cursor: default;
+}
+.config-input-item:hover,
+.config-input-item:active {
+    background-color: transparent;
+}
+
+.config-input {
+    flex: 1;
+    min-width: 0px; margin: 8px 0px 8px 0px; padding: 6px 12px 6px 12px;
+    font: inherit; color: var(--color-black);
+    background-color: transparent;
+    border: 1px solid var(--color-smoke); border-radius: var(--radius-normal);
+}
+.config-input:focus {
+    outline: none;
+    border-color: var(--color-gray);
+}
+
+.config-color {
+    width: 40px; height: 28px; padding: 0px;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid var(--color-smoke); border-radius: var(--radius-normal);
+}
+
+.config-button {
+    padding: 6px 16px 6px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 999px;
+}
+.config-button:hover {
+    background-color: var(--color-hover);
+}
+.config-button:active {
+    background-color: var(--color-active);
+}
