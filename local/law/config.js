@@ -3,14 +3,14 @@ export const Config = {
     show,
 };
 
-import { Page } from '/lib/page.js?v=20260831';
-import { Shell } from '/lib/shell.js?v=20260831';
-import { Storage } from '/lib/storage.js?v=20260831';
+import { Page } from '/lib/page.js';
+import { Shell } from '/lib/shell.js';
+import { Storage } from '/lib/storage.js';
 
-import { Theme } from '/global/theme.js?v=20260831';
+import { Theme } from '/global/theme.js';
 
-import { Component } from './config/component.js?v=20260831';
-import { Library } from './config/library.js?v=20260831';
+import { Component } from './config/component.js';
+import { Library } from './config/library.js';
 
 let pageManager;
 let centerModal;

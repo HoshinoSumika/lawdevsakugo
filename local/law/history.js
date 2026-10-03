@@ -3,11 +3,11 @@ export const History = {
     show,
 };
 
-import { Scroll } from '/lib/scroll.js?v=20260831';
-import { Shell } from '/lib/shell.js?v=20260831';
+import { Scroll } from '/lib/scroll.js';
+import { Shell } from '/lib/shell.js';
 
-import { Convert } from '/global/convert.js?v=20260831';
-import { Service } from '/global/service.js?v=20260831';
+import { Convert } from '/global/convert.js';
+import { Service } from '/global/service.js';
 
 const SCROLL_DELAY = 200;
 const SCROLL_DURATION = 800;

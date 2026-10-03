@@ -1,18 +1,18 @@
-import { Device } from '/lib/device.js?v=20260831';
-import { Message } from '/lib/message.js?v=20260831';
+import { Device } from '/lib/device.js';
+import { Message } from '/lib/message.js';
 
-import { Convert } from '/global/convert.js?v=20260831';
-import { Route } from '/global/route.js?v=20260831';
-import { Service } from '/global/service.js?v=20260831';
-import { Theme } from '/global/theme.js?v=20260831';
+import { Convert } from '/global/convert.js';
+import { Route } from '/global/route.js';
+import { Service } from '/global/service.js';
+import { Theme } from '/global/theme.js';
 
-import { Config } from './config.js?v=20260831';
-import { History } from './history.js?v=20260831';
-import { Info } from './info.js?v=20260831';
-import { Menu } from './menu.js?v=20260831';
-import { Mokuji } from './mokuji.js?v=20260831';
-import { Sabun } from './sabun.js?v=20260831';
-import { Search } from './search.js?v=20260831';
+import { Config } from './config.js';
+import { History } from './history.js';
+import { Info } from './info.js';
+import { Menu } from './menu.js';
+import { Mokuji } from './mokuji.js';
+import { Sabun } from './sabun.js';
+import { Search } from './search.js';
 
 const PAREN = {
     pair: ['（', '）'],

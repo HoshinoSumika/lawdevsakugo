@@ -3,7 +3,7 @@ export const Route = {
     getLawHref,
 };
 
-import { Storage } from '/lib/storage.js?v=20260831';
+import { Storage } from '/lib/storage.js';
 
 const LAW_ID_PATTERN = /^\d{3}[0-9A-Z_]+$/;
 

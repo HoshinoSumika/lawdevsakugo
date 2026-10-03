@@ -20,7 +20,7 @@ export const Library = {
     setFontFamily,
 };
 
-import { Storage } from '/lib/storage.js?v=20260831';
+import { Storage } from '/lib/storage.js';
 
 function showTOC() {
     const style = document.getElementById('style-toc');

@@ -1,8 +1,8 @@
-import { Device } from '/lib/device.js?v=20260831';
+import { Device } from '/lib/device.js';
 
-import { Theme } from '/global/theme.js?v=20260831';
+import { Theme } from '/global/theme.js';
 
-import { Search } from './search.js?v=20260831';
+import { Search } from './search.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     Theme.init();

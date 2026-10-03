@@ -2,7 +2,7 @@ export const Navigation = {
     moveTo,
 };
 
-import { Scroll } from '/lib/scroll.js?v=20260831';
+import { Scroll } from '/lib/scroll.js';
 
 const SCROLL_DURATION = 500;
 const highlightTimers = new WeakMap();
