@@ -6,11 +6,20 @@ export const UI = {
     show,
 };
 
+const RESIZE_DURATION = 420;
+const RESIZE_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const FADE_DURATION = 180;
+const HIDE_DELAY = 200;
+const DESKTOP_QUERY = '(min-width: 801px)';
+
 let frame;
 let searchContainer;
 let searchInput;
 let searchClear;
 let searchResult;
+let resizeAnimation = null;
+let hideTimer = null;
+let isShown = false;
 
 function init({ createPanel, onInput, onClear }) {
     searchInput = document.querySelector('#search-input');
@@ -84,6 +93,8 @@ function show(lawContent) {
     searchResult.style.lineHeight = (parseFloat(style.lineHeight) / parseFloat(style.fontSize) - 0.2) + '';
     searchResult.style.letterSpacing = style.letterSpacing;
 
+    isShown = true;
+    clearTimeout(hideTimer);
     frame.show();
     requestAnimationFrame(() => {
         searchContainer.classList.add('show');
@@ -100,17 +111,71 @@ function show(lawContent) {
 }
 
 function hide() {
+    isShown = false;
     searchContainer.classList.remove('show');
     frame.hide();
-    searchInput.value = '';
-    searchInput.style.display = 'none';
+    searchInput.blur();
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+        searchInput.value = '';
+        searchInput.style.display = 'none';
+    }, HIDE_DELAY);
+}
+
+function isDesktop() {
+    return window.matchMedia(DESKTOP_QUERY).matches;
+}
+
+function resize(change) {
+    if (!isShown || !isDesktop()) {
+        change();
+        return;
+    }
+
+    const from = searchContainer.offsetHeight;
+    if (resizeAnimation) {
+        resizeAnimation.cancel();
+        resizeAnimation = null;
+    }
+
+    change();
+
+    const to = searchContainer.offsetHeight;
+    if (from === to) {
+        return;
+    }
+
+    resizeAnimation = searchContainer.animate([
+        { height: from + 'px' },
+        { height: to + 'px' },
+    ], { duration: RESIZE_DURATION, easing: RESIZE_EASING });
+    resizeAnimation.onfinish = () => {
+        resizeAnimation = null;
+    };
+}
+
+function fadeIn(element) {
+    element.animate([
+        { opacity: 0, transform: 'translateY(-4px)' },
+        { opacity: 1, transform: 'none' },
+    ], { duration: FADE_DURATION, easing: 'ease-out' });
 }
 
 function getQuery() {
     return searchInput.value;
 }
 
-function render(result, { query, isUnlimited, highlight, onExpand, onSelect }) {
+function render(result, options) {
+    const wasHidden = searchResult.style.display === 'none';
+
+    resize(() => renderResult(result, options));
+
+    if (isShown && isDesktop() && wasHidden && searchResult.style.display !== 'none') {
+        fadeIn(searchResult);
+    }
+}
+
+function renderResult(result, { query, isUnlimited, highlight, onExpand, onSelect }) {
     if (!query) {
         searchResult.innerHTML = '';
         searchResult.style.display = 'none';
