@@ -126,8 +126,7 @@
 
 .diff-selection-modal,
 .diff-comparison-modal {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-normal);
+    max-height: none;
     font-size: 14px;
     line-height: 1.65;
     transition: transform var(--transition-duration) ease, width var(--transition-duration) ease, height var(--transition-duration) ease, border-radius var(--transition-duration) ease;
@@ -148,6 +147,15 @@
 .diff-selection-modal.diff-no-transition,
 .diff-comparison-modal.diff-no-transition {
     transition: none;
+}
+
+.diff-selection-modal > .shell-scroll,
+.diff-comparison-modal > .shell-scroll {
+    overflow: hidden;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    scrollbar-gutter: auto;
 }
 
 .diff-comparison-scroll {

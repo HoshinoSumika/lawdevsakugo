@@ -98,18 +98,22 @@ function init(api) {
     configContent.classList.add('config-content');
 
     centerModalContent = document.createElement('div');
+    centerModalContent.classList.add('config-modal-content');
 
     centerModal = Shell.createModal(centerModalContent);
     centerModal.setWidth('min(90vw, 640px)');
     centerModal.setHeight('min(64vh, 640px)');
     centerModal.enableCloseButton(hide);
+    centerModalContent.closest('.shell-modal').classList.add('config-modal');
 
     bottomModalContent = document.createElement('div');
+    bottomModalContent.classList.add('config-modal-content');
 
     bottomModal = Shell.createModal(bottomModalContent);
     bottomModal.setPlacement('bottom');
     bottomModal.setHeight('50%');
     bottomModal.enableCloseButton(hide);
+    bottomModalContent.closest('.shell-modal').classList.add('config-modal');
 
     current = isNarrow() ? bottomModal : centerModal;
     (isNarrow() ? bottomModalContent : centerModalContent).appendChild(configContent);
@@ -231,6 +235,7 @@ function updateNav() {
         current.enableBackButton(closePage);
         current.setTitle('');
     }
+    current.updateShade(pageManager.getCurrent());
 }
 
 function closePage() {

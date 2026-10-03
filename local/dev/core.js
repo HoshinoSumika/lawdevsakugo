@@ -121,7 +121,7 @@ function openShellPanel() {
     shellPanelCount = shellPanelCount + 1;
     const number = shellPanelCount;
 
-    const content = createBox('Shell.createPanel', 'タイトルのドラッグで移動', '右下の角でリサイズ');
+    const content = createBox('Shell.createPanel', 'タイトルのドラッグで移動', '四辺と四隅でリサイズ');
 
     const panel = Shell.createPanel(content);
     panel.setTitle('パネル ' + number);

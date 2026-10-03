@@ -10,6 +10,17 @@
     width: calc(100% - 1280px); height: 1px; max-width: 320px; min-width: 0px;
 }
 
+.mokuji-modal > .shell-scroll {
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    scrollbar-gutter: auto;
+}
+
+.mokuji-modal-content {
+    flex: 1;
+    min-height: 0px;
+}
+
 .mokuji-content {
     overflow-y: auto; overscroll-behavior: contain;
     scrollbar-gutter: stable;

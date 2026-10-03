@@ -61,23 +61,22 @@ function init(value) {
 
     modal = Shell.createModal(content);
     modal.setTitle('条文比較');
+    modal.disableShade();
     modal.enableCloseButton(hide);
     modal.setDismiss(hide);
-    modalElement = content.parentElement;
-    clearModalStyles();
+    modalElement = content.closest('.shell-modal');
 
     showSelectionView();
 }
 
-function clearModalStyles() {
-    ['width', 'height', 'maxHeight', 'border', 'borderRadius', 'transition'].forEach(property => {
-        modalElement.style[property] = '';
-    });
+function clearModalTransition() {
+    modalElement.style.transition = '';
 }
 
 async function show() {
     const version = ++requestVersion;
 
+    clearModalTransition();
     modalElement.classList.add('diff-no-transition');
     showSelectionView();
     flushStyles();
@@ -297,12 +296,14 @@ function createLine(className, text) {
 
 function toggleSelection(id) {
     if (busy) return;
+    notice = '';
     if (selectedIds.includes(id)) {
         selectedIds = selectedIds.filter(value => value !== id);
+    } else if (selectedIds.length < 2) {
+        selectedIds = [...selectedIds, id];
     } else {
-        selectedIds = [...selectedIds, id].slice(-2);
+        notice = '選択できるのは2件までです。先にいずれかの選択を解除してください。';
     }
-    notice = '';
     renderSelection();
 }
 

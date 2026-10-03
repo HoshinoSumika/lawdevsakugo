@@ -32,12 +32,14 @@ function init(value) {
     lawContainer.insertBefore(mokujiSidebar, lawContent);
 
     mokujiModalContent = document.createElement('div');
+    mokujiModalContent.classList.add('mokuji-modal-content');
 
     mokujiModal = Shell.createModal(mokujiModalContent);
     mokujiModal.setPlacement('bottom');
     mokujiModal.setHeight('100%');
     mokujiModal.setTitle('目次');
     mokujiModal.enableCloseButton(hide);
+    mokujiModalContent.closest('.shell-modal').classList.add('mokuji-modal');
 
     resize();
     window.addEventListener('resize', () => {

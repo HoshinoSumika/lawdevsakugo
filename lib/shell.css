@@ -1,0 +1,151 @@
+:root {
+    --color-shell-ink: var(--color-black);
+    --color-shell-card: var(--color-white);
+    --color-shell-rule: var(--color-border);
+    --color-shell-hover: var(--color-hover);
+    --color-shell-active: var(--color-active);
+    --radius-shell: 24px;
+    --radius-shell-half: 12px;
+    --size-shell-nav-title: 56px;
+    --size-shell-nav-action: 52px;
+}
+
+.shell-panel {
+    display: flex; flex-direction: column;
+    width: 256px; height: 160px;
+    color: var(--color-shell-ink); background: var(--color-shell-card);
+    border: 1px solid var(--color-shell-rule); border-radius: var(--radius-shell);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.shell-modal {
+    display: flex; flex-direction: column;
+    width: min(480px, 90vw); max-height: 55dvh;
+    color: var(--color-shell-ink); background: var(--color-shell-card);
+    border: none; border-radius: var(--radius-shell);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.32);
+}
+.shell-modal.is-left {
+    margin-right: auto;
+    border-radius: 0px var(--radius-shell-half) var(--radius-shell-half) 0px;
+}
+.shell-modal.is-right {
+    margin-left: auto;
+    border-radius: var(--radius-shell-half) 0px 0px var(--radius-shell-half);
+}
+.shell-modal.is-top {
+    margin-bottom: auto;
+    border-radius: 0px 0px var(--radius-shell-half) var(--radius-shell-half);
+}
+.shell-modal.is-bottom {
+    margin-top: auto; padding-bottom: env(safe-area-inset-bottom);
+    border-radius: var(--radius-shell-half) var(--radius-shell-half) 0px 0px;
+}
+
+.shell-scroll {
+    min-height: 0px;
+    overflow-x: hidden; overflow-y: auto;
+    overscroll-behavior: contain; scrollbar-gutter: stable;
+}
+
+.shell-nav {
+    flex: none;
+    display: flex; justify-content: flex-end; align-items: center;
+    width: 100%;
+    user-select: none; -webkit-user-select: none;
+}
+.shell-nav-title {
+    position: relative; z-index: 1;
+    height: var(--size-shell-nav-title); padding: 12px;
+    transition: box-shadow var(--transition-duration) ease;
+}
+.shell-nav-title.is-raised {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.shell-nav-action {
+    display: none;
+    height: var(--size-shell-nav-action); padding: 8px; gap: 4px;
+}
+.shell-nav-action.is-on {
+    display: flex;
+}
+
+.shell-title {
+    flex: 1;
+    overflow: hidden; padding: 0px 16px 0px 16px;
+    font-weight: bold; white-space: nowrap; text-overflow: ellipsis;
+}
+.shell-title.is-grab {
+    cursor: grab; touch-action: none;
+}
+.shell-title.is-held {
+    cursor: grabbing;
+}
+
+.shell-button {
+    display: flex; justify-content: center; align-items: center;
+    height: 100%;
+    border-radius: 999px; cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+}
+.shell-button:hover {
+    background-color: var(--color-shell-hover);
+}
+.shell-button:active {
+    background-color: var(--color-shell-active);
+}
+.shell-button-icon {
+    aspect-ratio: 1 / 1;
+}
+.shell-button-text {
+    padding: 0px 16px 0px 16px;
+    font-size: 0.8125em; white-space: nowrap;
+}
+.shell-button-text.is-left {
+    margin-right: auto;
+}
+
+.shell-resize {
+    position: absolute;
+    touch-action: none;
+}
+.shell-resize.is-top-left {
+    left: 0px; top: 0px;
+    width: 12px; height: 12px;
+    cursor: nwse-resize;
+}
+.shell-resize.is-top {
+    left: 12px; right: 12px; top: 0px;
+    height: 6px;
+    cursor: ns-resize;
+}
+.shell-resize.is-top-right {
+    right: 0px; top: 0px;
+    width: 12px; height: 12px;
+    cursor: nesw-resize;
+}
+.shell-resize.is-left {
+    left: 0px; top: 12px; bottom: 12px;
+    width: 6px;
+    cursor: ew-resize;
+}
+.shell-resize.is-right {
+    right: 0px; top: 12px; bottom: 12px;
+    width: 6px;
+    cursor: ew-resize;
+}
+.shell-resize.is-bottom-left {
+    left: 0px; bottom: 0px;
+    width: 12px; height: 12px;
+    cursor: nesw-resize;
+}
+.shell-resize.is-bottom {
+    left: 12px; right: 12px; bottom: 0px;
+    height: 6px;
+    cursor: ns-resize;
+}
+.shell-resize.is-bottom-right {
+    right: 0px; bottom: 0px;
+    width: 12px; height: 12px;
+    cursor: nwse-resize;
+}

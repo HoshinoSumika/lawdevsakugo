@@ -56,6 +56,7 @@ function init(api) {
     modal.setPlacement('left');
     modal.setTitle('');
     modal.enableCloseButton(hide);
+    menuContent.closest('.shell-modal').classList.add('menu-modal');
 }
 
 function show() {
