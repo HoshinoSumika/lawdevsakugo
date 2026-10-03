@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', () => {
-    Device.disableHoverOnTouch();
+    Device.optimizeForTouch();
 });
 
 let routeStateEl;
@@ -195,24 +195,24 @@ function createShellModal(placement) {
     return modal;
 }
 
-let progressHandle = null;
+let alertHandle = null;
 
 function initMessage() {
-    Message.tip(document.querySelector('#message-tip'), 'これが tip です');
+    Message.hint(document.querySelector('#message-hint'), 'これが hint です');
 
-    bind('#message-toast', () => {
-        Message.toast('保存しました。');
-        log('Message.toast（4.8秒で消える）');
+    bind('#message-info', () => {
+        Message.info('保存しました。');
+        log('Message.info（4.8秒で消える）');
     });
 
-    bind('#message-toast-long', () => {
-        Message.toast('折り返しの確認用に長めの文章を表示します。画面幅から32pxを引いた幅で折り返され、×ボタンは右端に残ります。');
-        log('Message.toast 長文');
+    bind('#message-info-long', () => {
+        Message.info('折り返しの確認用に長めの文章を表示します。最大512pxの幅で折り返され、×ボタンは右端に残ります。');
+        log('Message.info 長文');
     });
 
-    bind('#message-warning', () => {
-        Message.warning('通信が不安定です。');
-        log('Message.warning（4.8秒で消える）');
+    bind('#message-warn', () => {
+        Message.warn('通信が不安定です。');
+        log('Message.warn（4.8秒で消える）');
     });
 
     bind('#message-error', () => {
@@ -220,30 +220,30 @@ function initMessage() {
         log('Message.error（4.8秒で消える）');
     });
 
-    bind('#message-progress-open', () => {
-        if (progressHandle) {
-            log('Message.progress は表示中');
+    bind('#message-alert-open', () => {
+        if (alertHandle) {
+            log('Message.alert は表示中');
             return;
         }
-        progressHandle = Message.progress('読み込み中...');
-        log('Message.progress 開始');
+        alertHandle = Message.alert('読み込み中...');
+        log('Message.alert 開始');
     });
 
-    bind('#message-progress-close', () => {
-        if (!progressHandle) {
-            log('Message.progress は未表示');
+    bind('#message-alert-close', () => {
+        if (!alertHandle) {
+            log('Message.alert は未表示');
             return;
         }
-        progressHandle.close();
-        progressHandle = null;
-        log('Message.progress 終了');
+        alertHandle.close();
+        alertHandle = null;
+        log('Message.alert 終了');
     });
 
     bind('#message-stack', () => {
-        Message.toast('toast');
-        Message.warning('warning');
+        Message.info('info');
+        Message.warn('warn');
         Message.error('error');
-        Message.progress('progress');
+        Message.alert('alert');
         log('4種を同時に表示');
     });
 }

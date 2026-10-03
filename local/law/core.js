@@ -64,7 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', () => {
-    Device.disableHoverOnTouch();
+    Device.optimizeForTouch();
 
     scrollEl.addEventListener('scroll', () => {
         recordScrollPosition();
@@ -184,6 +184,6 @@ function notifyLawEffectivenessStatus(content) {
     };
 
     if (statusLabels[status]) {
-        Message.warning('この法令は「' + statusLabels[status] + '」となっています。', 0);
+        Message.alert('この法令は「' + statusLabels[status] + '」となっています。');
     }
 }

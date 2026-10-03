@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', () => {
-    Device.disableHoverOnTouch();
+    Device.optimizeForTouch();
 });
 
 function init() {
