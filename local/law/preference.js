@@ -56,6 +56,17 @@ function init(api) {
     fragment.appendChild(preferenceItemStructure);
     fragment.appendChild(Component.createDivider());
 
+    fragment.appendChild(Component.createCategory('条文比較'));
+    fragment.appendChild(Component.createDivider());
+
+    const preferenceItemDiffDeletion = Component.createNavigationItem('削除部分');
+    fragment.appendChild(preferenceItemDiffDeletion);
+    fragment.appendChild(Component.createDivider());
+
+    const preferenceItemDiffAddition = Component.createNavigationItem('追加部分');
+    fragment.appendChild(preferenceItemDiffAddition);
+    fragment.appendChild(Component.createDivider());
+
     fragment.appendChild(Component.createCategory('外観'));
     fragment.appendChild(Component.createDivider());
 
@@ -182,6 +193,10 @@ function init(api) {
     preferenceItemStructure.addEventListener('click', () => {
         openStructureListPage();
     });
+
+    Library.showDiffStyle();
+    initDiffPage(preferenceItemDiffDeletion, 'deletion', '削除部分');
+    initDiffPage(preferenceItemDiffAddition, 'addition', '追加部分');
 
     const applyWidthLimitSize = (value) => {
         Config.setWidthLimitSize(value);
@@ -325,6 +340,7 @@ const refreshParenBackground = createRefresher('style-paren-background', Library
 const refreshParenFontSize = createRefresher('style-paren-font-size', Library.hideParenFontSize, Library.showParenFontSize);
 const refreshStructureStyle = createRefresher('style-structure', Library.hideStructureStyle, Library.showStructureStyle);
 const refreshWordColor = createRefresher('style-word-color', Library.hideWordColor, Library.showWordColor);
+const refreshDiffStyle = createRefresher('style-diff', Library.hideDiffStyle, Library.showDiffStyle);
 
 function openPage(actions) {
     const page = document.createElement('div');
@@ -421,11 +437,11 @@ const COLOR_OPTIONS = {
 
 const CUSTOM_COLOR_DEFAULT = '#808080';
 
-function getColorLabel(color) {
-    return COLOR_OPTIONS[color] ? COLOR_OPTIONS[color].label : color;
+function getColorLabel(color, options = COLOR_OPTIONS) {
+    return options[color] ? options[color].label : color;
 }
 
-function appendColorOptions(page, currentColor, onSelect) {
+function appendColorOptions(page, currentColor, onSelect, options = COLOR_OPTIONS) {
     const checkmarks = [];
 
     const check = (checkmark) => {
@@ -435,8 +451,8 @@ function appendColorOptions(page, currentColor, onSelect) {
         checkmark.style.visibility = 'visible';
     };
 
-    for (const color of Object.keys(COLOR_OPTIONS)) {
-        const option = Component.createRadioItem(COLOR_OPTIONS[color].label);
+    for (const color of Object.keys(options)) {
+        const option = Component.createRadioItem(options[color].label);
         const checkmark = option.querySelector('.preference-checkmark');
         checkmarks.push(checkmark);
 
@@ -458,7 +474,7 @@ function appendColorOptions(page, currentColor, onSelect) {
     const customCheckmark = customItem.querySelector('.preference-checkmark');
     checkmarks.push(customCheckmark);
 
-    if (COLOR_OPTIONS[currentColor]) {
+    if (options[currentColor]) {
         picker.value = CUSTOM_COLOR_DEFAULT;
     } else {
         picker.value = currentColor;
@@ -486,7 +502,7 @@ function appendColorNavItems(page, levels) {
     for (const level of levels) {
         const navItem = Component.createNavigationItem(level.title);
         const valueEl = navItem.querySelector('.preference-value');
-        valueEl.textContent = getColorLabel(level.get());
+        valueEl.textContent = getColorLabel(level.get(), level.options);
 
         navItem.addEventListener('click', () => {
             const colorPage = openPage();
@@ -496,9 +512,9 @@ function appendColorNavItems(page, levels) {
 
             appendColorOptions(colorPage, level.get(), (color) => {
                 level.set(color);
-                valueEl.textContent = getColorLabel(color);
+                valueEl.textContent = getColorLabel(color, level.options);
                 level.onChanged();
-            });
+            }, level.options);
         });
 
         page.appendChild(navItem);
@@ -554,6 +570,47 @@ function appendParenDetail(page) {
         get: Config.getHighlightParenFontSize,
         set: Config.setHighlightParenFontSize,
         onChanged: refreshParenFontSize,
+    });
+}
+
+const DIFF_STYLE_OPTIONS = {
+    'background': { label: '背景' },
+    'underline': { label: '下線' },
+    'color': { label: '文字色' },
+    'strike': { label: '取消線' },
+    'none': { label: 'なし' },
+};
+
+const DIFF_COLOR_OPTIONS = Object.keys(COLOR_OPTIONS).reduce((options, color) => {
+    if (color !== 'inherit') {
+        options[color] = COLOR_OPTIONS[color];
+    }
+    return options;
+}, { 'standard': { label: '標準' } });
+
+function initDiffPage(item, type, title) {
+    item.addEventListener('click', () => {
+        const page = openPage();
+
+        page.appendChild(Component.createCategory(title));
+        page.appendChild(Component.createDivider());
+
+        appendRadioNavItem(page, {
+            title: '表示',
+            options: DIFF_STYLE_OPTIONS,
+            defaultKey: type === 'deletion' ? 'strike' : 'color',
+            get: () => Config.getDiffStyle(type),
+            set: (value) => Config.setDiffStyle(type, value),
+            onChanged: refreshDiffStyle,
+        });
+
+        appendColorNavItems(page, [{
+            title: '色',
+            options: DIFF_COLOR_OPTIONS,
+            get: () => Config.getDiffColor(type),
+            set: (color) => Config.setDiffColor(type, color),
+            onChanged: refreshDiffStyle,
+        }]);
     });
 }
 

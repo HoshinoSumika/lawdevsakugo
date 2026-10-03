@@ -13,6 +13,20 @@ import { Service } from '/global/service.js';
 const DELETION_CLASS = 'diff-inline-deletion';
 const ADDITION_CLASS = 'diff-inline-addition';
 const SCROLL_DURATION = 800;
+const FULL_CHANGE_RATIO = 0.8;
+const CAPTION_CHANGE_RATIO = 0.5;
+const KEPT_RUN_MIN_LENGTH = 4;
+const LABEL_SELECTOR = [
+    '.ArticleCaption',
+    '.ArticleTitle',
+    '.ParagraphNum',
+    '.ItemTitle',
+    '.Subitem1Title',
+    '.Subitem2Title',
+    '.Subitem3Title',
+    '.Subitem4Title',
+    '.Subitem5Title',
+].join(', ');
 
 let api;
 let modal;
@@ -399,11 +413,72 @@ function createColumnHeader(revision) {
 }
 
 function createDiffRow({ oldItem, newItem, oldRanges, newRanges }) {
+    if (oldItem && newItem && oldRanges && newRanges && isMostlyChanged(oldItem, newItem, oldRanges)) {
+        oldRanges = null;
+        newRanges = null;
+    }
+
     const row = document.createElement('div');
     row.className = 'diff-article-row';
     row.appendChild(createArticleCell(oldItem, 'deletion', oldRanges, DELETION_CLASS));
     row.appendChild(createArticleCell(newItem, 'addition', newRanges, ADDITION_CLASS));
     return row;
+}
+
+function isMostlyChanged(oldItem, newItem, oldRanges) {
+    const ratio = measureChangedRatio(oldItem.element, oldRanges);
+    if (ratio > FULL_CHANGE_RATIO) return true;
+    return ratio > CAPTION_CHANGE_RATIO && isCaptionReplaced(oldItem.element, newItem.element);
+}
+
+function measureChangedRatio(element, ranges) {
+    const body = buildBodyMask(element);
+    const changed = new Uint8Array(body.length);
+    ranges.forEach(range => changed.fill(1, range.start, range.end));
+
+    let total = 0;
+    let kept = 0;
+    let run = 0;
+    for (let i = 0; i <= body.length; i++) {
+        const isBody = i < body.length && body[i] === 1;
+        if (isBody) total++;
+        if (isBody && !changed[i]) {
+            run++;
+            continue;
+        }
+        if (run >= KEPT_RUN_MIN_LENGTH) kept += run;
+        run = 0;
+    }
+    return total === 0 ? 0 : 1 - kept / total;
+}
+
+function buildBodyMask(element) {
+    const body = new Uint8Array(element.textContent.length);
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let offset = 0;
+    let node;
+    while ((node = walker.nextNode())) {
+        const value = node.nodeValue;
+        if (!node.parentElement.closest(LABEL_SELECTOR)) {
+            for (let i = 0; i < value.length; i++) {
+                if (!/\s/.test(value[i])) body[offset + i] = 1;
+            }
+        }
+        offset += value.length;
+    }
+    return body;
+}
+
+function isCaptionReplaced(oldElement, newElement) {
+    const oldCaption = getCaption(oldElement);
+    const newCaption = getCaption(newElement);
+    if (!oldCaption || !newCaption) return false;
+    return !newCaption.includes(oldCaption.replace(/等$/, ''));
+}
+
+function getCaption(element) {
+    const caption = element.querySelector(':scope > .ArticleCaption');
+    return caption ? caption.textContent.replace(/^（|）$/g, '') : '';
 }
 
 function createArticleCell(article, type, ranges, className) {

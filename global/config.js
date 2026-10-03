@@ -38,6 +38,11 @@ export const Config = {
     getHighlightStructures: buildReader('highlight-structures'),
     setHighlightStructures: buildWriter('highlight-structures'),
 
+    getDiffStyle: (type) => read(diffKey(type, 'style')),
+    setDiffStyle: (type, value) => write(diffKey(type, 'style'), value),
+    getDiffColor: (type) => read(diffKey(type, 'color')),
+    setDiffColor: (type, value) => write(diffKey(type, 'color'), value),
+
     subscribe,
 };
 
@@ -66,6 +71,11 @@ const defaults = {
 
     'highlight-words': [],
     'highlight-structures': {},
+
+    'diff-deletion-style': 'strike',
+    'diff-deletion-color': 'standard',
+    'diff-addition-style': 'color',
+    'diff-addition-color': 'standard',
 };
 
 const listeners = [];
@@ -80,6 +90,10 @@ function buildWriter(key) {
 
 function highlightParenColorKey(level) {
     return 'highlight-paren-color-' + level;
+}
+
+function diffKey(type, name) {
+    return 'diff-' + type + '-' + name;
 }
 
 function read(key) {

@@ -3,6 +3,7 @@ export const Diff = {
 };
 
 const MAX_EDIT_DISTANCE = 1000;
+const BOUNDARY_SCORES = { '。': 2, '）': 2, '　': 2, '、': 1 };
 
 function compare(oldItems, newItems) {
     const rows = [];
@@ -93,13 +94,16 @@ function diffText(oldText, newText, maxEditDistance) {
         return { oldRanges: null, newRanges: null };
     }
 
-    const base = oldChars.slice(0, prefix).join('').length;
+    const prefixOperations = oldChars.slice(0, prefix).map(value => ({ type: 'equal', value }));
+    const suffixOperations = oldChars.slice(oldChars.length - suffix).map(value => ({ type: 'equal', value }));
+    const allOperations = slideHunks(prefixOperations.concat(operations, suffixOperations));
+
     const oldRanges = [];
     const newRanges = [];
-    let oldOffset = base;
-    let newOffset = base;
+    let oldOffset = 0;
+    let newOffset = 0;
 
-    operations.forEach(operation => {
+    allOperations.forEach(operation => {
         const length = operation.value.length;
         if (operation.type === 'equal') {
             oldOffset += length;
@@ -113,6 +117,84 @@ function diffText(oldText, newText, maxEditDistance) {
         }
     });
     return { oldRanges, newRanges };
+}
+
+function slideHunks(operations) {
+    let index = 0;
+    while (index < operations.length) {
+        if (operations[index].type === 'equal') {
+            index++;
+            continue;
+        }
+        let end = index;
+        while (end < operations.length && operations[end].type !== 'equal') {
+            end++;
+        }
+        const type = operations[index].type;
+        if (operations.slice(index, end).every(operation => operation.type === type)) {
+            slideHunk(operations, index, end);
+        }
+        index = end;
+    }
+    return operations;
+}
+
+function slideHunk(operations, start, end) {
+    const hunk = { start, end };
+    while (canSlideLeft(operations, hunk)) {
+        slideLeft(operations, hunk);
+    }
+
+    let bestStep = 0;
+    let bestScore = scoreHunk(operations, hunk);
+    let step = 0;
+    while (canSlideRight(operations, hunk)) {
+        slideRight(operations, hunk);
+        step++;
+        const score = scoreHunk(operations, hunk);
+        if (score >= bestScore) {
+            bestScore = score;
+            bestStep = step;
+        }
+    }
+
+    while (step > bestStep) {
+        slideLeft(operations, hunk);
+        step--;
+    }
+}
+
+function canSlideLeft(operations, hunk) {
+    const before = operations[hunk.start - 1];
+    return Boolean(before) && before.type === 'equal' && before.value === operations[hunk.end - 1].value;
+}
+
+function canSlideRight(operations, hunk) {
+    const after = operations[hunk.end];
+    return Boolean(after) && after.type === 'equal' && after.value === operations[hunk.start].value;
+}
+
+function slideLeft(operations, hunk) {
+    const type = operations[hunk.start].type;
+    operations[hunk.end - 1] = { type: 'equal', value: operations[hunk.end - 1].value };
+    operations[hunk.start - 1] = { type, value: operations[hunk.start - 1].value };
+    hunk.start--;
+    hunk.end--;
+}
+
+function slideRight(operations, hunk) {
+    const type = operations[hunk.start].type;
+    operations[hunk.start] = { type: 'equal', value: operations[hunk.start].value };
+    operations[hunk.end] = { type, value: operations[hunk.end].value };
+    hunk.start++;
+    hunk.end++;
+}
+
+function scoreHunk(operations, hunk) {
+    const before = operations[hunk.start - 1];
+    const last = operations[hunk.end - 1];
+    const beforeScore = before ? BOUNDARY_SCORES[before.value] || 0 : 2;
+    return beforeScore + (BOUNDARY_SCORES[last.value] || 0);
 }
 
 function appendRange(ranges, start, end) {

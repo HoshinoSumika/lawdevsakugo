@@ -285,8 +285,14 @@ function createResultItem(element, query, highlight, onSelect) {
     item.appendChild(contentClone);
     item.className = 'search-result-item';
     item.addEventListener('click', () => onSelect(element));
-    item.addEventListener('mouseenter', () => select(getSelectableItems().indexOf(item), false));
+    bindSelection(item);
     return item;
+}
+
+function bindSelection(item) {
+    const selectItem = () => select(getSelectableItems().indexOf(item), false);
+    item.addEventListener('mouseenter', selectItem);
+    item.addEventListener('pointerdown', selectItem);
 }
 
 function createExpandItem(limit, onExpand) {
@@ -295,6 +301,6 @@ function createExpandItem(limit, onExpand) {
     item.textContent = 'すべての検索結果を表示';
     item.textContent += '（現在は' + limit + '件のみ表示）';
     item.addEventListener('click', onExpand);
-    item.addEventListener('mouseenter', () => select(getSelectableItems().indexOf(item), false));
+    bindSelection(item);
     return item;
 }

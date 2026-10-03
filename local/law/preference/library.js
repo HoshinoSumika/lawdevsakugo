@@ -16,6 +16,8 @@ export const Library = {
     getStructures,
     showStructureStyle,
     hideStructureStyle,
+    showDiffStyle,
+    hideDiffStyle,
     disableWidthLimit,
     enableWidthLimit,
     applyFontFamily,
@@ -212,6 +214,50 @@ function showStructureStyle() {
 
 function hideStructureStyle() {
     const style = document.getElementById('style-structure');
+    if (style) style.remove();
+}
+
+const DIFF_TYPES = [
+    { type: 'deletion', selector: '.diff-inline-deletion', color: 'light-dark(#cf222e, #ff7b72)' },
+    { type: 'addition', selector: '.diff-inline-addition', color: 'light-dark(#1a7f37, #56d364)' },
+];
+
+function buildDiffRule(entry) {
+    const display = Config.getDiffStyle(entry.type);
+    const stored = Config.getDiffColor(entry.type);
+    const isStandard = stored === 'standard';
+    const color = isStandard ? entry.color : stored;
+
+    if (display === 'background') {
+        if (isStandard) {
+            return '';
+        }
+        return entry.selector + ' { background: color-mix(in srgb, ' + color + ' 40%, transparent); }';
+    }
+
+    let rule = 'background: none;';
+    if (display === 'underline') {
+        rule += ' text-decoration: underline 2px ' + color + ';';
+        rule += ' text-underline-offset: 0.2em;';
+    } else if (display === 'color') {
+        rule += ' color: ' + color + ';';
+    } else if (display === 'strike') {
+        rule += ' text-decoration: line-through 2px ' + color + ';';
+    }
+    return entry.selector + ' { ' + rule + ' }';
+}
+
+function showDiffStyle() {
+    if (document.getElementById('style-diff')) return;
+
+    const style = document.createElement('style');
+    style.id = 'style-diff';
+    style.textContent = DIFF_TYPES.map(buildDiffRule).join('');
+    document.head.appendChild(style);
+}
+
+function hideDiffStyle() {
+    const style = document.getElementById('style-diff');
     if (style) style.remove();
 }
 
