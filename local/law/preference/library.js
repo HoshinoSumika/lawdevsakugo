@@ -18,10 +18,10 @@ export const Library = {
     hideStructureStyle,
     disableWidthLimit,
     enableWidthLimit,
-    setFontFamily,
+    applyFontFamily,
 };
 
-import { Storage } from '/lib/storage.js';
+import { Config } from '/global/config.js';
 
 function showTOC() {
     const style = document.getElementById('style-toc');
@@ -49,26 +49,14 @@ function hideSupplProvision() {
     document.head.appendChild(style);
 }
 
-const PAREN_COLOR_DEFAULTS = [
-    'mediumorchid',
-    'mediumseagreen',
-    'coral',
-    'gray',
-    'gray',
-];
-
-function getParenColor(level) {
-    return Storage.get('paren-color-' + level, PAREN_COLOR_DEFAULTS[level - 1]);
-}
-
 function showParenColor() {
     if (document.getElementById('style-paren-color')) return;
 
-    const c1 = getParenColor(1);
-    const c2 = getParenColor(2);
-    const c3 = getParenColor(3);
-    const c4 = getParenColor(4);
-    const c5 = getParenColor(5);
+    const c1 = Config.getParenColor(1);
+    const c2 = Config.getParenColor(2);
+    const c3 = Config.getParenColor(3);
+    const c4 = Config.getParenColor(4);
+    const c5 = Config.getParenColor(5);
 
     const style = document.createElement('style');
     style.id = 'style-paren-color';
@@ -87,7 +75,7 @@ function hideParenColor() {
 }
 
 function getParenBackground() {
-    const key = Storage.get('paren-background', 'color');
+    const key = Config.getParenBackground();
     if (key === 'color') {
         return 'rgba(128, 128, 128, 0.2)';
     }
@@ -119,14 +107,10 @@ function hideParenBackground() {
     if (style) style.remove();
 }
 
-function getParenFontSize() {
-    return Storage.get('paren-font-size', '1.00');
-}
-
 function showParenFontSize() {
     if (document.getElementById('style-paren-font-size')) return;
 
-    const size = getParenFontSize();
+    const size = Config.getParenFontSize();
 
     const style = document.createElement('style');
     style.id = 'style-paren-font-size';
@@ -149,7 +133,7 @@ const DEFAULT_WORDS = [
 ];
 
 function getWords() {
-    const stored = Storage.get('highlight-words', null);
+    const stored = Config.getWordHighlight();
     const words = Array.isArray(stored) ? stored : [];
 
     const defaults = DEFAULT_WORDS.map((entry) => {
@@ -198,7 +182,7 @@ const STRUCTURES = [
 ];
 
 function getStructures() {
-    const stored = Storage.get('highlight-structures', null);
+    const stored = Config.getStructureHighlight();
     const settings = (stored && typeof stored === 'object') ? stored : {};
 
     return STRUCTURES.map((structure) => {
@@ -231,12 +215,7 @@ function hideStructureStyle() {
     if (style) style.remove();
 }
 
-function getWidthLimitSize() {
-    const size = Storage.get('width-limit-size', 800);
-    return typeof size === 'number' ? size : 800;
-}
-
-function setWidthLimit(value) {
+function applyWidthLimit(value) {
     let style = document.getElementById('style-width-limit');
     if (!style) {
         style = document.createElement('style');
@@ -247,14 +226,14 @@ function setWidthLimit(value) {
 }
 
 function disableWidthLimit() {
-    setWidthLimit('9999px');
+    applyWidthLimit('9999px');
 }
 
 function enableWidthLimit(size) {
-    setWidthLimit((typeof size === 'number' ? size : getWidthLimitSize()) + 'px');
+    applyWidthLimit((typeof size === 'number' ? size : Config.getWidthLimitSize()) + 'px');
 }
 
-function setFontFamily(key) {
+function applyFontFamily(key) {
     let style = document.getElementById('style-font-family');
 
     if (key === 'sans-serif') {

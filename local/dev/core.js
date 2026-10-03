@@ -2,8 +2,8 @@ import { Device } from '/lib/device.js';
 import { Frame } from '/lib/frame.js';
 import { Message } from '/lib/message.js';
 import { Shell } from '/lib/shell.js';
-import { Storage } from '/lib/storage.js';
 
+import { Config } from '/global/config.js';
 import { Route } from '/global/route.js';
 import { Theme } from '/global/theme.js';
 
@@ -31,18 +31,14 @@ function initRoute() {
     updateRouteState();
 
     bind('#route-dev-toggle', () => {
-        if (Storage.get('dev', false)) {
-            Storage.remove('dev');
-        } else {
-            Storage.set('dev', true);
-        }
+        Config.setDev(!Config.getDev());
         updateRouteState();
-        log("Storage 'dev' = " + Storage.get('dev', false));
+        log('dev = ' + Config.getDev());
     });
 }
 
 function updateRouteState() {
-    const state = Storage.get('dev', false) ? 'dev モード：ON' : 'dev モード：OFF';
+    const state = Config.getDev() ? 'dev モード：ON' : 'dev モード：OFF';
     routeStateEl.textContent = state + '　法令へのリンク例：' + Route.getLawHref('129AC0000000089');
 }
 

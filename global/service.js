@@ -4,9 +4,8 @@ export const Service = {
     getLawFullText,
 };
 
-import { Storage } from '/lib/storage.js';
-
 import { Cache } from '/global/cache.js';
+import { Config } from '/global/config.js';
 import { Convert } from '/global/convert.js';
 
 const CACHE_NAME_FULL_TEXT = 'LawFullTextBeta';
@@ -200,7 +199,7 @@ async function setCachedItem(cache, key, value) {
 
 function isCacheEnabled() {
     try {
-        return !Storage.get('dev', false);
+        return !Config.getDev();
     } catch (error) {
         console.error(error);
         return false;

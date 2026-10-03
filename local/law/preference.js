@@ -1,4 +1,4 @@
-export const Config = {
+export const Preference = {
     init,
     show,
     getWords,
@@ -7,12 +7,12 @@ export const Config = {
 import { Message } from '/lib/message.js';
 import { Page } from '/lib/page.js';
 import { Shell } from '/lib/shell.js';
-import { Storage } from '/lib/storage.js';
 
+import { Config } from '/global/config.js';
 import { Theme } from '/global/theme.js';
 
-import { Component } from './config/component.js';
-import { Library } from './config/library.js';
+import { Component } from './preference/component.js';
+import { Library } from './preference/library.js';
 
 let pageManager;
 let centerModal;
@@ -20,7 +20,7 @@ let centerModalContent;
 let bottomModal;
 let bottomModalContent;
 let current;
-let configContent;
+let preferenceContent;
 let lawContent;
 let isOpen = false;
 
@@ -33,81 +33,81 @@ function init(api) {
     fragment.appendChild(Component.createCategory('内容'));
     fragment.appendChild(Component.createDivider());
 
-    const configItemTOC = Component.createCheckboxItem('本文中の目次を表示');
-    fragment.appendChild(configItemTOC);
+    const preferenceItemTOC = Component.createCheckboxItem('本文中の目次を表示');
+    fragment.appendChild(preferenceItemTOC);
     fragment.appendChild(Component.createDivider());
 
-    const configItemSupplProvision = Component.createCheckboxItem('附則を表示');
-    fragment.appendChild(configItemSupplProvision);
+    const preferenceItemSupplProvision = Component.createCheckboxItem('附則を表示');
+    fragment.appendChild(preferenceItemSupplProvision);
     fragment.appendChild(Component.createDivider());
 
     fragment.appendChild(Component.createCategory('強調表示'));
     fragment.appendChild(Component.createDivider());
 
-    const configItemParen = Component.createNavigationItem('括弧の強調表示');
-    fragment.appendChild(configItemParen);
+    const preferenceItemParen = Component.createNavigationItem('括弧の強調表示');
+    fragment.appendChild(preferenceItemParen);
     fragment.appendChild(Component.createDivider());
 
-    const configItemWord = Component.createNavigationItem('語句の強調表示');
-    fragment.appendChild(configItemWord);
+    const preferenceItemWord = Component.createNavigationItem('語句の強調表示');
+    fragment.appendChild(preferenceItemWord);
     fragment.appendChild(Component.createDivider());
 
-    const configItemStructure = Component.createNavigationItem('構成の強調表示');
-    fragment.appendChild(configItemStructure);
+    const preferenceItemStructure = Component.createNavigationItem('構成の強調表示');
+    fragment.appendChild(preferenceItemStructure);
     fragment.appendChild(Component.createDivider());
 
     fragment.appendChild(Component.createCategory('外観'));
     fragment.appendChild(Component.createDivider());
 
-    const configItemTheme = Component.createNavigationItem('テーマ');
-    fragment.appendChild(configItemTheme);
+    const preferenceItemTheme = Component.createNavigationItem('テーマ');
+    fragment.appendChild(preferenceItemTheme);
     fragment.appendChild(Component.createDivider());
 
-    const configItemFontFamily = Component.createNavigationItem('書体');
-    fragment.appendChild(configItemFontFamily);
+    const preferenceItemFontFamily = Component.createNavigationItem('書体');
+    fragment.appendChild(preferenceItemFontFamily);
     fragment.appendChild(Component.createDivider());
 
-    const configItemFontSize = Component.createSeekbarItem('文字サイズ', '14', '18', '0.5');
-    fragment.appendChild(configItemFontSize);
+    const preferenceItemFontSize = Component.createSeekbarItem('文字サイズ', '14', '18', '0.5');
+    fragment.appendChild(preferenceItemFontSize);
     fragment.appendChild(Component.createDivider());
 
-    const configItemLineHeight = Component.createSeekbarItem('行間', '1.6', '2.0', '0.05');
-    fragment.appendChild(configItemLineHeight);
+    const preferenceItemLineHeight = Component.createSeekbarItem('行間', '1.6', '2.0', '0.05');
+    fragment.appendChild(preferenceItemLineHeight);
     fragment.appendChild(Component.createDivider());
 
-    const configItemLetterSpacing = Component.createSeekbarItem('字間', '0.00', '0.20', '0.01');
-    fragment.appendChild(configItemLetterSpacing);
+    const preferenceItemLetterSpacing = Component.createSeekbarItem('字間', '0.00', '0.20', '0.01');
+    fragment.appendChild(preferenceItemLetterSpacing);
     fragment.appendChild(Component.createDivider());
 
-    const configItemWidthLimit = Component.createNavigationItem('横幅制限');
-    fragment.appendChild(configItemWidthLimit);
+    const preferenceItemWidthLimit = Component.createNavigationItem('横幅制限');
+    fragment.appendChild(preferenceItemWidthLimit);
     fragment.appendChild(Component.createDivider());
 
-    configContent = document.createElement('div');
-    configContent.classList.add('config-content');
+    preferenceContent = document.createElement('div');
+    preferenceContent.classList.add('preference-content');
 
     centerModalContent = document.createElement('div');
-    centerModalContent.classList.add('config-modal-content');
+    centerModalContent.classList.add('preference-modal-content');
 
     centerModal = Shell.createModal(centerModalContent);
     centerModal.setWidth('min(90vw, 640px)');
     centerModal.setHeight('min(64vh, 640px)');
     centerModal.enableCloseButton(hide);
-    centerModalContent.closest('.shell-modal').classList.add('config-modal');
+    centerModalContent.closest('.shell-modal').classList.add('preference-modal');
 
     bottomModalContent = document.createElement('div');
-    bottomModalContent.classList.add('config-modal-content');
+    bottomModalContent.classList.add('preference-modal-content');
 
     bottomModal = Shell.createModal(bottomModalContent);
     bottomModal.setPlacement('bottom');
     bottomModal.setHeight('90%');
     bottomModal.enableCloseButton(hide);
-    bottomModalContent.closest('.shell-modal').classList.add('config-modal');
+    bottomModalContent.closest('.shell-modal').classList.add('preference-modal');
 
     current = isNarrow() ? bottomModal : centerModal;
-    (isNarrow() ? bottomModalContent : centerModalContent).appendChild(configContent);
+    (isNarrow() ? bottomModalContent : centerModalContent).appendChild(preferenceContent);
 
-    pageManager = Page.createManager(configContent);
+    pageManager = Page.createManager(preferenceContent);
 
     const page = document.createElement('div');
     page.appendChild(fragment);
@@ -119,15 +119,33 @@ function init(api) {
         place();
     });
 
-    Component.toggleCheckboxItem(configItemTOC, 'toc', false, Library.showTOC, Library.hideTOC);
-    configItemTOC.addEventListener('click', () => {
-        Component.toggleCheckboxItem(configItemTOC, 'toc', false, Library.showTOC, Library.hideTOC);
+    const applyTOC = (enabled) => {
+        if (enabled) {
+            Library.showTOC();
+        } else {
+            Library.hideTOC();
+        }
+    };
+
+    applyTOC(Config.getTOC());
+    Component.initSwitch(preferenceItemTOC, Config.getTOC(), (enabled) => {
+        Config.setTOC(enabled);
+        applyTOC(enabled);
         api.onDisplayChange();
     });
 
-    Component.toggleCheckboxItem(configItemSupplProvision, 'suppl-provision', false, Library.showSupplProvision, Library.hideSupplProvision);
-    configItemSupplProvision.addEventListener('click', () => {
-        Component.toggleCheckboxItem(configItemSupplProvision, 'suppl-provision', false, Library.showSupplProvision, Library.hideSupplProvision);
+    const applySupplProvision = (enabled) => {
+        if (enabled) {
+            Library.showSupplProvision();
+        } else {
+            Library.hideSupplProvision();
+        }
+    };
+
+    applySupplProvision(Config.getSupplProvision());
+    Component.initSwitch(preferenceItemSupplProvision, Config.getSupplProvision(), (enabled) => {
+        Config.setSupplProvision(enabled);
+        applySupplProvision(enabled);
         api.onDisplayChange();
     });
 
@@ -143,38 +161,39 @@ function init(api) {
         Library.hideParenFontSize();
     };
 
-    initTogglePage(configItemParen, {
+    initTogglePage(preferenceItemParen, {
         title: '括弧の強調表示',
         label: '強調表示',
-        storageKey: 'paren-highlight',
-        defaultEnabled: false,
+        get: Config.getParenHighlight,
+        set: Config.setParenHighlight,
         onEnable: showParenAll,
         onDisable: hideParenAll,
         appendDetail: appendParenDetail,
     });
 
     Library.showWordColor();
-    configItemWord.addEventListener('click', () => {
+    preferenceItemWord.addEventListener('click', () => {
         openWordListPage(api.onWordsChange);
     });
 
     Library.showStructureStyle();
-    configItemStructure.addEventListener('click', () => {
+    preferenceItemStructure.addEventListener('click', () => {
         openStructureListPage();
     });
 
     const applyWidthLimitSize = (value) => {
-        if (Storage.get('width-limit', null) !== 'disable') {
+        Config.setWidthLimitSize(value);
+        if (Config.getWidthLimit()) {
             Library.enableWidthLimit(value);
         }
         api.restoreScroll();
     };
 
-    initTogglePage(configItemWidthLimit, {
+    initTogglePage(preferenceItemWidthLimit, {
         title: '横幅制限',
         label: '横幅制限',
-        storageKey: 'width-limit',
-        defaultEnabled: true,
+        get: Config.getWidthLimit,
+        set: Config.setWidthLimit,
         onEnable: Library.enableWidthLimit,
         onDisable: Library.disableWidthLimit,
         onToggle: api.restoreScroll,
@@ -183,19 +202,19 @@ function init(api) {
         },
     });
 
-    initThemePage(configItemTheme);
+    initThemePage(preferenceItemTheme);
 
-    initFontFamilyPage(configItemFontFamily);
+    initFontFamilyPage(preferenceItemFontFamily);
 
-    Component.initSeekbar(configItemFontSize, 'font-size', 16, (value) => {
+    initSeekbar(preferenceItemFontSize, Config.getFontSize, Config.setFontSize, (value) => {
         lawContent.style.fontSize = value + 'px';
     });
 
-    Component.initSeekbar(configItemLineHeight, 'line-height', 1.8, (value) => {
+    initSeekbar(preferenceItemLineHeight, Config.getLineHeight, Config.setLineHeight, (value) => {
         lawContent.style.lineHeight = value + '';
     });
 
-    Component.initSeekbar(configItemLetterSpacing, 'letter-spacing', 0, (value) => {
+    initSeekbar(preferenceItemLetterSpacing, Config.getLetterSpacing, Config.setLetterSpacing, (value) => {
         lawContent.style.letterSpacing = value + 'em';
     });
 }
@@ -223,7 +242,7 @@ function place() {
 
     current.hide();
     current = next;
-    (isNarrow() ? bottomModalContent : centerModalContent).appendChild(configContent);
+    (isNarrow() ? bottomModalContent : centerModalContent).appendChild(preferenceContent);
     updateNav();
 
     if (isOpen) {
@@ -253,15 +272,24 @@ function closePage() {
     updateNav();
 }
 
-function initTogglePage(item, { title, label, storageKey, defaultEnabled, onEnable, onDisable, onToggle, appendDetail }) {
-    const stored = Storage.get(storageKey, null);
-    const enabled = defaultEnabled ? stored !== 'disable' : stored === 'enable';
+function initSeekbar(item, get, set, apply) {
+    apply(get());
+    Component.initSeekbar(item, get(), (value) => {
+        set(value);
+        apply(value);
+    });
+}
 
-    if (enabled) {
-        onEnable();
-    } else {
-        onDisable();
-    }
+function initTogglePage(item, { title, label, get, set, onEnable, onDisable, onToggle, appendDetail }) {
+    const apply = (enabled) => {
+        if (enabled) {
+            onEnable();
+        } else {
+            onDisable();
+        }
+    };
+
+    apply(get());
 
     item.addEventListener('click', () => {
         const page = openPage();
@@ -269,17 +297,13 @@ function initTogglePage(item, { title, label, storageKey, defaultEnabled, onEnab
         page.appendChild(Component.createCategory(title));
         page.appendChild(Component.createDivider());
 
-        const toggle = Component.createCheckboxItem(label);
-        Component.toggleCheckboxItem(toggle, storageKey, defaultEnabled, onEnable, onDisable);
-        toggle.addEventListener('click', () => {
-            Component.toggleCheckboxItem(toggle, storageKey, defaultEnabled, onEnable, onDisable);
+        appendSwitch(page, label, get(), (enabled) => {
+            set(enabled);
+            apply(enabled);
             if (onToggle) {
                 onToggle();
             }
         });
-
-        page.appendChild(toggle);
-        page.appendChild(Component.createDivider());
 
         appendDetail(page);
     });
@@ -313,13 +337,11 @@ function openPage(actions) {
     return page;
 }
 
-function initPage(item, { title, options, defaultKey, storageKey, onSelect }) {
-    const valueEl = item.querySelector('.config-value');
-    const stored = Storage.get(storageKey, null);
-    const key = (stored && options[stored]) ? stored : defaultKey;
+function initPage(item, { title, options, defaultKey, get, set }) {
+    const valueEl = item.querySelector('.preference-value');
+    const getKey = () => options[get()] ? get() : defaultKey;
 
-    onSelect(key);
-    valueEl.textContent = options[key].label;
+    valueEl.textContent = options[getKey()].label;
 
     item.addEventListener('click', () => {
         const page = openPage();
@@ -327,40 +349,35 @@ function initPage(item, { title, options, defaultKey, storageKey, onSelect }) {
         page.appendChild(Component.createCategory(title));
         page.appendChild(Component.createDivider());
 
-        appendRadioItems(page, storageKey, defaultKey, options, (k) => {
-            onSelect(k);
+        appendRadioOptions(page, options, getKey(), (k) => {
+            set(k);
             valueEl.textContent = options[k].label;
         });
     });
 }
 
-function initRadioSelectPage(navItem, title, storageKey, defaultKey, onChanged, options) {
-    const page = openPage();
+function appendRadioNavItem(page, { title, options, defaultKey, get, set, onChanged }) {
+    const navItem = Component.createNavigationItem(title);
+    const valueEl = navItem.querySelector('.preference-value');
+    const getKey = () => options[get()] ? get() : defaultKey;
 
-    page.appendChild(Component.createCategory(title));
+    valueEl.textContent = options[getKey()].label;
+
+    navItem.addEventListener('click', () => {
+        const radioPage = openPage();
+
+        radioPage.appendChild(Component.createCategory(title));
+        radioPage.appendChild(Component.createDivider());
+
+        appendRadioOptions(radioPage, options, getKey(), (k) => {
+            set(k);
+            valueEl.textContent = options[k].label;
+            onChanged();
+        });
+    });
+
+    page.appendChild(navItem);
     page.appendChild(Component.createDivider());
-
-    const valueEl = navItem.querySelector('.config-value');
-
-    appendRadioItems(page, storageKey, defaultKey, options, (k) => {
-        valueEl.textContent = options[k].label;
-        onChanged();
-    });
-}
-
-function appendRadioItems(page, storageKey, defaultKey, options, onChanged) {
-    const raw = Storage.get(storageKey, null);
-    const currentKey = (raw && options[raw]) ? raw : defaultKey;
-
-    appendRadioOptions(page, options, currentKey, (k) => {
-        if (k === defaultKey) {
-            Storage.remove(storageKey);
-        } else {
-            Storage.set(storageKey, k);
-        }
-
-        onChanged(k);
-    });
 }
 
 function appendRadioOptions(page, options, currentKey, onSelect) {
@@ -368,7 +385,7 @@ function appendRadioOptions(page, options, currentKey, onSelect) {
 
     for (const k of Object.keys(options)) {
         const option = Component.createRadioItem(options[k].label);
-        const checkmark = option.querySelector('.config-checkmark');
+        const checkmark = option.querySelector('.preference-checkmark');
 
         if (k === currentKey) {
             checkmark.style.visibility = 'visible';
@@ -376,7 +393,7 @@ function appendRadioOptions(page, options, currentKey, onSelect) {
 
         option.addEventListener('click', () => {
             for (const x of Object.keys(items)) {
-                items[x].querySelector('.config-checkmark').style.visibility = 'hidden';
+                items[x].querySelector('.preference-checkmark').style.visibility = 'hidden';
             }
 
             checkmark.style.visibility = 'visible';
@@ -418,7 +435,7 @@ function appendColorOptions(page, currentColor, onSelect) {
 
     for (const color of Object.keys(COLOR_OPTIONS)) {
         const option = Component.createRadioItem(COLOR_OPTIONS[color].label);
-        const checkmark = option.querySelector('.config-checkmark');
+        const checkmark = option.querySelector('.preference-checkmark');
         checkmarks.push(checkmark);
 
         if (color === currentColor) {
@@ -435,8 +452,8 @@ function appendColorOptions(page, currentColor, onSelect) {
     }
 
     const customItem = Component.createColorItem('カスタム');
-    const picker = customItem.querySelector('.config-color');
-    const customCheckmark = customItem.querySelector('.config-checkmark');
+    const picker = customItem.querySelector('.preference-color');
+    const customCheckmark = customItem.querySelector('.preference-checkmark');
     checkmarks.push(customCheckmark);
 
     if (COLOR_OPTIONS[currentColor]) {
@@ -466,8 +483,8 @@ function appendColorOptions(page, currentColor, onSelect) {
 function appendColorNavItems(page, levels) {
     for (const level of levels) {
         const navItem = Component.createNavigationItem(level.title);
-        const valueEl = navItem.querySelector('.config-value');
-        valueEl.textContent = getColorLabel(Storage.get(level.storageKey, level.defaultKey));
+        const valueEl = navItem.querySelector('.preference-value');
+        valueEl.textContent = getColorLabel(level.get());
 
         navItem.addEventListener('click', () => {
             const colorPage = openPage();
@@ -475,12 +492,8 @@ function appendColorNavItems(page, levels) {
             colorPage.appendChild(Component.createCategory(level.title));
             colorPage.appendChild(Component.createDivider());
 
-            appendColorOptions(colorPage, Storage.get(level.storageKey, level.defaultKey), (color) => {
-                if (color === level.defaultKey) {
-                    Storage.remove(level.storageKey);
-                } else {
-                    Storage.set(level.storageKey, color);
-                }
+            appendColorOptions(colorPage, level.get(), (color) => {
+                level.set(color);
                 valueEl.textContent = getColorLabel(color);
                 level.onChanged();
             });
@@ -491,13 +504,14 @@ function appendColorNavItems(page, levels) {
     }
 }
 
-const PAREN_COLOR_LEVELS = [
-    { title: '第一階層の色', storageKey: 'paren-color-1', defaultKey: 'mediumorchid', onChanged: refreshParenColor },
-    { title: '第二階層の色', storageKey: 'paren-color-2', defaultKey: 'mediumseagreen', onChanged: refreshParenColor },
-    { title: '第三階層の色', storageKey: 'paren-color-3', defaultKey: 'coral', onChanged: refreshParenColor },
-    { title: '第四階層の色', storageKey: 'paren-color-4', defaultKey: 'gray', onChanged: refreshParenColor },
-    { title: '第五階層の色', storageKey: 'paren-color-5', defaultKey: 'gray', onChanged: refreshParenColor },
-];
+const PAREN_COLOR_LEVELS = ['第一', '第二', '第三', '第四', '第五'].map((name, index) => {
+    return {
+        title: name + '階層の色',
+        get: () => Config.getParenColor(index + 1),
+        set: (color) => Config.setParenColor(index + 1, color),
+        onChanged: refreshParenColor,
+    };
+});
 
 const PAREN_BACKGROUND_OPTIONS = {
     'color': { label: '標準' },
@@ -522,33 +536,23 @@ function appendParenDetail(page) {
     page.appendChild(Component.createCategory('括弧全体'));
     page.appendChild(Component.createDivider());
 
-    const bgNavItem = Component.createNavigationItem('背景');
-    const bgValueEl = bgNavItem.querySelector('.config-value');
-
-    const bgStored = Storage.get('paren-background', null);
-    const bgCurrentKey = (bgStored && PAREN_BACKGROUND_OPTIONS[bgStored]) ? bgStored : 'color';
-    bgValueEl.textContent = PAREN_BACKGROUND_OPTIONS[bgCurrentKey].label;
-
-    bgNavItem.addEventListener('click', () => {
-        initRadioSelectPage(bgNavItem, '背景', 'paren-background', 'color', refreshParenBackground, PAREN_BACKGROUND_OPTIONS);
+    appendRadioNavItem(page, {
+        title: '背景',
+        options: PAREN_BACKGROUND_OPTIONS,
+        defaultKey: 'color',
+        get: Config.getParenBackground,
+        set: Config.setParenBackground,
+        onChanged: refreshParenBackground,
     });
 
-    page.appendChild(bgNavItem);
-    page.appendChild(Component.createDivider());
-
-    const fsNavItem = Component.createNavigationItem('文字サイズ');
-    const fsValueEl = fsNavItem.querySelector('.config-value');
-
-    const fsStored = Storage.get('paren-font-size', null);
-    const fsCurrentKey = (fsStored && PAREN_FONT_SIZE_OPTIONS[fsStored]) ? fsStored : '1.00';
-    fsValueEl.textContent = PAREN_FONT_SIZE_OPTIONS[fsCurrentKey].label;
-
-    fsNavItem.addEventListener('click', () => {
-        initRadioSelectPage(fsNavItem, '文字サイズ', 'paren-font-size', '1.00', refreshParenFontSize, PAREN_FONT_SIZE_OPTIONS);
+    appendRadioNavItem(page, {
+        title: '文字サイズ',
+        options: PAREN_FONT_SIZE_OPTIONS,
+        defaultKey: '1.00',
+        get: Config.getParenFontSize,
+        set: Config.setParenFontSize,
+        onChanged: refreshParenFontSize,
     });
-
-    page.appendChild(fsNavItem);
-    page.appendChild(Component.createDivider());
 }
 
 const WORD_DEFAULT_COLOR = 'coral';
@@ -558,7 +562,7 @@ function getWords() {
 }
 
 function saveWords(words) {
-    Storage.set('highlight-words', words);
+    Config.setWordHighlight(words);
     refreshWordColor();
 }
 
@@ -573,12 +577,12 @@ function openWordListPage(onWordsChange) {
     page.appendChild(Component.createDivider());
 
     const group = document.createElement('div');
-    group.className = 'config-group';
+    group.className = 'preference-group';
     page.appendChild(group);
 
     const inputItem = Component.createInputItem('語句を入力', '追加');
-    const field = inputItem.querySelector('.config-input');
-    const button = inputItem.querySelector('.config-button');
+    const field = inputItem.querySelector('.preference-input');
+    const button = inputItem.querySelector('.preference-button');
     page.appendChild(inputItem);
     page.appendChild(Component.createDivider());
 
@@ -587,7 +591,7 @@ function openWordListPage(onWordsChange) {
 
         Library.getWords().forEach((entry, index) => {
             const navItem = Component.createNavigationItem(entry.word);
-            const valueEl = navItem.querySelector('.config-value');
+            const valueEl = navItem.querySelector('.preference-value');
             valueEl.textContent = getWordValue(entry);
 
             navItem.addEventListener('click', () => {
@@ -672,14 +676,7 @@ function openWordPage(index, valueEl, onRemove) {
 
 function appendSwitch(page, label, checked, onChange) {
     const item = Component.createCheckboxItem(label);
-    const checkbox = item.querySelector('.config-checkbox');
-    checkbox.classList.toggle('checked', checked);
-
-    item.addEventListener('click', () => {
-        const next = !checkbox.classList.contains('checked');
-        checkbox.classList.toggle('checked', next);
-        onChange(next);
-    });
+    Component.initSwitch(item, checked, onChange);
 
     page.appendChild(item);
     page.appendChild(Component.createDivider());
@@ -690,8 +687,7 @@ function getStructureValue(structure) {
 }
 
 function saveStructure(structure) {
-    const stored = Storage.get('highlight-structures', null);
-    const settings = (stored && typeof stored === 'object') ? stored : {};
+    const settings = Object.assign({}, Config.getStructureHighlight());
 
     settings[structure.key] = {
         enabled: structure.enabled,
@@ -702,7 +698,7 @@ function saveStructure(structure) {
         emphasis: structure.emphasis,
     };
 
-    Storage.set('highlight-structures', settings);
+    Config.setStructureHighlight(settings);
     refreshStructureStyle();
 }
 
@@ -719,7 +715,7 @@ function openStructureListPage() {
         }
 
         const navItem = Component.createNavigationItem(structure.label);
-        const valueEl = navItem.querySelector('.config-value');
+        const valueEl = navItem.querySelector('.preference-value');
         valueEl.textContent = getStructureValue(structure);
 
         navItem.addEventListener('click', () => {
@@ -789,7 +785,7 @@ function openStructurePage(key, valueEl) {
 
 function appendWidthLimitDetail(page, applyValue) {
     const sizeItem = Component.createSeekbarItem('幅', '640', '1040', '20');
-    Component.initSeekbar(sizeItem, 'width-limit-size', 800, applyValue);
+    Component.initSeekbar(sizeItem, Config.getWidthLimitSize(), applyValue);
 
     page.appendChild(sizeItem);
     page.appendChild(Component.createDivider());
@@ -808,12 +804,14 @@ function initThemePage(item) {
             'chocolate': { label: 'チョコレート' },
         },
         defaultKey: 'system',
-        storageKey: 'theme',
-        onSelect: Theme.set,
+        get: Theme.get,
+        set: Theme.set,
     });
 }
 
 function initFontFamilyPage(item) {
+    Library.applyFontFamily(Config.getFontFamily());
+
     initPage(item, {
         title: '書体',
         options: {
@@ -821,7 +819,10 @@ function initFontFamilyPage(item) {
             'serif': { label: '明朝' },
         },
         defaultKey: 'sans-serif',
-        storageKey: 'font-family',
-        onSelect: Library.setFontFamily,
+        get: Config.getFontFamily,
+        set: (key) => {
+            Config.setFontFamily(key);
+            Library.applyFontFamily(key);
+        },
     });
 }

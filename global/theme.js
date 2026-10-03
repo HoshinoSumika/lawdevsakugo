@@ -4,7 +4,7 @@ export const Theme = {
     get,
 };
 
-import { Storage } from '/lib/storage.js';
+import { Config } from '/global/config.js';
 
 const THEMES = {
     light: `
@@ -99,23 +99,26 @@ const THEMES = {
 `,
 };
 
-const STORAGE_KEY = 'theme';
 const STYLE_ID = 'style-theme';
 
 function init() {
-    const stored = Storage.get(STORAGE_KEY, null);
-    const key = stored && THEMES[stored] ? stored : 'system';
-    set(key);
+    apply(get());
 }
 
 function set(key) {
+    const next = THEMES[key] ? key : 'system';
+    Config.setTheme(next);
+    apply(next);
+}
+
+function get() {
+    const stored = Config.getTheme();
+    return THEMES[stored] ? stored : 'system';
+}
+
+function apply(key) {
     const style = document.getElementById(STYLE_ID);
     if (style) style.remove();
-
-    if (key === 'system') {
-        Storage.remove(STORAGE_KEY);
-        return;
-    }
 
     if (!THEMES[key]) {
         return;
@@ -125,11 +128,4 @@ function set(key) {
     el.id = STYLE_ID;
     el.textContent = THEMES[key];
     document.head.appendChild(el);
-
-    Storage.set(STORAGE_KEY, key);
-}
-
-function get() {
-    const stored = Storage.get(STORAGE_KEY, null);
-    return stored && THEMES[stored] ? stored : 'system';
 }

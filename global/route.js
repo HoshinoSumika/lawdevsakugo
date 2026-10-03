@@ -3,7 +3,7 @@ export const Route = {
     getLawHref,
 };
 
-import { Storage } from '/lib/storage.js';
+import { Config } from '/global/config.js';
 
 const LAW_ID_PATTERN = /^\d{3}[0-9A-Z_]+$/;
 
@@ -16,7 +16,7 @@ function getLawId() {
 }
 
 function getLawHref(id) {
-    if (Storage.get('dev', false)) {
+    if (Config.getDev()) {
         return '/law.html?id=' + id;
     }
     return '/' + id;

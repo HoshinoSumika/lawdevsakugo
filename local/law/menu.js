@@ -8,10 +8,10 @@ import { Shell } from '/lib/shell.js';
 let modal;
 
 function init(api) {
-    const menuItemConfig = document.querySelector('#menu-item-config');
-    menuItemConfig.addEventListener('click', () => {
+    const menuItemPreference = document.querySelector('#menu-item-preference');
+    menuItemPreference.addEventListener('click', () => {
         hide();
-        api.onConfigSelect();
+        api.onPreferenceSelect();
     });
 
     const menuItemIndex = document.querySelector('#menu-item-index');

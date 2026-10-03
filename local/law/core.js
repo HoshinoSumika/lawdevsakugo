@@ -6,11 +6,11 @@ import { Route } from '/global/route.js';
 import { Service } from '/global/service.js';
 import { Theme } from '/global/theme.js';
 
-import { Config } from './config.js';
 import { History } from './history.js';
 import { Info } from './info.js';
 import { Menu } from './menu.js';
 import { Mokuji } from './mokuji.js';
+import { Preference } from './preference.js';
 import { Sabun } from './sabun.js';
 import { Search } from './search.js';
 
@@ -32,7 +32,7 @@ const api = {
     onDisplayChange: () => Mokuji.update(),
     onWordsChange: () => applyWords(),
     onRevisionSelect: (id) => moveToLaw(id),
-    onConfigSelect: () => Config.show(),
+    onPreferenceSelect: () => Preference.show(),
     onDiffSelect: () => Sabun.show(),
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
@@ -42,7 +42,7 @@ const api = {
 window.addEventListener('DOMContentLoaded', () => {
     Theme.init(api);
 
-    Config.init(api);
+    Preference.init(api);
     History.init(api);
     Info.init(api);
     Menu.init(api);
@@ -168,7 +168,7 @@ async function initContent() {
 
 function buildWordTerms() {
     const terms = {};
-    Config.getWords().forEach((word, index) => {
+    Preference.getWords().forEach((word, index) => {
         terms[word] = 'tag-word tag-word-' + index;
     });
     return terms;

@@ -1,26 +1,26 @@
-.config-modal > .shell-scroll {
+.preference-modal > .shell-scroll {
     overflow: hidden;
     display: flex; flex-direction: column;
     scrollbar-gutter: auto;
 }
 
-.config-modal-content {
+.preference-modal-content {
     flex: 1;
     min-height: 0px;
 }
 
-.config-content {
+.preference-content {
     position: relative;
     width: 100%; height: 100%;
 }
 
-.config-content > div > div {
+.preference-content > div > div {
     overflow-y: auto;
     width: 100%; height: 100%; padding: 0px 0px 16px 0px;
     display: flex; flex-direction: column; justify-content: start; align-items: center;
 }
 
-.config-category {
+.preference-category {
     width: 100%; max-width: 720px; padding: 16px 48px 0px 48px;
     user-select: none; -webkit-user-select: none;
     display: flex; justify-content: start; align-items: center;
@@ -28,122 +28,122 @@
     color: var(--color-gray);
 }
 
-.config-item {
+.preference-item {
     width: 100%; max-width: 720px; padding: 0px 32px 0px 32px;
     cursor: pointer;
     user-select: none; -webkit-user-select: none;
     display: flex; justify-content: start; align-items: center; gap: 16px;
     font-size: 15px;
 }
-.config-item:hover {
+.preference-item:hover {
     background-color: var(--color-hover);
 }
-.config-item:active {
+.preference-item:active {
     background-color: var(--color-active);
 }
 
-.config-divider {
+.preference-divider {
     width: calc(100% - 0px); max-width: 720px; min-height: 1px;
     user-select: none; -webkit-user-select: none;
     background-color: var(--color-smoke);
 }
 
-.config-label {
+.preference-label {
     flex: 1;
     padding: 12px 0px 12px 0px;
 }
 
-.config-checkbox {
+.preference-checkbox {
     position: relative;
     aspect-ratio: 1 / 1; height: 32px;
 }
-.config-checkbox::before {
+.preference-checkbox::before {
     content: '';
     position: absolute; top: 8px; left: 2px; width: 24px; height: 12px;
     transition: border-color var(--transition-duration) ease;
     border: 2px solid var(--color-black); border-radius: var(--radius-normal);
 }
-.config-checkbox::after {
+.preference-checkbox::after {
     content: '';
     position: absolute; top: 12px; left: 7px; width: 8px; height: 8px;
     transition: transform var(--transition-duration) ease, background var(--transition-duration) ease;
     background: var(--color-black);
     border-radius: 50%;
 }
-.config-checkbox.checked::after {
+.preference-checkbox.checked::after {
     transform: translateX(10px);
     background: limegreen;
 }
 
-.config-seekbar {
+.preference-seekbar {
     appearance: none; -webkit-appearance: none; -moz-appearance: none;
     height: 100%;
     cursor: pointer;
     background: transparent;
 }
-.config-seekbar::-webkit-slider-runnable-track {
+.preference-seekbar::-webkit-slider-runnable-track {
     appearance: none; -webkit-appearance: none;
     width: 100%; height: 2px;
     background: var(--color-black);
     border-radius: 2px;
 }
-.config-seekbar::-webkit-slider-thumb {
+.preference-seekbar::-webkit-slider-thumb {
     appearance: none; -webkit-appearance: none;
     width: 16px; height: 16px; margin-top: -7px;
     background: var(--color-white);
     border: 1px solid var(--color-gray); border-radius: 16px;
 }
-.config-seekbar::-moz-range-track {
+.preference-seekbar::-moz-range-track {
     width: 100%; height: 2px;
     background: var(--color-black);
     border-radius: 2px;
 }
-.config-seekbar::-moz-range-thumb {
+.preference-seekbar::-moz-range-thumb {
     width: 16px; height: 16px;
     background: var(--color-white);
     border: 1px solid var(--color-gray); border-radius: 16px;
 }
 
-.config-group {
+.preference-group {
     display: contents;
 }
 
-.config-input-item {
+.preference-input-item {
     cursor: default;
 }
-.config-input-item:hover,
-.config-input-item:active {
+.preference-input-item:hover,
+.preference-input-item:active {
     background-color: transparent;
 }
 
-.config-input {
+.preference-input {
     flex: 1;
     min-width: 0px; margin: 8px 0px 8px 0px; padding: 6px 12px 6px 12px;
     font: inherit; color: var(--color-black);
     background-color: transparent;
     border: 1px solid var(--color-smoke); border-radius: var(--radius-normal);
 }
-.config-input:focus {
+.preference-input:focus {
     outline: none;
     border-color: var(--color-gray);
 }
 
-.config-color {
+.preference-color {
     width: 40px; height: 28px; padding: 0px;
     cursor: pointer;
     background-color: transparent;
     border: 1px solid var(--color-smoke); border-radius: var(--radius-normal);
 }
 
-.config-button {
+.preference-button {
     padding: 6px 16px 6px 16px;
     cursor: pointer;
     font-size: 14px;
     border-radius: 999px;
 }
-.config-button:hover {
+.preference-button:hover {
     background-color: var(--color-hover);
 }
-.config-button:active {
+.preference-button:active {
     background-color: var(--color-active);
 }
