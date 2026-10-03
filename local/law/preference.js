@@ -164,8 +164,8 @@ function init(api) {
     initTogglePage(preferenceItemParen, {
         title: '括弧の強調表示',
         label: '強調表示',
-        get: Config.getParenHighlight,
-        set: Config.setParenHighlight,
+        get: Config.getHighlightParen,
+        set: Config.setHighlightParen,
         onEnable: showParenAll,
         onDisable: hideParenAll,
         appendDetail: appendParenDetail,
@@ -507,8 +507,8 @@ function appendColorNavItems(page, levels) {
 const PAREN_COLOR_LEVELS = ['第一', '第二', '第三', '第四', '第五'].map((name, index) => {
     return {
         title: name + '階層の色',
-        get: () => Config.getParenColor(index + 1),
-        set: (color) => Config.setParenColor(index + 1, color),
+        get: () => Config.getHighlightParenColor(index + 1),
+        set: (color) => Config.setHighlightParenColor(index + 1, color),
         onChanged: refreshParenColor,
     };
 });
@@ -540,8 +540,8 @@ function appendParenDetail(page) {
         title: '背景',
         options: PAREN_BACKGROUND_OPTIONS,
         defaultKey: 'color',
-        get: Config.getParenBackground,
-        set: Config.setParenBackground,
+        get: Config.getHighlightParenBackground,
+        set: Config.setHighlightParenBackground,
         onChanged: refreshParenBackground,
     });
 
@@ -549,8 +549,8 @@ function appendParenDetail(page) {
         title: '文字サイズ',
         options: PAREN_FONT_SIZE_OPTIONS,
         defaultKey: '1.00',
-        get: Config.getParenFontSize,
-        set: Config.setParenFontSize,
+        get: Config.getHighlightParenFontSize,
+        set: Config.setHighlightParenFontSize,
         onChanged: refreshParenFontSize,
     });
 }
@@ -562,7 +562,7 @@ function getWords() {
 }
 
 function saveWords(words) {
-    Config.setWordHighlight(words);
+    Config.setHighlightWords(words);
     refreshWordColor();
 }
 
@@ -687,7 +687,7 @@ function getStructureValue(structure) {
 }
 
 function saveStructure(structure) {
-    const settings = Object.assign({}, Config.getStructureHighlight());
+    const settings = Object.assign({}, Config.getHighlightStructures());
 
     settings[structure.key] = {
         enabled: structure.enabled,
@@ -698,7 +698,7 @@ function saveStructure(structure) {
         emphasis: structure.emphasis,
     };
 
-    Config.setStructureHighlight(settings);
+    Config.setHighlightStructures(settings);
     refreshStructureStyle();
 }
 

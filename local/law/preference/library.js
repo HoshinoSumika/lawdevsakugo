@@ -52,11 +52,11 @@ function hideSupplProvision() {
 function showParenColor() {
     if (document.getElementById('style-paren-color')) return;
 
-    const c1 = Config.getParenColor(1);
-    const c2 = Config.getParenColor(2);
-    const c3 = Config.getParenColor(3);
-    const c4 = Config.getParenColor(4);
-    const c5 = Config.getParenColor(5);
+    const c1 = Config.getHighlightParenColor(1);
+    const c2 = Config.getHighlightParenColor(2);
+    const c3 = Config.getHighlightParenColor(3);
+    const c4 = Config.getHighlightParenColor(4);
+    const c5 = Config.getHighlightParenColor(5);
 
     const style = document.createElement('style');
     style.id = 'style-paren-color';
@@ -75,7 +75,7 @@ function hideParenColor() {
 }
 
 function getParenBackground() {
-    const key = Config.getParenBackground();
+    const key = Config.getHighlightParenBackground();
     if (key === 'color') {
         return 'rgba(128, 128, 128, 0.2)';
     }
@@ -110,7 +110,7 @@ function hideParenBackground() {
 function showParenFontSize() {
     if (document.getElementById('style-paren-font-size')) return;
 
-    const size = Config.getParenFontSize();
+    const size = Config.getHighlightParenFontSize();
 
     const style = document.createElement('style');
     style.id = 'style-paren-font-size';
@@ -133,7 +133,7 @@ const DEFAULT_WORDS = [
 ];
 
 function getWords() {
-    const stored = Config.getWordHighlight();
+    const stored = Config.getHighlightWords();
     const words = Array.isArray(stored) ? stored : [];
 
     const defaults = DEFAULT_WORDS.map((entry) => {
@@ -182,7 +182,7 @@ const STRUCTURES = [
 ];
 
 function getStructures() {
-    const stored = Config.getStructureHighlight();
+    const stored = Config.getHighlightStructures();
     const settings = (stored && typeof stored === 'object') ? stored : {};
 
     return STRUCTURES.map((structure) => {

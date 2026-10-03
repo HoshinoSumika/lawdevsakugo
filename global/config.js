@@ -24,19 +24,19 @@ export const Config = {
     getSupplProvision: buildReader('suppl-provision'),
     setSupplProvision: buildWriter('suppl-provision'),
 
-    getParenHighlight: buildReader('paren-highlight'),
-    setParenHighlight: buildWriter('paren-highlight'),
-    getParenColor: (level) => read(parenColorKey(level)),
-    setParenColor: (level, value) => write(parenColorKey(level), value),
-    getParenBackground: buildReader('paren-background'),
-    setParenBackground: buildWriter('paren-background'),
-    getParenFontSize: buildReader('paren-font-size'),
-    setParenFontSize: buildWriter('paren-font-size'),
+    getHighlightParen: buildReader('highlight-paren'),
+    setHighlightParen: buildWriter('highlight-paren'),
+    getHighlightParenColor: (level) => read(highlightParenColorKey(level)),
+    setHighlightParenColor: (level, value) => write(highlightParenColorKey(level), value),
+    getHighlightParenBackground: buildReader('highlight-paren-background'),
+    setHighlightParenBackground: buildWriter('highlight-paren-background'),
+    getHighlightParenFontSize: buildReader('highlight-paren-font-size'),
+    setHighlightParenFontSize: buildWriter('highlight-paren-font-size'),
 
-    getWordHighlight: buildReader('word-highlight'),
-    setWordHighlight: buildWriter('word-highlight'),
-    getStructureHighlight: buildReader('structure-highlight'),
-    setStructureHighlight: buildWriter('structure-highlight'),
+    getHighlightWords: buildReader('highlight-words'),
+    setHighlightWords: buildWriter('highlight-words'),
+    getHighlightStructures: buildReader('highlight-structures'),
+    setHighlightStructures: buildWriter('highlight-structures'),
 
     subscribe,
 };
@@ -55,17 +55,17 @@ const defaults = {
     'toc': false,
     'suppl-provision': false,
 
-    'paren-highlight': false,
-    'paren-color-1': 'mediumorchid',
-    'paren-color-2': 'mediumseagreen',
-    'paren-color-3': 'coral',
-    'paren-color-4': 'gray',
-    'paren-color-5': 'gray',
-    'paren-background': 'color',
-    'paren-font-size': '1.00',
+    'highlight-paren': false,
+    'highlight-paren-color-1': 'mediumorchid',
+    'highlight-paren-color-2': 'mediumseagreen',
+    'highlight-paren-color-3': 'coral',
+    'highlight-paren-color-4': 'gray',
+    'highlight-paren-color-5': 'gray',
+    'highlight-paren-background': 'color',
+    'highlight-paren-font-size': '1.00',
 
-    'word-highlight': [],
-    'structure-highlight': {},
+    'highlight-words': [],
+    'highlight-structures': {},
 };
 
 const listeners = [];
@@ -78,8 +78,8 @@ function buildWriter(key) {
     return (value) => write(key, value);
 }
 
-function parenColorKey(level) {
-    return 'paren-color-' + level;
+function highlightParenColorKey(level) {
+    return 'highlight-paren-color-' + level;
 }
 
 function read(key) {
