@@ -93,6 +93,7 @@ function init(api) {
     centerModal.setWidth('min(90vw, 640px)');
     centerModal.setHeight('min(64vh, 640px)');
     centerModal.enableCloseButton(hide);
+    centerModal.setDismiss(hide);
     centerModalContent.closest('.shell-modal').classList.add('preference-modal');
 
     bottomModalContent = document.createElement('div');
@@ -102,6 +103,7 @@ function init(api) {
     bottomModal.setPlacement('bottom');
     bottomModal.setHeight('90%');
     bottomModal.enableCloseButton(hide);
+    bottomModal.setDismiss(hide);
     bottomModalContent.closest('.shell-modal').classList.add('preference-modal');
 
     current = isNarrow() ? bottomModal : centerModal;

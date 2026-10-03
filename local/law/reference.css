@@ -1,0 +1,24 @@
+.tag-reference {
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--color-gray);
+    text-underline-offset: 0.25em;
+}
+.tag-reference:hover {
+    background-color: var(--color-hover);
+}
+
+.reference-content {
+    width: 100%; padding: 0px 16px 16px 16px;
+}
+.reference-content > section {
+    margin-bottom: 0px;
+}
+.reference-content > section:first-child {
+    margin-top: 0px;
+}
+
+.reference-message {
+    padding: 8px 0px 8px 0px;
+}

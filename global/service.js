@@ -2,6 +2,7 @@ export const Service = {
     search,
     getLawRevisions,
     getLawFullText,
+    getLawIdByNum,
 };
 
 import { Cache } from '/global/cache.js';
@@ -10,6 +11,7 @@ import { Convert } from '/global/convert.js';
 
 const CACHE_NAME_FULL_TEXT = 'LawFullTextBeta';
 const CACHE_NAME_REVISIONS = 'LawRevisionsBeta';
+const CACHE_NAME_LAW_IDS = 'LawIdsBeta';
 
 async function search(title) {
     try {
@@ -56,6 +58,15 @@ function getLawFullText(id) {
         CACHE_NAME_FULL_TEXT,
         id,
         () => fetchLawFullText(id),
+        value => typeof value === 'string' && value.length > 0,
+    );
+}
+
+function getLawIdByNum(lawNum) {
+    return loadCached(
+        CACHE_NAME_LAW_IDS,
+        lawNum,
+        () => fetchLawIdByNum(lawNum),
         value => typeof value === 'string' && value.length > 0,
     );
 }
@@ -109,6 +120,24 @@ async function fetchLawFullText(id) {
             let result = await res.text();
             result = Convert.henkan(result);
             return result;
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    return null;
+}
+
+async function fetchLawIdByNum(lawNum) {
+    try {
+        const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
+        const queryParams = '?response_format=json' + '&law_num=' + encodeURIComponent(lawNum);
+        const encodedApiUrl = encodeURIComponent(apiBaseUrl + queryParams);
+        const proxyUrl = '/proxy?url=' + encodedApiUrl;
+        const res = await fetch(proxyUrl);
+        if (res.ok) {
+            const result = await res.json();
+            const law = (result.laws || []).find(item => item.law_info && item.law_info.law_num === lawNum);
+            return law ? law.law_info.law_id : null;
         }
     } catch (e) {
         console.error(e);

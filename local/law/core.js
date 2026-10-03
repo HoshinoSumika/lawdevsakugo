@@ -11,6 +11,7 @@ import { Info } from './info.js';
 import { Menu } from './menu.js';
 import { Mokuji } from './mokuji.js';
 import { Preference } from './preference.js';
+import { Reference } from './reference.js';
 import { Sabun } from './sabun.js';
 import { Search } from './search.js';
 
@@ -29,6 +30,7 @@ const api = {
     getContainer: () => scrollEl,
     getLawId: () => Route.getLawId(),
     restoreScroll: () => restoreScrollPosition(),
+    convertLaw: (law) => convertLaw(law),
     onDisplayChange: () => Mokuji.update(),
     onWordsChange: () => applyWords(),
     onRevisionSelect: (id) => moveToLaw(id),
@@ -43,6 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Theme.init(api);
 
     Preference.init(api);
+    Reference.init(api);
     History.init(api);
     Info.init(api);
     Menu.init(api);
@@ -118,6 +121,7 @@ async function initContent() {
 
     Info.clear();
     Mokuji.clear();
+    Reference.clear();
 
     const id = Route.getLawId();
 
@@ -146,8 +150,7 @@ async function initContent() {
         return;
     }
 
-    law = Convert.nest(law, PAREN);
-    law = Convert.term(law, buildWordTerms());
+    law = convertLaw(law);
 
     content.innerHTML = '';
     content.appendChild(law);
@@ -164,6 +167,13 @@ async function initContent() {
     }
 
     notifyLawEffectivenessStatus(content);
+}
+
+function convertLaw(law) {
+    let converted = Reference.mark(law);
+    converted = Convert.nest(converted, PAREN);
+    converted = Convert.term(converted, buildWordTerms());
+    return converted;
 }
 
 function buildWordTerms() {
@@ -185,6 +195,7 @@ function applyWords() {
     });
     law.normalize();
     Convert.term(law, buildWordTerms());
+    Reference.clear();
 }
 
 function notifyLawEffectivenessStatus(content) {
