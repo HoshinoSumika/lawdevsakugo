@@ -3,12 +3,12 @@ export const Sabun = {
     show,
 };
 
-import { Scroll } from '/lib/scroll.js?v=20260101';
-import { Shell } from '/lib/shell.js?v=20260101';
+import { Scroll } from '/lib/scroll.js?v=20260831';
+import { Shell } from '/lib/shell.js?v=20260831';
 
-import { Convert } from '/global/convert.js?v=20260101';
-import { Diff } from '/global/diff.js?v=20260101';
-import { Service } from '/global/service.js?v=20260101';
+import { Convert } from '/global/convert.js?v=20260831';
+import { Diff } from '/global/diff.js?v=20260831';
+import { Service } from '/global/service.js?v=20260831';
 
 const DELETION_CLASS = 'diff-inline-deletion';
 const ADDITION_CLASS = 'diff-inline-addition';

@@ -1,6 +1,6 @@
-import { Device } from '/lib/device.js?v=20260101';
+import { Device } from '/lib/device.js?v=20260831';
 
-import { Theme } from '/global/theme.js?v=20260101';
+import { Theme } from '/global/theme.js?v=20260831';
 
 window.addEventListener('DOMContentLoaded', () => {
     Theme.init();

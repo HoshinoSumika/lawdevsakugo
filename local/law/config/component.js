@@ -10,7 +10,7 @@ export const Component = {
     initSeekbar,
 };
 
-import { Storage } from '/lib/storage.js?v=20260101';
+import { Storage } from '/lib/storage.js?v=20260831';
 
 function createCategory(text) {
     const div = document.createElement('div');

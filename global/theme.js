@@ -4,7 +4,7 @@ export const Theme = {
     get,
 };
 
-import { Storage } from '/lib/storage.js?v=20260101';
+import { Storage } from '/lib/storage.js?v=20260831';
 
 const THEMES = {
     light: `

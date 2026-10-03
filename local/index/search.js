@@ -2,8 +2,8 @@ export const Search = {
     init,
 };
 
-import { Route } from '/global/route.js?v=20260101';
-import { Service } from '/global/service.js?v=20260101';
+import { Route } from '/global/route.js?v=20260831';
+import { Service } from '/global/service.js?v=20260831';
 
 let searchInput;
 let searchIcon;
