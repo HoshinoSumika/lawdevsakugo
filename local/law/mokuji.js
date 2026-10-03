@@ -36,7 +36,7 @@ function init(value) {
 
     mokujiModal = Shell.createModal(mokujiModalContent);
     mokujiModal.setPlacement('bottom');
-    mokujiModal.setHeight('100%');
+    mokujiModal.setHeight('90%');
     mokujiModal.setTitle('目次');
     mokujiModal.enableCloseButton(hide);
     mokujiModalContent.closest('.shell-modal').classList.add('mokuji-modal');

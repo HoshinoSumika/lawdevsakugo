@@ -111,7 +111,7 @@ function init(api) {
 
     bottomModal = Shell.createModal(bottomModalContent);
     bottomModal.setPlacement('bottom');
-    bottomModal.setHeight('50%');
+    bottomModal.setHeight('90%');
     bottomModal.enableCloseButton(hide);
     bottomModalContent.closest('.shell-modal').classList.add('config-modal');
 

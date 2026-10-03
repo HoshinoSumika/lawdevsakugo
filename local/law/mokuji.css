@@ -39,7 +39,7 @@
     scrollbar-color: inherit;
     padding: 16px;
     font-size: 15px;
-    color: var(--color-black);
+    color: var(--color-gray);
 }
 .mokuji-content:hover {
     scrollbar-color: inherit;
@@ -83,7 +83,8 @@
 .mokuji-content.mobile li::after {
     background-color: var(--color-border);
 }
-.mokuji-content.desktop li:hover:not(:has(li:hover))::before {
+.mokuji-content li:hover:not(:has(li:hover))::before,
+.mokuji-content.mobile li:has(> div:active)::before {
     background-color: var(--color-black);
 }
 
@@ -96,16 +97,10 @@
 }
 .mokuji-content.mobile div {
     padding: 8px 1em 8px 1em;
-    border-radius: var(--radius-normal);
 }
-.mokuji-content.desktop li:hover:not(:has(li:hover)) > div {
-    color: var(--color-black);
-}
-.mokuji-content.mobile div:hover {
-    background-color: var(--color-hover);
-}
+.mokuji-content li:hover:not(:has(li:hover)) > div,
 .mokuji-content.mobile div:active {
-    background-color: var(--color-active);
+    color: var(--color-black);
 }
 .mokuji-content div.current {
     font-weight: bold;
