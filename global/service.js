@@ -14,15 +14,17 @@ const CACHE_NAME_REVISIONS = 'LawRevisionsBeta';
 const CACHE_NAME_LAW_IDS = 'LawIdsBeta';
 
 async function search(title) {
-    try {
-        const url = '/ignore/' + title + '.json';
-        const res = await fetch(url);
-        if (res.ok) {
-            const result = await res.json();
-            return result;
+    if (Config.getDev()) {
+        try {
+            const url = '/ignore/' + title + '.json';
+            const res = await fetch(url);
+            if (res.ok) {
+                const result = await res.json();
+                return result;
+            }
+        } catch (e) {
+            console.error(e);
         }
-    } catch (e) {
-        console.error(e);
     }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
@@ -72,15 +74,17 @@ function getLawIdByNum(lawNum) {
 }
 
 async function fetchLawRevisions(id) {
-    try {
-        const url = '/ignore/' + id + '.json';
-        const res = await fetch(url);
-        if (res.ok) {
-            const result = await res.json();
-            return result;
+    if (Config.getDev()) {
+        try {
+            const url = '/ignore/' + id + '.json';
+            const res = await fetch(url);
+            if (res.ok) {
+                const result = await res.json();
+                return result;
+            }
+        } catch (e) {
+            console.error(e);
         }
-    } catch (e) {
-        console.error(e);
     }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/law_revisions/';
@@ -99,16 +103,18 @@ async function fetchLawRevisions(id) {
 }
 
 async function fetchLawFullText(id) {
-    try {
-        const url = '/ignore/' + id + '.xml';
-        const res = await fetch(url);
-        if (res.ok) {
-            let result = await res.text();
-            result = Convert.encode(result);
-            return result;
+    if (Config.getDev()) {
+        try {
+            const url = '/ignore/' + id + '.xml';
+            const res = await fetch(url);
+            if (res.ok) {
+                let result = await res.text();
+                result = Convert.encode(result);
+                return result;
+            }
+        } catch (e) {
+            console.error(e);
         }
-    } catch (e) {
-        console.error(e);
     }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/law_data/';
