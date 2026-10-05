@@ -58,33 +58,8 @@
 
 @media (max-width: 720px) {
     .search-container {
-        opacity: 1;
-        max-width: 100%; max-height: 100%; margin: 0px;
-        transform: scale(1.0);
-        transition: transform var(--transition-duration) ease;
-        border: none; border-radius: 0px;
-        box-shadow: none;
-    }
-    .search-container.show {
-        transform: scale(1.0);
-        transition: transform var(--transition-duration) ease;
-    }
-    .search-container .search-icon {
-        transform: translateX(calc(100vw - 100%)) translateY(-50%);
-        transition: transform var(--transition-duration) ease;
-    }
-    .search-container.show .search-icon {
-        transform: translateX(0) translateY(-50%);
-    }
-    .search-bar {
-        height: calc(var(--size-normal) + var(--size-offset)); min-height: calc(var(--size-normal) + var(--size-offset));
-    }
-    .search-input {
-        padding: 0px calc(var(--size-normal) + var(--size-offset)) 0px calc(var(--size-normal) + var(--size-offset));
-    }
-    .search-icon,
-    .search-clear {
-        max-height: calc(var(--size-normal) + var(--size-offset));
+        max-width: calc(100% - 48px); max-height: calc(100dvh - 48px);
+        margin: 24px 0px 0px 0px;
     }
 }
 

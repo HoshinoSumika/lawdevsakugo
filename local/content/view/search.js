@@ -232,7 +232,7 @@ function updateResult(isUnlimited) {
 
     resize(() => renderResult(result, query, isUnlimited));
 
-    if (isShown && Device.isDesktop() && wasHidden && searchResult.style.display !== 'none') {
+    if (isShown && wasHidden && searchResult.style.display !== 'none') {
         fadeIn(searchResult);
     }
 }
@@ -383,7 +383,7 @@ function convertNum(value) {
 }
 
 function resize(change) {
-    if (!isShown || !Device.isDesktop()) {
+    if (!isShown) {
         change();
         return;
     }
