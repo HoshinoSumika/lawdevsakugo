@@ -5,6 +5,6 @@ export function onRequest(context) {
     if (!lawIdPattern.test(url.pathname)) {
         return context.next();
     }
-    url.pathname = '/content';
+    url.pathname = '/detail';
     return context.next(new Request(url, context.request));
 }

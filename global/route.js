@@ -17,7 +17,7 @@ function getLawId() {
 
 function getLawHref(id) {
     if (Config.getDev()) {
-        return '/content.html?id=' + id;
+        return '/detail.html?id=' + id;
     }
     return '/' + id;
 }
