@@ -1,0 +1,19 @@
+.nav {
+    flex-shrink: 0;
+    width: 100%; height: calc(var(--size-normal) + var(--size-offset));
+    padding: 0px var(--size-offset) 0px var(--size-offset);
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.nav .button {
+    height: calc(var(--size-normal) - var(--size-offset));
+}
+
+.nav-title {
+    overflow: hidden;
+    flex: 1;
+    min-width: 0px; padding: 0px 8px 0px 8px;
+    white-space: nowrap; text-overflow: ellipsis; text-align: center;
+    font-size: 20px;
+}

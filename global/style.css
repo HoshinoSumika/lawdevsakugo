@@ -1,10 +1,12 @@
 :root {
-    --size-large: 64px;
+    --size-offset: 8px;
     --size-normal: 48px;
-    --size-small: 32px;
+    --size-large: calc(var(--size-normal) + var(--size-offset) + var(--size-offset));
+    --size-small: calc(var(--size-normal) - var(--size-offset) - var(--size-offset));
     --radius-large: 16px;
     --radius-normal: 12px;
     --radius-small: 8px;
+    --radius-max: 9999px;
     --transition-duration: 0.2s;
 
     --color-black: black;

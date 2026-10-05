@@ -1,0 +1,7 @@
+html, body {
+    overflow: hidden;
+}
+
+main {
+    overflow-y: auto;
+}
