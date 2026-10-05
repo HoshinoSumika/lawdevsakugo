@@ -4,16 +4,11 @@
 }
 
 .search-container {
-    overflow: hidden;
     opacity: 0;
     transform: scale(1.04);
     width: 100%; max-width: min(calc(800px - 128px), calc(100% - 256px)); max-height: calc(100dvh - calc(var(--size-normal) * 4));
     margin: calc(var(--size-normal) * 2) 0px 0px 0px; padding: 0px;
-    display: flex; flex-direction: column; justify-content: start; align-items: center;
     transition: transform 160ms cubic-bezier(0.4, 0, 1, 1), opacity 160ms ease-in;
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border); border-radius: calc(var(--size-normal) / 2 + 1px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
 .search-container.show {
     opacity: 1;

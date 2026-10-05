@@ -5,6 +5,7 @@ export const Search = {
 
 import { Design } from '/lib/design.js';
 import { Device } from '/lib/device.js';
+import { Flex } from '/lib/flex.js';
 import { Frame } from '/lib/frame.js';
 
 import { Util } from '/global/util.js';
@@ -34,8 +35,6 @@ const TEXT_SELECTOR = [
 
 const HIGHLIGHT_CLASS = 'highlight';
 const SCROLL_DURATION = 500;
-const RESIZE_DURATION = 420;
-const RESIZE_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const FADE_DURATION = 180;
 const HIDE_DELAY = 200;
 
@@ -44,12 +43,12 @@ const highlightTimerMap = new WeakMap();
 let lawContent;
 let lawContainer;
 let frame = null;
+let flex = null;
 let searchContent;
 let searchContainer = null;
 let searchInput;
 let searchClear;
 let searchResult;
-let resizeAnimation = null;
 let hideTimer = null;
 let isShown = false;
 let selectedIndex = -1;
@@ -176,12 +175,12 @@ function buildContent() {
 }
 
 function buildFrame() {
-    searchContainer = document.createElement('div');
+    flex = Flex.create(searchContent);
+    searchContainer = flex.getElement();
     searchContainer.classList.add('search-container');
     searchContainer.addEventListener('click', event => {
         event.stopPropagation();
     });
-    searchContainer.appendChild(searchContent);
 
     const overlay = document.createElement('div');
     overlay.style.width = '100%';
@@ -215,13 +214,11 @@ function destroyFrame() {
     if (!frame) {
         return;
     }
-    if (resizeAnimation) {
-        resizeAnimation.cancel();
-        resizeAnimation = null;
-    }
+    flex.stop();
     searchContent.remove();
     frame.destroy();
     frame = null;
+    flex = null;
     searchContainer = null;
 }
 
@@ -387,27 +384,7 @@ function resize(change) {
         change();
         return;
     }
-
-    const from = searchContainer.offsetHeight;
-    if (resizeAnimation) {
-        resizeAnimation.cancel();
-        resizeAnimation = null;
-    }
-
-    change();
-
-    const to = searchContainer.offsetHeight;
-    if (from === to) {
-        return;
-    }
-
-    resizeAnimation = searchContainer.animate([
-        { height: from + 'px' },
-        { height: to + 'px' },
-    ], { duration: RESIZE_DURATION, easing: RESIZE_EASING });
-    resizeAnimation.onfinish = () => {
-        resizeAnimation = null;
-    };
+    flex.resize(change);
 }
 
 function fadeIn(element) {

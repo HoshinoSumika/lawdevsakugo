@@ -1,4 +1,5 @@
 import { Device } from '/lib/device.js';
+import { Flex } from '/lib/flex.js';
 import { Message } from '/lib/message.js';
 
 import { Route } from '/global/route.js';
@@ -26,6 +27,8 @@ window.addEventListener('load', () => {
 });
 
 async function init() {
+    Flex.setColor('var(--color-black)', 'var(--color-white)');
+
     Nav.init(api);
     Search.init(api);
 
