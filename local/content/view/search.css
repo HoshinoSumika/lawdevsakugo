@@ -58,8 +58,8 @@
 
 @media (max-width: 720px) {
     .search-container {
-        max-width: calc(100% - 48px); max-height: calc(100dvh - 48px);
-        margin: 24px 0px 0px 0px;
+        max-width: calc(100% - var(--size-offset) * 4); max-height: calc(100dvh - var(--size-offset) * 4);
+        margin: calc(var(--size-offset) * 2) 0px 0px 0px;
     }
 }
 
