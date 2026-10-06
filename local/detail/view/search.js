@@ -445,7 +445,8 @@ function buildResultItem(element, query) {
     const item = document.createElement('div');
     const contentClone = element.cloneNode(true);
 
-    applyHighlight(contentClone, query);
+    Util.unwrap(contentClone, HIGHLIGHT_CLASS);
+    Util.mark(contentClone, query, HIGHLIGHT_CLASS, 'rt');
     if (element.matches('.Article, .ParagraphContainer')) {
         const supplProvision = element.closest('.SupplProvision');
         const label = supplProvision?.querySelector('.SupplProvisionLabel');
@@ -458,7 +459,7 @@ function buildResultItem(element, query) {
     item.className = 'search-result-item';
     item.addEventListener('click', () => {
         hide();
-        moveTo(element, query);
+        move(element, query);
     });
     bindSelection(item);
     return item;
@@ -480,11 +481,12 @@ function bindSelection(item) {
     item.addEventListener('pointerdown', selectItem);
 }
 
-function moveTo(element, value) {
+function move(element, value) {
     const elementTop = element.offsetTop;
     const offset = -16;
     Util.scroll(lawContainer, elementTop + offset, SCROLL_DURATION);
-    applyHighlight(element, value);
+    Util.unwrap(element, HIGHLIGHT_CLASS);
+    Util.mark(element, value, HIGHLIGHT_CLASS, 'rt');
 
     const oldTimer = highlightTimerMap.get(element);
     if (oldTimer) {
@@ -492,58 +494,8 @@ function moveTo(element, value) {
     }
 
     const timer = setTimeout(() => {
-        clearHighlight(element);
+        Util.unwrap(element, HIGHLIGHT_CLASS);
         highlightTimerMap.delete(element);
     }, 2000);
     highlightTimerMap.set(element, timer);
-}
-
-function applyHighlight(root, value) {
-    clearHighlight(root);
-
-    if (!value) {
-        return;
-    }
-
-    const hiddenRtList = [];
-    root.querySelectorAll('rt').forEach(rt => {
-        const placeholder = document.createComment('rt');
-        rt.replaceWith(placeholder);
-        hiddenRtList.push({ placeholder, node: rt });
-    });
-
-    Util.wrap(root, findRanges(root.textContent, value), HIGHLIGHT_CLASS);
-
-    hiddenRtList.forEach(({ placeholder, node }) => {
-        placeholder.replaceWith(node);
-    });
-}
-
-function findRanges(text, value) {
-    const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = new RegExp(escaped, 'g');
-    const rangeList = [];
-
-    let match;
-    while ((match = pattern.exec(text)) !== null) {
-        rangeList.push({ start: match.index, end: pattern.lastIndex });
-    }
-    return rangeList;
-}
-
-function clearHighlight(root) {
-    const highlightedList = [];
-    if (root.classList.contains(HIGHLIGHT_CLASS)) {
-        highlightedList.push(root);
-    }
-    root.querySelectorAll('.' + HIGHLIGHT_CLASS).forEach(element => {
-        highlightedList.push(element);
-    });
-    highlightedList.forEach(element => {
-        const parent = element.parentNode;
-        while (element.firstChild) {
-            parent.insertBefore(element.firstChild, element);
-        }
-        parent.removeChild(element);
-    });
 }

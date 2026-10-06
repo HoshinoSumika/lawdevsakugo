@@ -1,5 +1,7 @@
 export const Util = {
     wrap,
+    unwrap,
+    mark,
     scroll,
 };
 
@@ -60,6 +62,50 @@ function collectTextNodes(node, textNodeList) {
             collectTextNodes(child, textNodeList);
         }
     });
+}
+
+function unwrap(element, className) {
+    const wrapperList = Array.from(element.querySelectorAll('.' + className));
+    if (element.classList.contains(className)) {
+        wrapperList.unshift(element);
+    }
+    wrapperList.forEach(wrapper => {
+        wrapper.replaceWith(...wrapper.childNodes);
+    });
+    return element;
+}
+
+function mark(element, value, className, ignoreSelector) {
+    if (!value) {
+        return element;
+    }
+
+    const ignoredList = [];
+    if (ignoreSelector) {
+        element.querySelectorAll(ignoreSelector).forEach(node => {
+            const placeholder = element.ownerDocument.createComment('');
+            node.replaceWith(placeholder);
+            ignoredList.push({ placeholder, node });
+        });
+    }
+
+    wrap(element, findRangeList(element.textContent, value), className);
+
+    ignoredList.forEach(({ placeholder, node }) => {
+        placeholder.replaceWith(node);
+    });
+    return element;
+}
+
+function findRangeList(text, value) {
+    const rangeList = [];
+    let start = text.indexOf(value);
+    while (start !== -1) {
+        const end = start + value.length;
+        rangeList.push({ start, end });
+        start = text.indexOf(value, end);
+    }
+    return rangeList;
 }
 
 function scroll(container, toY, duration) {
