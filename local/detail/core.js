@@ -54,7 +54,7 @@ async function init() {
     messageMissingId.disableClose();
     messageLoadError = Message.error(Text.getLawLoadFailed());
     messageLoadError.disableClose();
-    messageLoading = Message.wait(Text.getLoading());
+    messageLoading = Message.wait();
 
     History.init(api);
     Info.init(api);
