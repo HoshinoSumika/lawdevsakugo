@@ -14,9 +14,3 @@
 .info-content th {
     white-space: nowrap;
 }
-
-.info-message {
-    padding: 16px 8px 16px 8px;
-    text-align: center;
-    color: var(--color-gray);
-}

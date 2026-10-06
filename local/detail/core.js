@@ -38,17 +38,22 @@ window.addEventListener('popstate', () => {
     load();
 });
 
-const messageMissingId = Message.error('法令IDが指定されていません。');
-const messageLoadError = Message.error('データを取得できませんでした。');
+let messageMissingId;
+let messageLoadError;
+let messageLoading;
 
 let contentVersion = 0;
 
 async function init() {
     Dialog.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
     Flex.setColor('var(--color-black)', 'var(--color-white)');
+    Message.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
 
+    messageMissingId = Message.error('法令IDが指定されていません。');
     messageMissingId.disableClose();
+    messageLoadError = Message.error('データを取得できませんでした。');
     messageLoadError.disableClose();
+    messageLoading = Message.wait();
 
     History.init(api);
     Info.init(api);
@@ -72,15 +77,18 @@ async function load() {
 
     const id = Route.getLawId();
     if (!id) {
+        messageLoading.hide();
         messageLoadError.hide();
         messageMissingId.show();
         return;
     }
 
+    messageLoading.show();
     const law = await Service.getLawFullText(id);
     if (functionVersion !== contentVersion) {
         return;
     }
+    messageLoading.hide();
     if (!law) {
         messageMissingId.hide();
         messageLoadError.show();

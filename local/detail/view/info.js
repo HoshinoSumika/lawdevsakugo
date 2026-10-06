@@ -45,10 +45,6 @@ function render() {
 
     const law = lawContent.querySelector('.Law');
     if (!law) {
-        const message = document.createElement('div');
-        message.classList.add('info-message');
-        message.textContent = 'データを取得できませんでした。';
-        content.appendChild(message);
         return;
     }
 

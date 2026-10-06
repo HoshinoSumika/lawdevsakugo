@@ -256,6 +256,15 @@ function buildMessageSection() {
         alertMessage.enableClose();
         log('Message.alert enableClose');
     }));
+    const waitMessage = Message.wait();
+    group.appendChild(buildButton('wait（2秒）', () => {
+        waitMessage.show();
+        log('Message.wait show');
+        setTimeout(() => {
+            waitMessage.hide();
+            log('Message.wait hide');
+        }, 2000);
+    }));
     group.appendChild(buildButton('4種を同時に表示', () => {
         Message.info('info').show();
         Message.warn('warn').show();
@@ -265,7 +274,7 @@ function buildMessageSection() {
     }));
     section.appendChild(group);
 
-    section.appendChild(buildNote('info・warn は1行なら4.8秒で自動的に消え、行が増えるほど長く表示される。ポインターを重ねている間は止まる。error・alert は自動では消えない。どれも作っただけでは表示されず、返された api の show / hide で何度でも出し入れでき、disableClose / enableClose で×ボタンを隠したり出したりできる。複数出すと新しいものが下に加わる。'));
+    section.appendChild(buildNote('info・warn は1行なら4.8秒で自動的に消え、行が増えるほど長く表示される。ポインターを重ねている間は止まる。error・alert は自動では消えない。どれも作っただけでは表示されず、返された api の show / hide で何度でも出し入れでき、disableClose / enableClose で×ボタンを隠したり出したりできる。複数出すと新しいものが下に加わる。wait は操作できない overlay の中央に Loading... を出し、show / hide で出し入れする。wait の色は Message.setColor(text, background, overlay) で指定でき（既定は黒・白・rgba(0,0,0,0.32)）、以後に作る wait に効く。'));
     return section;
 }
 
