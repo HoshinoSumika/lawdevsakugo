@@ -48,7 +48,7 @@ let contentVersion = 0;
 async function init() {
     Dialog.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
     Flex.setColor('var(--color-black)', 'var(--color-white)');
-    Message.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
+    Message.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0)');
 
     messageMissingId = Message.error(Text.getLawIdMissing());
     messageMissingId.disableClose();
