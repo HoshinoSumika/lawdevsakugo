@@ -15,7 +15,7 @@ let logEl;
 let dialogModalMap = {};
 let dialogPanelCount = 0;
 let isDark = false;
-let alertHandle = null;
+let alertMessage = null;
 
 window.addEventListener('DOMContentLoaded', () => {
     init();
@@ -224,48 +224,48 @@ function buildMessageSection() {
     group.appendChild(hint);
 
     group.appendChild(buildButton('info', () => {
-        Message.info('保存しました。');
+        Message.info('保存しました。').show();
         log('Message.info');
     }));
     group.appendChild(buildButton('info / 長文', () => {
-        Message.info('折り返しの確認用に長めの文章を表示します。最大512pxの幅で折り返され、×ボタンは右端に残ります。');
+        Message.info('折り返しの確認用に長めの文章を表示します。最大512pxの幅で折り返され、×ボタンは右端に残ります。').show();
         log('Message.info 長文');
     }));
     group.appendChild(buildButton('warn', () => {
-        Message.warn('通信が不安定です。');
+        Message.warn('通信が不安定です。').show();
         log('Message.warn');
     }));
     group.appendChild(buildButton('error', () => {
-        Message.error('データを取得できませんでした。');
+        Message.error('データを取得できませんでした。').show();
         log('Message.error');
     }));
-    group.appendChild(buildButton('alert 開始', () => {
-        if (alertHandle) {
-            log('Message.alert は表示中');
-            return;
-        }
-        alertHandle = Message.alert('読み込み中...');
-        log('Message.alert 開始');
+    alertMessage = Message.alert('読み込み中...');
+    group.appendChild(buildButton('alert show', () => {
+        alertMessage.show();
+        log('Message.alert show');
     }));
-    group.appendChild(buildButton('alert 終了', () => {
-        if (!alertHandle) {
-            log('Message.alert は未表示');
-            return;
-        }
-        alertHandle.close();
-        alertHandle = null;
-        log('Message.alert 終了');
+    group.appendChild(buildButton('alert hide', () => {
+        alertMessage.hide();
+        log('Message.alert hide');
+    }));
+    group.appendChild(buildButton('alert disableClose', () => {
+        alertMessage.disableClose();
+        log('Message.alert disableClose');
+    }));
+    group.appendChild(buildButton('alert enableClose', () => {
+        alertMessage.enableClose();
+        log('Message.alert enableClose');
     }));
     group.appendChild(buildButton('4種を同時に表示', () => {
-        Message.info('info');
-        Message.warn('warn');
-        Message.error('error');
-        Message.alert('alert');
+        Message.info('info').show();
+        Message.warn('warn').show();
+        Message.error('error').show();
+        Message.alert('alert').show();
         log('4種を同時に表示');
     }));
     section.appendChild(group);
 
-    section.appendChild(buildNote('info・warn・error は1行なら4.8秒で自動的に消え、行が増えるほど長く表示される。ポインターを重ねている間は止まる。alert は自動では消えない。複数出すと新しいものが下に加わる。'));
+    section.appendChild(buildNote('info・warn は1行なら4.8秒で自動的に消え、行が増えるほど長く表示される。ポインターを重ねている間は止まる。error・alert は自動では消えない。どれも作っただけでは表示されず、返された api の show / hide で何度でも出し入れでき、disableClose / enableClose で×ボタンを隠したり出したりできる。複数出すと新しいものが下に加わる。'));
     return section;
 }
 

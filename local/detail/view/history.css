@@ -1,0 +1,40 @@
+.history-content {
+    width: 100%; padding: 8px 0px 8px 0px;
+    display: flex; flex-direction: column;
+}
+
+.history-item {
+    width: 100%; min-height: 64px; padding: 8px 24px 8px 24px;
+    cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.history-item:hover {
+    background-color: var(--color-hover);
+}
+.history-item:active {
+    background-color: var(--color-active);
+}
+.history-item.current {
+    box-shadow: inset 4px 0px var(--color-gray);
+}
+.history-item.current .history-item-date {
+    font-weight: bold;
+}
+
+.history-item-date {
+    font-size: 15px;
+}
+.history-item-num {
+    font-size: 13px;
+    color: var(--color-gray);
+}
+
+.history-message {
+    padding: 32px 24px 32px 24px;
+    text-align: center;
+    color: var(--color-gray);
+}
+.history-message.error {
+    color: var(--color-red);
+}

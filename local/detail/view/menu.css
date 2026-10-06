@@ -1,0 +1,22 @@
+.menu-content {
+    width: 100%; padding: 16px 0px 16px 0px;
+    display: flex; flex-direction: column; justify-content: start; align-items: center;
+}
+
+.menu-item {
+    width: 100%; height: var(--size-normal); min-height: var(--size-normal); padding: 0px 24px 0px 24px;
+    cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    display: flex; justify-content: start; align-items: center; gap: 12px;
+}
+.menu-item:hover {
+    background-color: var(--color-hover);
+}
+.menu-item:active {
+    background-color: var(--color-active);
+}
+
+.menu-divider {
+    width: 100%; height: calc(var(--size-normal) / 2);
+    user-select: none; -webkit-user-select: none;
+}
