@@ -8,6 +8,7 @@ import { Device } from '/lib/device.js';
 import { Flex } from '/lib/flex.js';
 import { Frame } from '/lib/frame.js';
 
+import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
 
 const TEXT_SELECTOR = [
@@ -408,7 +409,7 @@ function renderResult(result, query, isUnlimited) {
 
     if (result.itemList.length === 0) {
         const message = document.createElement('div');
-        message.textContent = '検索結果なし';
+        message.textContent = Text.getSearchEmpty();
         searchResult.appendChild(message);
     } else {
         const fragment = document.createDocumentFragment();
@@ -453,8 +454,7 @@ function buildResultItem(element, query) {
 function buildExpandItem(limit) {
     const item = document.createElement('div');
     item.className = 'limit search-result-item';
-    item.textContent = 'すべての検索結果を表示';
-    item.textContent += '（現在は' + limit + '件のみ表示）';
+    item.textContent = Text.getSearchShowAll() + Text.getSearchLimit(limit);
     item.addEventListener('click', () => updateResult(true));
     bindSelection(item);
     return item;

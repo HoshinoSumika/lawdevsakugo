@@ -7,6 +7,7 @@ import { Device } from '/lib/device.js';
 import { Dialog } from '/lib/dialog.js';
 
 import { Service } from '/global/service.js';
+import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
 
 const SCROLL_DURATION = 800;
@@ -30,7 +31,7 @@ function init(value) {
     content.classList.add('history-content');
 
     modal = Dialog.createModal(content);
-    modal.setTitle('改正履歴');
+    modal.setTitle(Text.getHistory());
     modal.enableCloseButton(hide);
     modal.setDismiss(hide);
 
@@ -49,7 +50,7 @@ async function show() {
     const baseLawId = lawId.split('_')[0];
 
     if (!baseLawId) {
-        modal.fitHeight(() => renderMessage('法令IDを取得できませんでした。', true));
+        modal.fitHeight(() => renderMessage(Text.getLawIdUnavailable(), true));
         modal.resetScroll();
         modal.show();
         return;
@@ -64,7 +65,7 @@ async function show() {
 
     revisionList = [];
     revisionLawId = baseLawId;
-    modal.fitHeight(() => renderMessage('Loading...', false));
+    modal.fitHeight(() => renderMessage(Text.getLoading(), false));
     modal.resetScroll();
     modal.show();
 
@@ -74,7 +75,7 @@ async function show() {
     }
 
     if (!loaded) {
-        modal.fitHeight(() => renderMessage('改正履歴を取得できませんでした。', true));
+        modal.fitHeight(() => renderMessage(Text.getHistoryLoadFailed(), true));
         return;
     }
 
@@ -109,7 +110,7 @@ function renderMessage(text, isError) {
 
 function renderRevisionList(lawId) {
     if (revisionList.length === 0) {
-        renderMessage('改正履歴がありません。', false);
+        renderMessage(Text.getHistoryEmpty(), false);
         return;
     }
 
@@ -184,15 +185,15 @@ function formatRevision(revision) {
 
     let date = '';
     if (revision.current_revision_status === 'UnEnforced') {
-        date = (revision.amendment_enforcement_comment || enforcementDate) + '　施行予定';
+        date = (revision.amendment_enforcement_comment || enforcementDate) + '　' + Text.getUnenforced();
     } else if (revision.current_revision_status === 'CurrentEnforced') {
-        date = enforcementDate + '　現在施行';
+        date = enforcementDate + '　' + Text.getCurrentEnforced();
     } else if (revision.current_revision_status === 'PreviousEnforced') {
-        date = enforcementDate + '　施行';
+        date = enforcementDate + '　' + Text.getPreviousEnforced();
     }
 
     const num = revision.amendment_law_num
         ? '（' + revision.amendment_law_num + '）'
-        : '（新規制定）';
+        : '（' + Text.getNewEnactment() + '）';
     return { date, num };
 }

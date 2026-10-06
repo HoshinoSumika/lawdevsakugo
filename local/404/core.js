@@ -1,5 +1,7 @@
 import { Device } from '/lib/device.js';
 
+import { Text } from '/global/text.js';
+
 window.addEventListener('DOMContentLoaded', () => {
     init();
 });
@@ -12,11 +14,11 @@ function init() {
     const content = document.querySelector('#content');
 
     const status = document.createElement('div');
-    status.textContent = '404';
+    status.textContent = Text.getNotFound();
     content.appendChild(status);
 
     const link = document.createElement('a');
     link.href = '/';
-    link.textContent = 'トップページ';
+    link.textContent = Text.getTopPage();
     content.appendChild(link);
 }

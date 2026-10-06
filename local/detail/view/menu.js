@@ -6,20 +6,22 @@ export const Menu = {
 import { Design } from '/lib/design.js';
 import { Dialog } from '/lib/dialog.js';
 
+import { Text } from '/global/text.js';
+
 let modal;
 
 function init(api) {
     const content = document.createElement('div');
     content.classList.add('menu-content');
-    content.appendChild(buildItem('home', 'トップページ', () => {
+    content.appendChild(buildItem('home', Text.getTopPage(), () => {
         window.location.href = '/';
     }));
     content.appendChild(buildDivider());
-    content.appendChild(buildItem('info', '法令詳細', () => {
+    content.appendChild(buildItem('info', Text.getInfo(), () => {
         hide();
         api.onInfoSelect();
     }));
-    content.appendChild(buildItem('history', '改正履歴', () => {
+    content.appendChild(buildItem('history', Text.getHistory(), () => {
         hide();
         api.onHistorySelect();
     }));

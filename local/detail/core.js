@@ -5,6 +5,7 @@ import { Message } from '/lib/message.js';
 
 import { Route } from '/global/route.js';
 import { Service } from '/global/service.js';
+import { Text } from '/global/text.js';
 
 import { History } from './view/history.js';
 import { Info } from './view/info.js';
@@ -49,11 +50,11 @@ async function init() {
     Flex.setColor('var(--color-black)', 'var(--color-white)');
     Message.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
 
-    messageMissingId = Message.error('法令IDが指定されていません。');
+    messageMissingId = Message.error(Text.getLawIdMissing());
     messageMissingId.disableClose();
-    messageLoadError = Message.error('データを取得できませんでした。');
+    messageLoadError = Message.error(Text.getLawLoadFailed());
     messageLoadError.disableClose();
-    messageLoading = Message.wait();
+    messageLoading = Message.wait(Text.getLoading());
 
     History.init(api);
     Info.init(api);

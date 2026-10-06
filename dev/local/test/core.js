@@ -256,7 +256,7 @@ function buildMessageSection() {
         alertMessage.enableClose();
         log('Message.alert enableClose');
     }));
-    const waitMessage = Message.wait();
+    const waitMessage = Message.wait('Loading...');
     group.appendChild(buildButton('wait（2秒）', () => {
         waitMessage.show();
         log('Message.wait show');

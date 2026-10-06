@@ -5,14 +5,8 @@ export const Info = {
 
 import { Dialog } from '/lib/dialog.js';
 
+import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
-
-const REPEAL_STATUS_MAP = {
-    Repeal: '廃止',
-    Expire: '失効',
-    Suspend: '停止',
-    LossOfEffectiveness: '実効性喪失',
-};
 
 let lawContent;
 let modal;
@@ -26,7 +20,7 @@ function init(api) {
 
     modal = Dialog.createModal(content);
     modal.setWidth('min(480px, calc(100% - var(--size-offset) * 4))');
-    modal.setTitle('法令詳細');
+    modal.setTitle(Text.getInfo());
     modal.enableCloseButton(hide);
 }
 
@@ -51,15 +45,15 @@ function render() {
     const data = law.dataset;
     const tbody = document.createElement('tbody');
 
-    appendRow(tbody, '現行法令名', data.revision_info_law_title);
-    appendRow(tbody, '略称法令名', data.revision_info_abbrev);
-    appendRow(tbody, '法令番号', data.law_info_law_num);
-    appendRow(tbody, '公布日', Util.date(data.law_info_promulgation_date || ''));
-    appendRow(tbody, '施行日', Util.date(data.revision_info_amendment_enforcement_date || ''));
+    appendRow(tbody, Text.getLawTitle(), data.revision_info_law_title);
+    appendRow(tbody, Text.getLawAbbrev(), data.revision_info_abbrev);
+    appendRow(tbody, Text.getLawNum(), data.law_info_law_num);
+    appendRow(tbody, Text.getPromulgationDate(), Util.date(data.law_info_promulgation_date || ''));
+    appendRow(tbody, Text.getEnforcementDate(), Util.date(data.revision_info_amendment_enforcement_date || ''));
     if (data.revision_info_amendment_law_title && data.revision_info_amendment_law_num) {
-        appendRow(tbody, '改正法令', data.revision_info_amendment_law_title + '（' + data.revision_info_amendment_law_num + '）');
+        appendRow(tbody, Text.getAmendmentLaw(), data.revision_info_amendment_law_title + '（' + data.revision_info_amendment_law_num + '）');
     }
-    appendRow(tbody, '状態', REPEAL_STATUS_MAP[data.revision_info_repeal_status]);
+    appendRow(tbody, Text.getRepealStatus(), Text.getRepealStatus(data.revision_info_repeal_status));
 
     const table = document.createElement('table');
     table.appendChild(tbody);
