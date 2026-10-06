@@ -36,20 +36,18 @@ const TEXT_SELECTOR = [
 const HIGHLIGHT_CLASS = 'highlight';
 const SCROLL_DURATION = 500;
 const FADE_DURATION = 180;
-const HIDE_DELAY = 200;
 
 const highlightTimerMap = new WeakMap();
 
 let lawContent;
 let lawContainer;
-let frame = null;
-let flex = null;
+let frame;
+let flex;
 let searchContent;
-let searchContainer = null;
+let searchContainer;
 let searchInput;
 let searchClear;
 let searchResult;
-let hideTimer = null;
 let isShown = false;
 let selectedIndex = -1;
 
@@ -58,6 +56,7 @@ function init(api) {
     lawContainer = api.getContainer();
 
     buildContent();
+    buildFrame();
 
     searchInput.addEventListener('keydown', event => {
         if (event.isComposing) {
@@ -107,41 +106,38 @@ function show() {
     searchResult.style.lineHeight = (parseFloat(style.lineHeight) / parseFloat(style.fontSize) - 0.2) + '';
     searchResult.style.letterSpacing = style.letterSpacing;
 
+    searchContent.inert = false;
+    resetSearch();
+
     isShown = true;
-    clearTimeout(hideTimer);
-    destroyFrame();
-    buildFrame();
     frame.show();
     requestAnimationFrame(() => {
         searchContainer.classList.add('show');
     });
 
-    searchInput.value = '';
-    searchInput.style.display = '';
     searchInput.style.caretColor = 'transparent';
     searchInput.focus();
     setTimeout(() => {
         searchInput.style.caretColor = '';
     }, 200);
-    searchClear.style.display = 'none';
-
-    updateResult(false);
 }
 
 function hide() {
-    if (!frame) {
+    if (!isShown) {
         return;
     }
     isShown = false;
     searchContainer.classList.remove('show');
     frame.hide();
     searchInput.blur();
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => {
-        searchInput.value = '';
-        searchInput.style.display = 'none';
-        destroyFrame();
-    }, HIDE_DELAY);
+    searchContent.inert = true;
+}
+
+function resetSearch() {
+    flex.stop();
+    searchInput.value = '';
+    searchClear.style.display = 'none';
+    updateResult(false);
 }
 
 function buildContent() {
@@ -172,6 +168,7 @@ function buildContent() {
     searchContent.classList.add('search-content');
     searchContent.appendChild(searchBar);
     searchContent.appendChild(searchResult);
+    searchContent.inert = true;
 }
 
 function buildFrame() {
@@ -208,18 +205,6 @@ function buildFrame() {
             hide();
         }
     });
-}
-
-function destroyFrame() {
-    if (!frame) {
-        return;
-    }
-    flex.stop();
-    searchContent.remove();
-    frame.destroy();
-    frame = null;
-    flex = null;
-    searchContainer = null;
 }
 
 function updateResult(isUnlimited) {
