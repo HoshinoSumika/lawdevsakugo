@@ -3,7 +3,6 @@ export const History = {
     show,
 };
 
-import { Device } from '/lib/device.js';
 import { Dialog } from '/lib/dialog.js';
 
 import { Service } from '/global/service.js';
@@ -13,7 +12,8 @@ import { Util } from '/global/util.js';
 const SCROLL_DURATION = 800;
 const SCROLL_OFFSET = 12;
 const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
-const MODAL_WIDTH = 'min(480px, ' + INSET_SIZE + ')';
+const MODAL_MAX_WIDTH = 480;
+const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
 
 let api;
 let modal;
@@ -87,7 +87,7 @@ async function show() {
 function applySize() {
     modal.setPlacement('center');
     modal.setWidth(MODAL_WIDTH);
-    if (Device.isMobile()) {
+    if (content.closest('.dialog-modal').getBoundingClientRect().width < MODAL_MAX_WIDTH) {
         modal.setHeight(INSET_SIZE);
     }
 }

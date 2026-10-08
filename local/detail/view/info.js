@@ -8,6 +8,10 @@ import { Dialog } from '/lib/dialog.js';
 import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
 
+const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
+const MODAL_MAX_WIDTH = 480;
+const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
+
 let lawContent;
 let modal;
 let content;
@@ -19,7 +23,7 @@ function init(api) {
     content.classList.add('info-content');
 
     modal = Dialog.createModal(content);
-    modal.setWidth('min(480px, calc(100% - var(--size-offset) * 4))');
+    modal.setWidth(MODAL_WIDTH);
     modal.setTitle(Text.getInfo());
     modal.enableCloseButton(hide);
 }
