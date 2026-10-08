@@ -14,11 +14,10 @@ import { Nav } from './view/nav.js';
 import { Search } from './view/search.js';
 
 const contentEl = document.querySelector('#content');
-const scrollEl = contentEl.parentElement;
 
 const api = {
     getContent: () => contentEl,
-    getContainer: () => scrollEl,
+    getContainer: () => contentEl.parentElement,
     getLawId: () => Route.getLawId(),
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
@@ -89,8 +88,8 @@ async function load() {
     if (functionVersion !== contentVersion) {
         return;
     }
-    messageLoading.hide();
     if (!law) {
+        messageLoading.hide();
         messageMissingId.hide();
         messageLoadError.show();
         return;
@@ -104,4 +103,6 @@ async function load() {
     const title = contentEl.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
     document.title = title;
     Nav.setTitle(title);
+
+    messageLoading.hide();
 }
