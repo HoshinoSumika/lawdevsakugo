@@ -373,11 +373,12 @@ function showItem(item, get) {
 }
 
 function toggleItem(item, isShown) {
-    const shiftList = Array.from(item.children);
+    const childList = Array.from(item.children);
+    const followingList = [];
     for (let next = item.nextElementSibling; next; next = next.nextElementSibling) {
-        shiftList.push(next);
+        followingList.push(next);
     }
-    shiftList.forEach(element => {
+    [item].concat(childList, followingList).forEach(element => {
         element.getAnimations().forEach(animation => animation.cancel());
     });
 
@@ -390,8 +391,10 @@ function toggleItem(item, isShown) {
     const hidden = { transform: 'translateY(' + -item.offsetHeight + 'px)' };
     const shown = { transform: 'translateY(0px)' };
     const keyframeList = isShown ? [hidden, shown] : [shown, hidden];
+    const fadeKeyframeList = isShown ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }];
     const option = { duration: EXPAND_DURATION, easing: 'ease', fill: 'forwards' };
-    const animationList = shiftList.map(element => element.animate(keyframeList, option));
+    const animationList = childList.concat(followingList).map(element => element.animate(keyframeList, option));
+    animationList.push(item.animate(fadeKeyframeList, { duration: EXPAND_DURATION, easing: isShown ? 'ease-in' : 'ease-out', fill: 'forwards' }));
     animationList[0].onfinish = () => {
         item.style.overflow = '';
         item.style.display = isShown ? '' : 'none';
