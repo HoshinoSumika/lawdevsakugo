@@ -16,6 +16,8 @@ const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
 const SLIDE_DURATION = 200;
+const SLIDE_EASING = 'ease-out';
+const FADE_DURATION = 50;
 const CONTENT_WIDTH_STANDARD = 800;
 const CONTENT_WIDTH_WIDE = 1200;
 const EXPAND_DURATION = 200;
@@ -236,11 +238,21 @@ function switchPage(page, scrollTop, shift) {
     ghost.appendChild(previous);
     content.appendChild(ghost);
 
-    const option = { duration: SLIDE_DURATION, easing: 'linear' };
-    ghost.animate([{ transform: 'translateX(0%)' }, { transform: 'translateX(' + shift + '%)' }], option).onfinish = () => {
+    const option = { duration: SLIDE_DURATION, easing: SLIDE_EASING };
+    ghost.animate([
+        { transform: 'translateX(0%)' },
+        { transform: 'translateX(' + shift + '%)' },
+    ], option).onfinish = () => {
         ghost.remove();
     };
-    page.animate([{ transform: 'translateX(' + -shift + '%)' }, { transform: 'translateX(0%)' }], option);
+    ghost.animate([
+        { opacity: 1 },
+        { opacity: 0 },
+    ], { duration: FADE_DURATION, easing: 'ease', fill: 'forwards' });
+    page.animate([
+        { transform: 'translateX(' + -shift + '%)' },
+        { transform: 'translateX(0%)' },
+    ], option);
 }
 
 function showConfirmPage(title, text, actionLabel, onConfirm) {
