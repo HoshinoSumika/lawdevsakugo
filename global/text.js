@@ -4,6 +4,27 @@ export const Text = {
     getTopPage,
     getInfo,
     getHistory,
+    getPreference,
+    getShowToc,
+    getShowSupplProvision,
+    getFontFamily,
+    getFontSize,
+    getLineHeight,
+    getLetterSpacing,
+    getWidthLimit,
+    getWidthLimitSize,
+    getAdvancedPreference,
+    getPreferenceClear,
+    getPreferenceClearConfirm,
+    getPreferenceCleared,
+    getCacheDelete,
+    getCacheDeleteConfirm,
+    getCacheDeleted,
+    getCacheDeleteFailed,
+    getClear,
+    getDelete,
+    getSansSerif,
+    getSerif,
     getLawIdMissing,
     getLawIdUnavailable,
     getLawLoadFailed,
@@ -43,6 +64,90 @@ function getInfo() {
 
 function getHistory() {
     return '改正履歴';
+}
+
+function getPreference() {
+    return '設定';
+}
+
+function getShowToc() {
+    return '本文中の目次を表示';
+}
+
+function getShowSupplProvision() {
+    return '附則を表示';
+}
+
+function getFontFamily() {
+    return '書体';
+}
+
+function getFontSize() {
+    return '文字サイズ';
+}
+
+function getLineHeight() {
+    return '行間';
+}
+
+function getLetterSpacing() {
+    return '字間';
+}
+
+function getWidthLimit() {
+    return '横幅制限';
+}
+
+function getWidthLimitSize() {
+    return '幅';
+}
+
+function getAdvancedPreference() {
+    return '詳細設定';
+}
+
+function getPreferenceClear() {
+    return '設定をクリア';
+}
+
+function getPreferenceClearConfirm() {
+    return 'すべての設定を初期値に戻します。よろしいですか？';
+}
+
+function getPreferenceCleared() {
+    return '設定をクリアしました。';
+}
+
+function getCacheDelete() {
+    return 'キャッシュを削除';
+}
+
+function getCacheDeleteConfirm() {
+    return '保存されているキャッシュをすべて削除します。よろしいですか？';
+}
+
+function getCacheDeleted() {
+    return 'キャッシュを削除しました。';
+}
+
+function getCacheDeleteFailed() {
+    return 'キャッシュを削除できませんでした。';
+}
+
+function getClear() {
+    return 'クリア';
+}
+
+function getDelete() {
+    return '削除';
+}
+
+function getSansSerif() {
+    return 'ゴシック';
+}
+
+function getSerif() {
+    return '明朝';
 }
 
 function getLawIdMissing() {

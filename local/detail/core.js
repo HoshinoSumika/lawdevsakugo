@@ -11,6 +11,7 @@ import { History } from './view/history.js';
 import { Info } from './view/info.js';
 import { Menu } from './view/menu.js';
 import { Nav } from './view/nav.js';
+import { Preference } from './view/preference.js';
 import { Search } from './view/search.js';
 
 const contentEl = document.querySelector('#content');
@@ -22,6 +23,7 @@ const api = {
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
     onMenuSelect: () => Menu.show(),
+    onPreferenceSelect: () => Preference.show(),
     onRevisionSelect: (id) => move(id),
     onSearchSelect: () => Search.show(),
 };
@@ -59,6 +61,7 @@ async function init() {
     Info.init(api);
     Menu.init(api);
     Nav.init(api);
+    Preference.init();
     Search.init(api);
 
     await load();

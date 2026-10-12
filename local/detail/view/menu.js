@@ -25,6 +25,11 @@ function init(api) {
         hide();
         api.onHistorySelect();
     }));
+    content.appendChild(buildDivider());
+    content.appendChild(buildItem('config', Text.getPreference(), () => {
+        hide();
+        api.onPreferenceSelect();
+    }));
 
     modal = Dialog.createModal(content);
     modal.setPlacement('left');

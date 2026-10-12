@@ -1,5 +1,6 @@
 export const Cache = {
     open,
+    deleteAll,
 };
 
 import { Storage } from '/lib/storage.js';
@@ -24,6 +25,19 @@ async function open(name) {
         cleanup: () => cleanup(database, name),
         close: () => database.close(),
     };
+}
+
+async function deleteAll() {
+    const databaseList = await indexedDB.databases();
+    await Promise.all(databaseList.map(database => deleteDatabase(database.name)));
+}
+
+function deleteDatabase(name) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.deleteDatabase(name);
+        request.onsuccess = () => resolve();
+        request.onerror = e => reject(e.target.error);
+    });
 }
 
 function openDatabase(name) {
