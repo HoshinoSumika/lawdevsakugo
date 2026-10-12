@@ -70,7 +70,9 @@ function init() {
         applyLetterSpacing(value);
     }));
     mainPage.appendChild(buildDivider());
-    mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), showAdvancedPage));
+    mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), () => {
+        showSubPage(Text.getAdvancedPreference(), advancedPage);
+    }));
     mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
         showConfirmPage(Text.getCacheDelete(), Text.getCacheDeleteConfirm(), Text.getDelete(), deleteCache);
@@ -106,7 +108,12 @@ function init() {
 
 function show() {
     applySize();
-    showMainPage();
+    modal.setTitle(Text.getPreference());
+    modal.disableBackButton();
+    modal.clearNav();
+    modal.fitHeight(() => {
+        content.replaceChildren(mainPage);
+    });
     modal.resetScroll();
     modal.show();
 }
@@ -127,10 +134,7 @@ function showMainPage() {
     modal.setTitle(Text.getPreference());
     modal.disableBackButton();
     modal.clearNav();
-    modal.fitHeight(() => {
-        content.replaceChildren(mainPage);
-    });
-    content.closest('.dialog-scroll').scrollTop = mainScrollTop;
+    switchPage(mainPage, mainScrollTop, 100);
 }
 
 function showSubPage(title, page) {
@@ -138,32 +142,39 @@ function showSubPage(title, page) {
 
     modal.setTitle(title);
     modal.enableBackButton(showMainPage);
+    switchPage(page, 0, -100);
+}
+
+function switchPage(page, scrollTop, shift) {
+    const scroll = content.closest('.dialog-scroll');
+    const previous = content.firstChild;
+    const previousScrollTop = scroll.scrollTop;
+    const height = scroll.clientHeight;
+
+    previous.getAnimations().forEach(animation => animation.cancel());
+    page.getAnimations().forEach(animation => animation.cancel());
+
     const isResized = modal.fitHeight(() => {
         content.replaceChildren(page);
     });
-    modal.resetScroll();
-    return isResized;
-}
+    scroll.scrollTop = scrollTop;
 
-function showAdvancedPage() {
-    const height = content.closest('.dialog-scroll').clientHeight;
-
-    if (showSubPage(Text.getAdvancedPreference(), advancedPage)) {
+    if (isResized || previous === page) {
         return;
     }
 
     const ghost = document.createElement('div');
     ghost.classList.add('preference-ghost');
-    ghost.style.top = -mainScrollTop + 'px';
-    ghost.style.height = (height + mainScrollTop) + 'px';
-    ghost.appendChild(mainPage);
+    ghost.style.top = (scroll.scrollTop - previousScrollTop) + 'px';
+    ghost.style.height = (height + previousScrollTop) + 'px';
+    ghost.appendChild(previous);
     content.appendChild(ghost);
 
-    const option = { duration: SLIDE_DURATION, easing: 'ease' };
-    ghost.animate([{ transform: 'translateX(0%)' }, { transform: 'translateX(-100%)' }], option).onfinish = () => {
+    const option = { duration: SLIDE_DURATION, easing: 'linear' };
+    ghost.animate([{ transform: 'translateX(0%)' }, { transform: 'translateX(' + shift + '%)' }], option).onfinish = () => {
         ghost.remove();
     };
-    advancedPage.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0%)' }], option);
+    page.animate([{ transform: 'translateX(' + -shift + '%)' }, { transform: 'translateX(0%)' }], option);
 }
 
 function showConfirmPage(title, text, actionLabel, onConfirm) {
