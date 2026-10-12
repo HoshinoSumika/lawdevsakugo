@@ -15,6 +15,7 @@ import { Text } from '/global/text.js';
 const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
+const SLIDE_DURATION = 200;
 
 const styleMap = {};
 const style = document.createElement('style');
@@ -69,9 +70,7 @@ function init() {
         applyLetterSpacing(value);
     }));
     mainPage.appendChild(buildDivider());
-    mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), () => {
-        showSubPage(Text.getAdvancedPreference(), advancedPage);
-    }));
+    mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), showAdvancedPage));
     mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
         showConfirmPage(Text.getCacheDelete(), Text.getCacheDeleteConfirm(), Text.getDelete(), deleteCache);
@@ -139,10 +138,32 @@ function showSubPage(title, page) {
 
     modal.setTitle(title);
     modal.enableBackButton(showMainPage);
-    modal.fitHeight(() => {
+    const isResized = modal.fitHeight(() => {
         content.replaceChildren(page);
     });
     modal.resetScroll();
+    return isResized;
+}
+
+function showAdvancedPage() {
+    const height = content.closest('.dialog-scroll').clientHeight;
+
+    if (showSubPage(Text.getAdvancedPreference(), advancedPage)) {
+        return;
+    }
+
+    const ghost = document.createElement('div');
+    ghost.classList.add('preference-ghost');
+    ghost.style.top = -mainScrollTop + 'px';
+    ghost.style.height = (height + mainScrollTop) + 'px';
+    ghost.appendChild(mainPage);
+    content.appendChild(ghost);
+
+    const option = { duration: SLIDE_DURATION, easing: 'ease' };
+    ghost.animate([{ transform: 'translateX(0%)' }, { transform: 'translateX(-100%)' }], option).onfinish = () => {
+        ghost.remove();
+    };
+    advancedPage.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0%)' }], option);
 }
 
 function showConfirmPage(title, text, actionLabel, onConfirm) {

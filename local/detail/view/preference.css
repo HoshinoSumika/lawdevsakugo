@@ -1,5 +1,13 @@
 .preference-content {
+    position: relative;
     width: 100%; padding: 8px 0px 16px 0px;
+}
+
+.preference-ghost {
+    position: absolute; left: 0px;
+    overflow: hidden;
+    width: 100%; padding: 8px 0px 16px 0px;
+    pointer-events: none;
 }
 
 .preference-page {
