@@ -16,18 +16,17 @@ const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
 const SLIDE_DURATION = 200;
+const CONTENT_WIDTH_STANDARD = 800;
+const CONTENT_WIDTH_WIDE = 1200;
 const EXPAND_DURATION = 200;
 const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
 const WORD_COLOR = '#4169e1';
 const HIGHLIGHT_SIZE_MIN = 0.5;
-const HIGHLIGHT_SIZE_MAX = 1.5;
+const HIGHLIGHT_SIZE_MAX = 1;
 const HIGHLIGHT_SIZE_STEP = 0.05;
+const BACKGROUND_DEFAULT = 'rgba(128, 128, 128, 0.2)';
 const HATCH_COLOR = 'rgba(128,128,128,0.2)';
-const BACKGROUND_MAP = {
-    none: 'none',
-    fill: 'color-mix(in srgb, currentColor 15%, transparent)',
-    hatch: 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)',
-};
+const HATCH_BACKGROUND = 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)';
 
 const styleMap = {};
 const style = document.createElement('style');
@@ -134,13 +133,13 @@ function init(value) {
 
     advancedPage = document.createElement('div');
     advancedPage.classList.add('preference-page');
-    advancedPage.appendChild(buildSwitchItem(Text.getWidthLimit(), Config.getWidthLimit, (value) => {
-        Config.setWidthLimit(value);
-        applyWidthLimit(value, Config.getWidthLimitSize());
-    }));
-    advancedPage.appendChild(buildSeekbarItem(Text.getWidthLimitSize(), 640, 1040, 20, Config.getWidthLimitSize, formatWidthLimitSize, (value) => {
-        Config.setWidthLimitSize(value);
-        applyWidthLimit(Config.getWidthLimit(), value);
+    advancedPage.appendChild(buildRadioItem(Text.getContentWidth(), [
+        { value: CONTENT_WIDTH_STANDARD, label: Text.getContentWidthStandard() },
+        { value: CONTENT_WIDTH_WIDE, label: Text.getContentWidthWide() },
+        { value: 0, label: Text.getContentWidthNone() },
+    ], Config.getContentWidth, (value) => {
+        Config.setContentWidth(value);
+        applyContentWidth(value);
     }));
 
     parenPage = buildHighlightPage(parenEntryList, Config.getParenStyleMap, Config.setParenStyleMap, applyParenHighlight);
@@ -290,7 +289,7 @@ function applyAll() {
     applyFontSize(Config.getFontSize());
     applyLineHeight(Config.getLineHeight());
     applyLetterSpacing(Config.getLetterSpacing());
-    applyWidthLimit(Config.getWidthLimit(), Config.getWidthLimitSize());
+    applyContentWidth(Config.getContentWidth());
 }
 
 function applyToc(isShown) {
@@ -315,14 +314,34 @@ function buildHighlightRule(entryList, styleMap) {
     return entryList.map(entry => {
         const entryStyle = readEntryStyle(styleMap, entry);
         return entry.selector + ' { '
-            + 'color: ' + (entryStyle.color || entry.color) + '; '
-            + 'font-size: ' + entryStyle.size + 'em; '
-            + 'background: ' + BACKGROUND_MAP[entryStyle.background] + '; }';
+            + 'color: ' + buildHighlightColor(entry, entryStyle) + '; '
+            + 'font-size: ' + Math.min(entryStyle.size, HIGHLIGHT_SIZE_MAX) + 'em; '
+            + 'background: ' + buildHighlightBackground(entryStyle) + '; }';
     }).join(' ');
 }
 
+function buildHighlightColor(entry, entryStyle) {
+    if (entryStyle.colorMode === 'none') {
+        return 'inherit';
+    }
+    if (entryStyle.colorMode === 'custom') {
+        return entryStyle.color || entry.color;
+    }
+    return entry.color;
+}
+
+function buildHighlightBackground(entryStyle) {
+    if (entryStyle.background === 'default') {
+        return BACKGROUND_DEFAULT;
+    }
+    if (entryStyle.background === 'hatch') {
+        return HATCH_BACKGROUND;
+    }
+    return 'none';
+}
+
 function readEntryStyle(styleMap, entry) {
-    return Object.assign({ size: 1, color: '', background: 'none' }, styleMap[entry.key]);
+    return Object.assign({ size: 1, colorMode: 'default', color: '', background: 'none' }, styleMap[entry.key]);
 }
 
 function applyFontFamily(value) {
@@ -341,8 +360,8 @@ function applyLetterSpacing(value) {
     setStyle('letter-spacing', '.content { letter-spacing: ' + value + 'em; }');
 }
 
-function applyWidthLimit(isEnabled, size) {
-    setStyle('width-limit', isEnabled ? '.content { max-width: ' + size + 'px; }' : '');
+function applyContentWidth(value) {
+    setStyle('content-width', value ? '.content { max-width: ' + value + 'px; }' : '');
 }
 
 function formatFontSize(value) {
@@ -355,10 +374,6 @@ function formatLineHeight(value) {
 
 function formatLetterSpacing(value) {
     return value.toFixed(2) + 'em';
-}
-
-function formatWidthLimitSize(value) {
-    return value + 'px';
 }
 
 function formatHighlightSize(value) {
@@ -430,12 +445,26 @@ function buildHighlightEntryPage(entry, getMap, setMap, apply) {
     page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, HIGHLIGHT_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
         update({ size: value });
     }));
-    page.appendChild(buildColorItem(Text.getHighlightColor(), entry.color, () => get().color, (value) => {
+    const customColorItem = buildColorPickerItem(Text.getHighlightCustomColor(), () => get().color || entry.color, (value) => {
         update({ color: value });
+    });
+    page.appendChild(buildRadioItem(Text.getHighlightColor(), [
+        { value: 'none', label: Text.getHighlightColorNone() },
+        { value: 'default', label: Text.getDefaultColor() },
+        { value: 'custom', label: Text.getCustomColor() },
+    ], () => get().colorMode, (value) => {
+        const isCustom = get().colorMode === 'custom';
+        update(value === 'custom' ? { colorMode: value, color: get().color || entry.color } : { colorMode: value });
+        if (isCustom !== (value === 'custom')) {
+            toggleItem(customColorItem, value === 'custom');
+        }
     }));
+    page.appendChild(customColorItem);
+    showItem(customColorItem, () => get().colorMode === 'custom');
+    page.appendChild(buildDivider());
     page.appendChild(buildRadioItem(Text.getHighlightBackground(), [
         { value: 'none', label: Text.getBackgroundNone() },
-        { value: 'fill', label: Text.getBackgroundFill() },
+        { value: 'default', label: Text.getBackgroundDefault() },
         { value: 'hatch', label: Text.getBackgroundHatch() },
     ], () => get().background, (value) => {
         update({ background: value });
@@ -484,16 +513,26 @@ function changeWord() {
 }
 
 function renderWordPage() {
+    const wordList = Config.getWordList();
+    const customWordList = wordList.filter(word => !word.isDefault);
     wordPage.replaceChildren();
-    Config.getWordList().forEach(word => {
-        wordPage.appendChild(buildNavigationItem(word.value, () => {
-            showWordEntryPage(word.value);
-        }));
-    });
+    appendWordItem(wordList.filter(word => word.isDefault));
+    if (customWordList.length > 0) {
+        wordPage.appendChild(buildDivider());
+        appendWordItem(customWordList);
+    }
     wordPage.appendChild(buildDivider());
     wordPage.appendChild(buildNavigationItem(Text.getWordAdd(), () => {
         showInputPage(Text.getWordAdd(), addWord);
     }));
+}
+
+function appendWordItem(wordList) {
+    wordList.forEach(word => {
+        wordPage.appendChild(buildNavigationItem(word.value, () => {
+            showWordEntryPage(word.value);
+        }));
+    });
 }
 
 function showWordEntryPage(value) {
@@ -505,6 +544,9 @@ function showWordEntryPage(value) {
 
 function buildWordEntryPage(value) {
     const page = buildHighlightEntryPage({ key: value, color: WORD_COLOR }, Config.getWordStyleMap, Config.setWordStyleMap, applyWordHighlight);
+    if (findWord(value).isDefault) {
+        return page;
+    }
 
     const exclusionSection = document.createElement('div');
     const renderExclusion = () => {
@@ -530,13 +572,11 @@ function buildWordEntryPage(value) {
 
     page.appendChild(buildDivider());
     page.appendChild(exclusionSection);
-    if (!findWord(value).isDefault) {
-        page.appendChild(buildDivider());
-        page.appendChild(buildActionItem(Text.getWordRemove(), () => {
-            removeWord(value);
-            showPreviousPage();
-        }));
-    }
+    page.appendChild(buildDivider());
+    page.appendChild(buildActionItem(Text.getWordRemove(), () => {
+        removeWord(value);
+        showPreviousPage();
+    }));
     return page;
 }
 
@@ -572,38 +612,14 @@ function showInputPage(title, onSubmit) {
     input.focus({ preventScroll: true });
 }
 
-function buildColorItem(labelText, defaultColor, get, onChange) {
-    const picker = Component.createColorPicker(get() || defaultColor, (next) => {
-        radio.setValue('custom');
-        onChange(next);
-    });
-
-    const radio = Component.createRadio([
-        { value: 'default', label: Text.getDefaultColor() },
-        { value: 'custom', label: Text.getCustomColor() },
-    ], get() ? 'custom' : 'default', (next) => {
-        if (next === 'default') {
-            picker.setValue(defaultColor);
-            onChange('');
-        } else {
-            onChange(picker.getValue());
-        }
-    });
-
-    refreshList.push(() => {
-        radio.setValue(get() ? 'custom' : 'default');
-        picker.setValue(get() || defaultColor);
-    });
-
-    const control = document.createElement('div');
-    control.classList.add('preference-color');
-    control.appendChild(radio.getElement());
-    control.appendChild(picker.getElement());
+function buildColorPickerItem(labelText, get, onChange) {
+    const picker = Component.createColorPicker(get(), onChange);
+    refreshList.push(() => picker.setValue(get()));
 
     const item = document.createElement('div');
     item.classList.add('preference-item');
     item.appendChild(buildLabel(labelText));
-    item.appendChild(control);
+    item.appendChild(picker.getElement());
     return item;
 }
 
@@ -628,7 +644,7 @@ function buildRadioItem(labelText, optionList, get, onChange) {
     refreshList.push(() => radio.setValue(get()));
 
     const item = document.createElement('div');
-    item.classList.add('preference-item');
+    item.classList.add('preference-item', 'choice');
     item.appendChild(buildLabel(labelText));
     item.appendChild(radio.getElement());
     return item;

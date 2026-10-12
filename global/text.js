@@ -17,19 +17,23 @@ export const Text = {
     getExclusionAdd,
     getAdd,
     getHighlightColor,
+    getHighlightColorNone,
     getHighlightBackground,
     getDefaultColor,
     getCustomColor,
+    getHighlightCustomColor,
     getBackgroundNone,
-    getBackgroundFill,
+    getBackgroundDefault,
     getBackgroundHatch,
     getParenDepth,
     getFontFamily,
     getFontSize,
     getLineHeight,
     getLetterSpacing,
-    getWidthLimit,
-    getWidthLimitSize,
+    getContentWidth,
+    getContentWidthStandard,
+    getContentWidthWide,
+    getContentWidthNone,
     getAdvancedPreference,
     getPreferenceClear,
     getPreferenceClearConfirm,
@@ -134,7 +138,11 @@ function getAdd() {
 }
 
 function getHighlightColor() {
-    return '色';
+    return '文字の色';
+}
+
+function getHighlightColorNone() {
+    return 'なし';
 }
 
 function getHighlightBackground() {
@@ -146,15 +154,19 @@ function getDefaultColor() {
 }
 
 function getCustomColor() {
-    return 'カスタム';
+    return '指定';
+}
+
+function getHighlightCustomColor() {
+    return '指定色';
 }
 
 function getBackgroundNone() {
     return 'なし';
 }
 
-function getBackgroundFill() {
-    return '塗り';
+function getBackgroundDefault() {
+    return '既定';
 }
 
 function getBackgroundHatch() {
@@ -181,12 +193,20 @@ function getLetterSpacing() {
     return '字間';
 }
 
-function getWidthLimit() {
-    return '横幅制限';
+function getContentWidth() {
+    return '本文の幅';
 }
 
-function getWidthLimitSize() {
-    return '幅';
+function getContentWidthStandard() {
+    return '標準';
+}
+
+function getContentWidthWide() {
+    return '広い';
+}
+
+function getContentWidthNone() {
+    return '無制限';
 }
 
 function getAdvancedPreference() {

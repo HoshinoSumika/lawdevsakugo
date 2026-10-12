@@ -25,10 +25,8 @@ export const Config = {
     setLineHeight,
     getLetterSpacing,
     setLetterSpacing,
-    getWidthLimit,
-    setWidthLimit,
-    getWidthLimitSize,
-    setWidthLimitSize,
+    getContentWidth,
+    setContentWidth,
     clear,
 };
 
@@ -51,8 +49,7 @@ const defaults = {
     'font-size': 16,
     'line-height': 1.8,
     'letter-spacing': 0,
-    'width-limit': true,
-    'width-limit-size': 800,
+    'content-width': 800,
 };
 
 function getDev() {
@@ -151,20 +148,12 @@ function setLetterSpacing(value) {
     write('letter-spacing', value);
 }
 
-function getWidthLimit() {
-    return read('width-limit');
+function getContentWidth() {
+    return read('content-width');
 }
 
-function setWidthLimit(value) {
-    write('width-limit', value);
-}
-
-function getWidthLimitSize() {
-    return read('width-limit-size');
-}
-
-function setWidthLimitSize(value) {
-    write('width-limit-size', value);
+function setContentWidth(value) {
+    write('content-width', value);
 }
 
 function clear() {
