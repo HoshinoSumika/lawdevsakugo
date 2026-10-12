@@ -24,9 +24,11 @@ const EXPAND_DURATION = 200;
 const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
 const WORD_COLOR = '#4169e1';
 const HIGHLIGHT_SIZE_MIN = 0.5;
-const HIGHLIGHT_SIZE_MAX = 1;
+const PAREN_SIZE_MAX = 1;
+const WORD_SIZE_MAX = 1.5;
 const HIGHLIGHT_SIZE_STEP = 0.05;
 const BACKGROUND_DEFAULT = 'rgba(128, 128, 128, 0.2)';
+const BACKGROUND_CUSTOM_COLOR = '#e6e6e6';
 const HATCH_COLOR = 'rgba(128,128,128,0.2)';
 const HATCH_BACKGROUND = 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)';
 
@@ -144,7 +146,7 @@ function init(value) {
         applyContentWidth(value);
     }));
 
-    parenPage = buildHighlightPage(parenEntryList, Config.getParenStyleMap, Config.setParenStyleMap, applyParenHighlight);
+    parenPage = buildParenPage();
     wordPage = document.createElement('div');
     wordPage.classList.add('preference-page');
     renderWordPage();
@@ -313,22 +315,33 @@ function applySupplProvision(isShown) {
 }
 
 function applyParenHighlight() {
-    const isEnabled = Config.getParenHighlight();
-    setStyle('paren-highlight', isEnabled ? buildHighlightRule(parenEntryList, Config.getParenStyleMap()) : '');
+    if (!Config.getParenHighlight()) {
+        setStyle('paren-highlight', '');
+        return;
+    }
+    const styleMap = Config.getParenStyleMap();
+    const ruleList = ['.content .paren { '
+        + 'font-size: ' + Math.min(Config.getParenSize(), PAREN_SIZE_MAX) + 'em; '
+        + 'background: ' + buildHighlightBackground(Config.getParenBackground()) + '; }'];
+    parenEntryList.forEach(entry => {
+        ruleList.push(entry.selector + ' { color: ' + buildHighlightColor(entry, readEntryStyle(styleMap, entry)) + '; }');
+    });
+    setStyle('paren-highlight', ruleList.join(' '));
 }
 
 function applyWordHighlight() {
     const isEnabled = Config.getWordHighlight();
-    setStyle('word-highlight', isEnabled ? buildHighlightRule(buildWordEntryList(), Config.getWordStyleMap()) : '');
+    setStyle('word-highlight', isEnabled ? buildWordRule(buildWordEntryList(), Config.getWordStyleMap()) : '');
 }
 
-function buildHighlightRule(entryList, styleMap) {
+function buildWordRule(entryList, styleMap) {
     return entryList.map(entry => {
         const entryStyle = readEntryStyle(styleMap, entry);
+        const background = entryStyle.background === 'custom' ? entryStyle.backgroundColor || BACKGROUND_CUSTOM_COLOR : buildHighlightBackground(entryStyle.background);
         return entry.selector + ' { '
             + 'color: ' + buildHighlightColor(entry, entryStyle) + '; '
-            + 'font-size: ' + Math.min(entryStyle.size, HIGHLIGHT_SIZE_MAX) + 'em; '
-            + 'background: ' + buildHighlightBackground(entryStyle) + '; }';
+            + 'font-size: ' + Math.min(entryStyle.size, WORD_SIZE_MAX) + 'em; '
+            + 'background: ' + background + '; }';
     }).join(' ');
 }
 
@@ -342,18 +355,18 @@ function buildHighlightColor(entry, entryStyle) {
     return entry.color;
 }
 
-function buildHighlightBackground(entryStyle) {
-    if (entryStyle.background === 'default') {
+function buildHighlightBackground(background) {
+    if (background === 'default') {
         return BACKGROUND_DEFAULT;
     }
-    if (entryStyle.background === 'hatch') {
+    if (background === 'hatch') {
         return HATCH_BACKGROUND;
     }
     return 'none';
 }
 
 function readEntryStyle(styleMap, entry) {
-    return Object.assign({ size: 1, colorMode: 'default', color: '', background: 'none' }, styleMap[entry.key]);
+    return Object.assign({ size: 1, colorMode: 'default', color: '', background: 'none', backgroundColor: '' }, styleMap[entry.key]);
 }
 
 function applyFontFamily(value) {
@@ -429,12 +442,26 @@ function toggleItem(item, isShown) {
     };
 }
 
-function buildHighlightPage(entryList, getMap, setMap, apply) {
+function buildParenPage() {
     const page = document.createElement('div');
     page.classList.add('preference-page');
+    page.appendChild(buildCaption(Text.getParenOverallPreference()));
+    page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, PAREN_SIZE_MAX, HIGHLIGHT_SIZE_STEP, Config.getParenSize, formatHighlightSize, (value) => {
+        Config.setParenSize(value);
+        applyParenHighlight();
+    }));
+    page.appendChild(buildBackgroundItem(Config.getParenBackground, (value) => {
+        Config.setParenBackground(value);
+        applyParenHighlight();
+    }));
+    page.appendChild(buildDivider());
+    page.appendChild(buildCaption(Text.getParenDepthPreference()));
 
-    entryList.forEach(entry => {
-        const entryPage = buildHighlightEntryPage(entry, getMap, setMap, apply);
+    parenEntryList.forEach(entry => {
+        const entryPage = document.createElement('div');
+        entryPage.classList.add('preference-page');
+        const { get, update } = bindEntryStyle(entry, Config.getParenStyleMap, Config.setParenStyleMap, applyParenHighlight);
+        appendTextColorItem(entryPage, entry, get, update);
         page.appendChild(buildNavigationItem(entry.label, () => {
             showNextPage(entry.label, entryPage);
         }));
@@ -442,10 +469,26 @@ function buildHighlightPage(entryList, getMap, setMap, apply) {
     return page;
 }
 
-function buildHighlightEntryPage(entry, getMap, setMap, apply) {
+function buildWordStylePage(entry) {
     const page = document.createElement('div');
     page.classList.add('preference-page');
 
+    const { get, update } = bindEntryStyle(entry, Config.getWordStyleMap, Config.setWordStyleMap, applyWordHighlight);
+
+    page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, WORD_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
+        update({ size: value });
+    }));
+    appendTextColorItem(page, entry, get, update);
+    page.appendChild(buildDivider());
+    appendColorChoiceItem(page, Text.getHighlightBackground(), [
+        { value: 'none', label: Text.getBackgroundNone() },
+        { value: 'default', label: Text.getBackgroundDefault() },
+        { value: 'custom', label: Text.getCustomColor() },
+    ], 'background', 'backgroundColor', BACKGROUND_CUSTOM_COLOR, get, update);
+    return page;
+}
+
+function bindEntryStyle(entry, getMap, setMap, apply) {
     const get = () => readEntryStyle(getMap(), entry);
     const update = (change) => {
         const styleMap = Object.assign({}, getMap());
@@ -453,35 +496,38 @@ function buildHighlightEntryPage(entry, getMap, setMap, apply) {
         setMap(styleMap);
         apply();
     };
+    return { get, update };
+}
 
-    page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, HIGHLIGHT_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
-        update({ size: value });
-    }));
-    const customColorItem = buildColorPickerItem(Text.getHighlightCustomColor(), () => get().color || entry.color, (value) => {
-        update({ color: value });
-    });
-    page.appendChild(buildRadioItem(Text.getHighlightColor(), [
+function appendTextColorItem(page, entry, get, update) {
+    appendColorChoiceItem(page, Text.getHighlightColor(), [
         { value: 'none', label: Text.getHighlightColorNone() },
         { value: 'default', label: Text.getDefaultColor() },
         { value: 'custom', label: Text.getCustomColor() },
-    ], () => get().colorMode, (value) => {
-        const isCustom = get().colorMode === 'custom';
-        update(value === 'custom' ? { colorMode: value, color: get().color || entry.color } : { colorMode: value });
+    ], 'colorMode', 'color', entry.color, get, update);
+}
+
+function appendColorChoiceItem(page, labelText, optionList, modeKey, colorKey, defaultColor, get, update) {
+    const customColorItem = buildColorPickerItem(Text.getHighlightCustomColor(), () => get()[colorKey] || defaultColor, (value) => {
+        update({ [colorKey]: value });
+    });
+    page.appendChild(buildRadioItem(labelText, optionList, () => get()[modeKey], (value) => {
+        const isCustom = get()[modeKey] === 'custom';
+        update(value === 'custom' ? { [modeKey]: value, [colorKey]: get()[colorKey] || defaultColor } : { [modeKey]: value });
         if (isCustom !== (value === 'custom')) {
             toggleItem(customColorItem, value === 'custom');
         }
     }));
     page.appendChild(customColorItem);
-    showItem(customColorItem, () => get().colorMode === 'custom');
-    page.appendChild(buildDivider());
-    page.appendChild(buildRadioItem(Text.getHighlightBackground(), [
+    showItem(customColorItem, () => get()[modeKey] === 'custom');
+}
+
+function buildBackgroundItem(get, onChange) {
+    return buildRadioItem(Text.getHighlightBackground(), [
         { value: 'none', label: Text.getBackgroundNone() },
         { value: 'default', label: Text.getBackgroundDefault() },
         { value: 'hatch', label: Text.getBackgroundHatch() },
-    ], () => get().background, (value) => {
-        update({ background: value });
-    }));
-    return page;
+    ], get, onChange);
 }
 
 function buildWordEntryList() {
@@ -555,7 +601,7 @@ function showWordEntryPage(value) {
 }
 
 function buildWordEntryPage(value) {
-    const page = buildHighlightEntryPage({ key: value, color: WORD_COLOR }, Config.getWordStyleMap, Config.setWordStyleMap, applyWordHighlight);
+    const page = buildWordStylePage({ key: value, color: WORD_COLOR });
     if (findWord(value).isDefault) {
         return page;
     }

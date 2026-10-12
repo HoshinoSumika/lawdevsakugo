@@ -11,6 +11,10 @@ export const Config = {
     setParenHighlight,
     getWordHighlight,
     setWordHighlight,
+    getParenSize,
+    setParenSize,
+    getParenBackground,
+    setParenBackground,
     getParenStyleMap,
     setParenStyleMap,
     getWordStyleMap,
@@ -37,6 +41,8 @@ const defaults = {
     'suppl-provision': false,
     'paren-highlight': false,
     'word-highlight': false,
+    'paren-size': 1,
+    'paren-background': 'none',
     'paren-style': {},
     'word-style': {},
     'word-list': [
@@ -90,6 +96,22 @@ function getWordHighlight() {
 
 function setWordHighlight(value) {
     write('word-highlight', value);
+}
+
+function getParenSize() {
+    return read('paren-size');
+}
+
+function setParenSize(value) {
+    write('paren-size', value);
+}
+
+function getParenBackground() {
+    return read('paren-background');
+}
+
+function setParenBackground(value) {
+    write('paren-background', value);
 }
 
 function getParenStyleMap() {

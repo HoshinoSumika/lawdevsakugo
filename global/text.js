@@ -25,6 +25,8 @@ export const Text = {
     getBackgroundNone,
     getBackgroundDefault,
     getBackgroundHatch,
+    getParenOverallPreference,
+    getParenDepthPreference,
     getParenDepth,
     getFontFamily,
     getFontSize,
@@ -171,6 +173,14 @@ function getBackgroundDefault() {
 
 function getBackgroundHatch() {
     return '網掛け';
+}
+
+function getParenOverallPreference() {
+    return '括弧全体の設定';
+}
+
+function getParenDepthPreference() {
+    return '括弧階層ごとの設定';
 }
 
 function getParenDepth(depth) {
