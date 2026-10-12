@@ -63,6 +63,13 @@ function init(api) {
         if (event.isComposing) {
             return;
         }
+        if (Device.isTouch()) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchInput.blur();
+            }
+            return;
+        }
         const itemList = getSelectableItems();
         if (event.key === 'ArrowDown' && itemList.length > 0) {
             event.preventDefault();
