@@ -12,8 +12,12 @@ window.addEventListener('load', () => {
 
 function init() {
     const content = document.querySelector('#content');
+    content.appendChild(buildLawLink('321CONSTITUTION', '日本国憲法'));
     content.appendChild(buildLawLink('129AC0000000089', '民法'));
     content.appendChild(buildLawLink('417AC0000000086', '会社法'));
+    content.appendChild(buildLawLink('408AC0000000109', '民事訴訟法'));
+    content.appendChild(buildLawLink('140AC0000000045', '刑法'));
+    content.appendChild(buildLawLink('323AC0000000131', '刑事訴訟法'));
     content.appendChild(buildLawLink('340AC0000000033', '所得税法'));
     content.appendChild(buildLawLink('340AC0000000034', '法人税法'));
 }
