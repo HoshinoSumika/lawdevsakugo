@@ -8,9 +8,9 @@ import { Dialog } from '/lib/dialog.js';
 import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
 
-const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
+const INSET_WIDTH = 'calc(100% - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
-const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
+const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
 
 let lawContent;
 let modal;

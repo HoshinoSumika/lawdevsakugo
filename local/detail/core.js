@@ -120,8 +120,8 @@ async function load() {
 }
 
 function markSentence(root) {
-    findSentenceParentSet(root).forEach(parent => {
-        Util.nest(parent, PAREN_PAIR, QUOTE_PAIR, 'paren');
+    root.querySelectorAll('.Sentence').forEach(sentence => {
+        Util.nest(sentence, PAREN_PAIR, QUOTE_PAIR, 'paren');
     });
     markWord(root);
 }

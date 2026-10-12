@@ -11,9 +11,10 @@ import { Util } from '/global/util.js';
 
 const SCROLL_DURATION = 800;
 const SCROLL_OFFSET = 12;
-const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
+const INSET_WIDTH = 'calc(100% - var(--size-offset) * 4)';
+const INSET_HEIGHT = 'calc(100dvh - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
-const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
+const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
 
 let api;
 let modal;
@@ -88,7 +89,7 @@ function applySize() {
     modal.setPlacement('center');
     modal.setWidth(MODAL_WIDTH);
     if (content.closest('.dialog-modal').getBoundingClientRect().width < MODAL_MAX_WIDTH) {
-        modal.setHeight(INSET_SIZE);
+        modal.setHeight(INSET_HEIGHT);
     }
 }
 

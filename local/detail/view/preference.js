@@ -11,16 +11,20 @@ import { Cache } from '/global/cache.js';
 import { Component } from '/global/component.js';
 import { Config } from '/global/config.js';
 import { Text } from '/global/text.js';
+import { Util } from '/global/util.js';
 
-const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
+const INSET_WIDTH = 'calc(100% - var(--size-offset) * 4)';
+const INSET_HEIGHT = 'calc(100dvh - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
-const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
+const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
 const SLIDE_DURATION = 200;
 const SLIDE_EASING = 'ease-out';
 const FADE_DURATION = 50;
 const CONTENT_WIDTH_STANDARD = 800;
 const CONTENT_WIDTH_WIDE = 1200;
 const EXPAND_DURATION = 200;
+const PAREN_PAIR = ['（', '）'];
+const QUOTE_PAIR = ['「', '」'];
 const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
 const WORD_COLOR = '#4169e1';
 const HIGHLIGHT_SIZE_MIN = 0.5;
@@ -30,6 +34,7 @@ const HIGHLIGHT_SIZE_STEP = 0.05;
 const BACKGROUND_DEFAULT = 'rgba(128, 128, 128, 0.2)';
 const BACKGROUND_CUSTOM_COLOR = '#e6e6e6';
 const HATCH_COLOR = 'rgba(128,128,128,0.2)';
+const PAREN_SCOPE_LIST = ['.content', '.preference-preview'];
 const HATCH_BACKGROUND = 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)';
 
 const styleMap = {};
@@ -61,7 +66,7 @@ function init(value) {
         return {
             key: String(depth),
             label: Text.getParenDepth(depth),
-            selector: isDeepest ? '.content .paren' : '.content .paren[data-depth="' + depth + '"]',
+            selector: buildParenSelector(isDeepest ? '' : '[data-depth="' + depth + '"]'),
             color,
         };
     });
@@ -127,13 +132,6 @@ function init(value) {
     mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), () => {
         showNextPage(Text.getAdvancedPreference(), advancedPage);
     }));
-    mainPage.appendChild(buildDivider());
-    mainPage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
-        showConfirmPage(Text.getCacheDelete(), Text.getCacheDeleteConfirm(), Text.getDelete(), deleteCache);
-    }));
-    mainPage.appendChild(buildActionItem(Text.getPreferenceClear(), () => {
-        showConfirmPage(Text.getPreferenceClear(), Text.getPreferenceClearConfirm(), Text.getClear(), clearPreference);
-    }));
 
     advancedPage = document.createElement('div');
     advancedPage.classList.add('preference-page');
@@ -144,6 +142,13 @@ function init(value) {
     ], Config.getContentWidth, (value) => {
         Config.setContentWidth(value);
         applyContentWidth(value);
+    }));
+    advancedPage.appendChild(buildDivider());
+    advancedPage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
+        showConfirmPage(Text.getCacheDelete(), Text.getCacheDeleteConfirm(), Text.getDelete(), deleteCache);
+    }));
+    advancedPage.appendChild(buildActionItem(Text.getPreferenceClear(), () => {
+        showConfirmPage(Text.getPreferenceClear(), Text.getPreferenceClearConfirm(), Text.getClear(), clearPreference);
     }));
 
     parenPage = buildParenPage();
@@ -185,7 +190,7 @@ function applySize() {
     modal.setPlacement('center');
     modal.setWidth(MODAL_WIDTH);
     if (content.closest('.dialog-modal').getBoundingClientRect().width < MODAL_MAX_WIDTH) {
-        modal.setHeight(INSET_SIZE);
+        modal.setHeight(INSET_HEIGHT);
     }
 }
 
@@ -320,13 +325,17 @@ function applyParenHighlight() {
         return;
     }
     const styleMap = Config.getParenStyleMap();
-    const ruleList = ['.content .paren { '
+    const ruleList = [buildParenSelector('') + ' { '
         + 'font-size: ' + Math.min(Config.getParenSize(), PAREN_SIZE_MAX) + 'em; '
         + 'background: ' + buildHighlightBackground(Config.getParenBackground()) + '; }'];
     parenEntryList.forEach(entry => {
         ruleList.push(entry.selector + ' { color: ' + buildHighlightColor(entry, readEntryStyle(styleMap, entry)) + '; }');
     });
     setStyle('paren-highlight', ruleList.join(' '));
+}
+
+function buildParenSelector(filter) {
+    return PAREN_SCOPE_LIST.map(scope => scope + ' .paren' + filter).join(', ');
 }
 
 function applyWordHighlight() {
@@ -445,6 +454,7 @@ function toggleItem(item, isShown) {
 function buildParenPage() {
     const page = document.createElement('div');
     page.classList.add('preference-page');
+    page.appendChild(buildParenPreview());
     page.appendChild(buildCaption(Text.getParenOverallPreference()));
     page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, PAREN_SIZE_MAX, HIGHLIGHT_SIZE_STEP, Config.getParenSize, formatHighlightSize, (value) => {
         Config.setParenSize(value);
@@ -467,6 +477,26 @@ function buildParenPage() {
         }));
     });
     return page;
+}
+
+function buildParenPreview() {
+    const title = document.createElement('span');
+    title.classList.add('ArticleTitle');
+    title.textContent = Text.getParenPreviewTitle();
+
+    const sentence = document.createElement('span');
+    sentence.classList.add('Sentence');
+    sentence.textContent = Text.getParenPreviewSentence();
+    Util.nest(sentence, PAREN_PAIR, QUOTE_PAIR, 'paren');
+
+    const paragraph = document.createElement('div');
+    paragraph.classList.add('Paragraph');
+    paragraph.append(title, '　', sentence);
+
+    const preview = document.createElement('div');
+    preview.classList.add('preference-preview');
+    preview.appendChild(paragraph);
+    return preview;
 }
 
 function buildWordStylePage(entry) {

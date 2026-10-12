@@ -28,6 +28,8 @@ export const Text = {
     getParenOverallPreference,
     getParenDepthPreference,
     getParenDepth,
+    getParenPreviewTitle,
+    getParenPreviewSentence,
     getFontFamily,
     getFontSize,
     getLineHeight,
@@ -185,6 +187,14 @@ function getParenDepthPreference() {
 
 function getParenDepth(depth) {
     return '第' + KANJI_NUMBER_LIST[depth] + '階層';
+}
+
+function getParenPreviewTitle() {
+    return '第百二十三条';
+}
+
+function getParenPreviewSentence() {
+    return 'これは、括弧の強調表示を確認するための例文（第一階層の括弧の内容（第二階層の括弧の内容（第三階層の括弧の内容（第四階層の括弧の内容を含む。）を含む。）を含む。）を含む。）である。';
 }
 
 function getFontFamily() {
