@@ -373,21 +373,29 @@ function showItem(item, get) {
 }
 
 function toggleItem(item, isShown) {
-    item.getAnimations().forEach(animation => animation.cancel());
+    const shiftList = Array.from(item.children);
+    for (let next = item.nextElementSibling; next; next = next.nextElementSibling) {
+        shiftList.push(next);
+    }
+    shiftList.forEach(element => {
+        element.getAnimations().forEach(animation => animation.cancel());
+    });
+
     modal.fitHeight(() => {
         item.style.display = isShown ? '' : 'none';
     });
 
     item.style.display = '';
     item.style.overflow = 'hidden';
-    const keyframeList = [
-        { height: '0px', minHeight: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 },
-        { height: item.offsetHeight + 'px', minHeight: '0px', opacity: 1 },
-    ];
-    const animation = item.animate(isShown ? keyframeList : keyframeList.reverse(), { duration: EXPAND_DURATION, easing: 'ease' });
-    animation.onfinish = () => {
+    const hidden = { transform: 'translateY(' + -item.offsetHeight + 'px)' };
+    const shown = { transform: 'translateY(0px)' };
+    const keyframeList = isShown ? [hidden, shown] : [shown, hidden];
+    const option = { duration: EXPAND_DURATION, easing: 'ease', fill: 'forwards' };
+    const animationList = shiftList.map(element => element.animate(keyframeList, option));
+    animationList[0].onfinish = () => {
         item.style.overflow = '';
         item.style.display = isShown ? '' : 'none';
+        animationList.forEach(animation => animation.cancel());
     };
 }
 
