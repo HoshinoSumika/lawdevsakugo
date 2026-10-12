@@ -15,6 +15,8 @@ export const Config = {
     setParenSize,
     getParenBackground,
     setParenBackground,
+    getVerticalAlign,
+    setVerticalAlign,
     getParenStyleMap,
     setParenStyleMap,
     getWordStyleMap,
@@ -42,7 +44,8 @@ const defaults = {
     'paren-highlight': false,
     'word-highlight': false,
     'paren-size': 1,
-    'paren-background': 'none',
+    'paren-background': 'default',
+    'vertical-align': 'middle',
     'paren-style': {},
     'word-style': {},
     'word-list': [
@@ -112,6 +115,14 @@ function getParenBackground() {
 
 function setParenBackground(value) {
     write('paren-background', value);
+}
+
+function getVerticalAlign() {
+    return read('vertical-align');
+}
+
+function setVerticalAlign(value) {
+    write('vertical-align', value);
 }
 
 function getParenStyleMap() {

@@ -39,16 +39,19 @@ export const Text = {
     getContentWidthStandard,
     getContentWidthWide,
     getContentWidthNone,
+    getVerticalAlign,
+    getVerticalAlignBottom,
+    getVerticalAlignMiddle,
+    getVerticalAlignTop,
     getStoragePreference,
     getPreferenceClear,
     getPreferenceClearConfirm,
     getPreferenceCleared,
-    getCacheDelete,
-    getCacheDeleteConfirm,
-    getCacheDeleted,
-    getCacheDeleteFailed,
+    getCacheClear,
+    getCacheClearConfirm,
+    getCacheCleared,
+    getCacheClearFailed,
     getClear,
-    getDelete,
     getSansSerif,
     getSerif,
     getLawIdMissing,
@@ -234,6 +237,22 @@ function getContentWidthNone() {
     return '無制限';
 }
 
+function getVerticalAlign() {
+    return '文字の配置（縦）';
+}
+
+function getVerticalAlignBottom() {
+    return '下';
+}
+
+function getVerticalAlignMiddle() {
+    return '中央';
+}
+
+function getVerticalAlignTop() {
+    return '上';
+}
+
 function getStoragePreference() {
     return 'データの管理';
 }
@@ -250,28 +269,24 @@ function getPreferenceCleared() {
     return '設定をクリアしました。';
 }
 
-function getCacheDelete() {
-    return 'キャッシュを削除';
+function getCacheClear() {
+    return 'キャッシュをクリア';
 }
 
-function getCacheDeleteConfirm() {
-    return '保存されているキャッシュをすべて削除します。よろしいですか？';
+function getCacheClearConfirm() {
+    return '保存されているキャッシュをすべてクリアします。よろしいですか？';
 }
 
-function getCacheDeleted() {
-    return 'キャッシュを削除しました。';
+function getCacheCleared() {
+    return 'キャッシュをクリアしました。';
 }
 
-function getCacheDeleteFailed() {
-    return 'キャッシュを削除できませんでした。';
+function getCacheClearFailed() {
+    return 'キャッシュをクリアできませんでした。';
 }
 
 function getClear() {
     return 'クリア';
-}
-
-function getDelete() {
-    return '削除';
 }
 
 function getSansSerif() {

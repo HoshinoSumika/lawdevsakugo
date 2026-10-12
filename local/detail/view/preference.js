@@ -29,12 +29,13 @@ const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
 const WORD_COLOR = '#4169e1';
 const HIGHLIGHT_SIZE_MIN = 0.5;
 const PAREN_SIZE_MAX = 1;
+const VERTICAL_ALIGN_RATIO_MAP = { bottom: 0.25, middle: 0.5, top: 0.75 };
+const EM_BOX_BOTTOM = -0.15;
 const WORD_SIZE_MAX = 1.5;
 const HIGHLIGHT_SIZE_STEP = 0.05;
 const BACKGROUND_DEFAULT = 'rgba(128, 128, 128, 0.2)';
 const BACKGROUND_CUSTOM_COLOR = '#e6e6e6';
 const HATCH_COLOR = 'rgba(128,128,128,0.2)';
-const PAREN_SCOPE_LIST = ['.content', '.preference-preview'];
 const HATCH_BACKGROUND = 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)';
 
 const styleMap = {};
@@ -55,8 +56,8 @@ let pageList = [];
 const wordEntryPageMap = new Map();
 
 let messagePreferenceCleared;
-let messageCacheDeleted;
-let messageCacheDeleteFailed;
+let messageCacheCleared;
+let messageCacheClearFailed;
 
 function init(value) {
     api = value;
@@ -67,7 +68,7 @@ function init(value) {
         return {
             key: String(depth),
             label: Text.getParenDepth(depth),
-            selector: buildParenSelector(isDeepest ? '' : '[data-depth="' + depth + '"]'),
+            selector: isDeepest ? '.content .paren' : '.content .paren[data-depth="' + depth + '"]',
             color,
         };
     });
@@ -75,8 +76,8 @@ function init(value) {
     applyAll();
 
     messagePreferenceCleared = Message.info(Text.getPreferenceCleared());
-    messageCacheDeleted = Message.info(Text.getCacheDeleted());
-    messageCacheDeleteFailed = Message.error(Text.getCacheDeleteFailed());
+    messageCacheCleared = Message.info(Text.getCacheCleared());
+    messageCacheClearFailed = Message.error(Text.getCacheClearFailed());
 
     mainPage = document.createElement('div');
     mainPage.classList.add('preference-page');
@@ -148,11 +149,20 @@ function init(value) {
         Config.setLetterSpacing(value);
         applyLetterSpacing(value);
     }));
+    typesettingPage.appendChild(buildRadioItem(Text.getVerticalAlign(), [
+        { value: 'top', label: Text.getVerticalAlignTop() },
+        { value: 'middle', label: Text.getVerticalAlignMiddle() },
+        { value: 'bottom', label: Text.getVerticalAlignBottom() },
+    ], Config.getVerticalAlign, (value) => {
+        Config.setVerticalAlign(value);
+        applyParenHighlight();
+        applyWordHighlight();
+    }));
 
     storagePage = document.createElement('div');
     storagePage.classList.add('preference-page');
-    storagePage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
-        showConfirmPage(Text.getCacheDelete(), Text.getCacheDeleteConfirm(), Text.getDelete(), deleteCache);
+    storagePage.appendChild(buildActionItem(Text.getCacheClear(), () => {
+        showConfirmPage(Text.getCacheClear(), Text.getCacheClearConfirm(), Text.getClear(), clearCache);
     }));
     storagePage.appendChild(buildActionItem(Text.getPreferenceClear(), () => {
         showConfirmPage(Text.getPreferenceClear(), Text.getPreferenceClearConfirm(), Text.getClear(), clearPreference);
@@ -290,14 +300,14 @@ function clearPreference() {
     messagePreferenceCleared.show();
 }
 
-async function deleteCache() {
+async function clearCache() {
     try {
         await Cache.deleteAll();
         showPreviousPage();
-        messageCacheDeleted.show();
+        messageCacheCleared.show();
     } catch (e) {
         console.error(e);
-        messageCacheDeleteFailed.show();
+        messageCacheClearFailed.show();
     }
 }
 
@@ -332,8 +342,10 @@ function applyParenHighlight() {
         return;
     }
     const styleMap = Config.getParenStyleMap();
-    const ruleList = [buildParenSelector('') + ' { '
-        + 'font-size: ' + Math.min(Config.getParenSize(), PAREN_SIZE_MAX) + 'em; '
+    const size = Math.min(Config.getParenSize(), PAREN_SIZE_MAX);
+    const ruleList = ['.content .paren { '
+        + 'font-size: ' + size + 'em; '
+        + 'vertical-align: ' + buildVerticalAlign(size) + '; '
         + 'background: ' + buildHighlightBackground(Config.getParenBackground()) + '; }'];
     parenEntryList.forEach(entry => {
         ruleList.push(entry.selector + ' { color: ' + buildHighlightColor(entry, readEntryStyle(styleMap, entry)) + '; }');
@@ -341,8 +353,9 @@ function applyParenHighlight() {
     setStyle('paren-highlight', ruleList.join(' '));
 }
 
-function buildParenSelector(filter) {
-    return PAREN_SCOPE_LIST.map(scope => scope + ' .paren' + filter).join(', ');
+function buildVerticalAlign(size) {
+    const ratio = VERTICAL_ALIGN_RATIO_MAP[Config.getVerticalAlign()] || 0;
+    return ((EM_BOX_BOTTOM + ratio) * (1 - size) / size).toFixed(4) + 'em';
 }
 
 function applyWordHighlight() {
@@ -354,9 +367,11 @@ function buildWordRule(entryList, styleMap) {
     return entryList.map(entry => {
         const entryStyle = readEntryStyle(styleMap, entry);
         const background = entryStyle.background === 'custom' ? entryStyle.backgroundColor || BACKGROUND_CUSTOM_COLOR : buildHighlightBackground(entryStyle.background);
+        const size = Math.min(entryStyle.size, WORD_SIZE_MAX);
         return entry.selector + ' { '
             + 'color: ' + buildHighlightColor(entry, entryStyle) + '; '
-            + 'font-size: ' + Math.min(entryStyle.size, WORD_SIZE_MAX) + 'em; '
+            + 'font-size: ' + size + 'em; '
+            + 'vertical-align: ' + buildVerticalAlign(size) + '; '
             + 'background: ' + background + '; }';
     }).join(' ');
 }
@@ -501,7 +516,7 @@ function buildParenPreview() {
     paragraph.append(title, '　', sentence);
 
     const preview = document.createElement('div');
-    preview.classList.add('preference-preview');
+    preview.classList.add('preference-preview', 'content');
     preview.appendChild(paragraph);
     return preview;
 }
