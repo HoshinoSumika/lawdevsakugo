@@ -32,13 +32,14 @@ export const Text = {
     getParenPreviewSentence,
     getFontFamily,
     getFontSize,
+    getTypesettingPreference,
     getLineHeight,
     getLetterSpacing,
     getContentWidth,
     getContentWidthStandard,
     getContentWidthWide,
     getContentWidthNone,
-    getAdvancedPreference,
+    getStoragePreference,
     getPreferenceClear,
     getPreferenceClearConfirm,
     getPreferenceCleared,
@@ -205,6 +206,10 @@ function getFontSize() {
     return '文字サイズ';
 }
 
+function getTypesettingPreference() {
+    return '組版の詳細設定';
+}
+
 function getLineHeight() {
     return '行間';
 }
@@ -229,8 +234,8 @@ function getContentWidthNone() {
     return '無制限';
 }
 
-function getAdvancedPreference() {
-    return '詳細設定';
+function getStoragePreference() {
+    return 'データの管理';
 }
 
 function getPreferenceClear() {

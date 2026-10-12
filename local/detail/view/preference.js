@@ -45,7 +45,8 @@ let modal;
 let api;
 let content;
 let mainPage;
-let advancedPage;
+let storagePage;
+let typesettingPage;
 let parenPage;
 let wordPage;
 let parenEntryList;
@@ -120,22 +121,17 @@ function init(value) {
         Config.setFontSize(value);
         applyFontSize(value);
     }));
-    mainPage.appendChild(buildSeekbarItem(Text.getLineHeight(), 1.6, 2.0, 0.05, Config.getLineHeight, formatLineHeight, (value) => {
-        Config.setLineHeight(value);
-        applyLineHeight(value);
-    }));
-    mainPage.appendChild(buildSeekbarItem(Text.getLetterSpacing(), 0, 0.2, 0.01, Config.getLetterSpacing, formatLetterSpacing, (value) => {
-        Config.setLetterSpacing(value);
-        applyLetterSpacing(value);
+    mainPage.appendChild(buildNavigationItem(Text.getTypesettingPreference(), () => {
+        showNextPage(Text.getTypesettingPreference(), typesettingPage);
     }));
     mainPage.appendChild(buildDivider());
-    mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), () => {
-        showNextPage(Text.getAdvancedPreference(), advancedPage);
+    mainPage.appendChild(buildNavigationItem(Text.getStoragePreference(), () => {
+        showNextPage(Text.getStoragePreference(), storagePage);
     }));
 
-    advancedPage = document.createElement('div');
-    advancedPage.classList.add('preference-page');
-    advancedPage.appendChild(buildRadioItem(Text.getContentWidth(), [
+    typesettingPage = document.createElement('div');
+    typesettingPage.classList.add('preference-page');
+    typesettingPage.appendChild(buildRadioItem(Text.getContentWidth(), [
         { value: CONTENT_WIDTH_STANDARD, label: Text.getContentWidthStandard() },
         { value: CONTENT_WIDTH_WIDE, label: Text.getContentWidthWide() },
         { value: 0, label: Text.getContentWidthNone() },
@@ -143,11 +139,22 @@ function init(value) {
         Config.setContentWidth(value);
         applyContentWidth(value);
     }));
-    advancedPage.appendChild(buildDivider());
-    advancedPage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
+    typesettingPage.appendChild(buildDivider());
+    typesettingPage.appendChild(buildSeekbarItem(Text.getLineHeight(), 1.6, 2.0, 0.05, Config.getLineHeight, formatLineHeight, (value) => {
+        Config.setLineHeight(value);
+        applyLineHeight(value);
+    }));
+    typesettingPage.appendChild(buildSeekbarItem(Text.getLetterSpacing(), 0, 0.2, 0.01, Config.getLetterSpacing, formatLetterSpacing, (value) => {
+        Config.setLetterSpacing(value);
+        applyLetterSpacing(value);
+    }));
+
+    storagePage = document.createElement('div');
+    storagePage.classList.add('preference-page');
+    storagePage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
         showConfirmPage(Text.getCacheDelete(), Text.getCacheDeleteConfirm(), Text.getDelete(), deleteCache);
     }));
-    advancedPage.appendChild(buildActionItem(Text.getPreferenceClear(), () => {
+    storagePage.appendChild(buildActionItem(Text.getPreferenceClear(), () => {
         showConfirmPage(Text.getPreferenceClear(), Text.getPreferenceClearConfirm(), Text.getClear(), clearPreference);
     }));
 
