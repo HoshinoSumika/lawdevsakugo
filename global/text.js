@@ -131,11 +131,11 @@ function getWordRemove() {
 }
 
 function getExclusion() {
-    return '除外する語句';
+    return '除外';
 }
 
 function getExclusionAdd() {
-    return '除外する語句を追加';
+    return '除外語句を追加';
 }
 
 function getAdd() {
