@@ -2,6 +2,7 @@ export const Util = {
     wrap,
     unwrap,
     mark,
+    nest,
     scroll,
     date,
 };
@@ -86,7 +87,7 @@ function unwrap(element, className) {
     return element;
 }
 
-function mark(element, value, className, ignoreSelector) {
+function mark(element, value, className, ignoreSelector, exclusionList = []) {
     if (!value) {
         return element;
     }
@@ -100,7 +101,12 @@ function mark(element, value, className, ignoreSelector) {
         });
     }
 
-    wrap(element, findRangeList(element.textContent, value), className);
+    const text = element.textContent;
+    const exclusionRangeList = exclusionList.flatMap(exclusion => findRangeList(text, exclusion));
+    const rangeList = findRangeList(text, value).filter(range => {
+        return !exclusionRangeList.some(exclusionRange => exclusionRange.start <= range.start && range.end <= exclusionRange.end);
+    });
+    wrap(element, rangeList, className);
 
     ignoredList.forEach(({ placeholder, node }) => {
         placeholder.replaceWith(node);
@@ -117,6 +123,105 @@ function findRangeList(text, value) {
         start = text.indexOf(value, end);
     }
     return rangeList;
+}
+
+function nest(element, pair, quote, className) {
+    const owner = element.ownerDocument;
+    const textNodeList = [];
+    collectTextNodes(element, textNodeList);
+
+    const text = textNodeList.map(textNode => textNode.data).join('');
+    const depthList = findDepthList(text, pair, quote);
+
+    let offset = 0;
+    textNodeList.forEach(textNode => {
+        const length = textNode.data.length;
+        if (depthList.subarray(offset, offset + length).every(depth => depth === 0)) {
+            offset = offset + length;
+            return;
+        }
+
+        const fragment = owner.createDocumentFragment();
+        let start = 0;
+        while (start < length) {
+            const depth = depthList[offset + start];
+            let end = start + 1;
+            while (end < length && depthList[offset + end] === depth) {
+                end = end + 1;
+            }
+            const value = textNode.data.slice(start, end);
+            if (depth === 0) {
+                fragment.append(value);
+            } else {
+                const wrapper = owner.createElement('span');
+                wrapper.className = className;
+                wrapper.dataset.depth = depth;
+                wrapper.textContent = value;
+                fragment.appendChild(wrapper);
+            }
+            start = end;
+        }
+        textNode.replaceWith(fragment);
+        offset = offset + length;
+    });
+    return element;
+}
+
+function findDepthList(text, pair, quote) {
+    const [open, close] = pair;
+    const [quoteOpen, quoteClose] = quote;
+    const ignoredList = new Uint8Array(text.length);
+
+    let quoteStart = -1;
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] === quoteOpen && quoteStart < 0) {
+            quoteStart = i;
+        } else if (text[i] === quoteClose && quoteStart >= 0) {
+            const openList = [];
+            for (let j = quoteStart + 1; j < i; j++) {
+                if (text[j] === open) {
+                    openList.push(j);
+                } else if (text[j] === close) {
+                    if (openList.length > 0) {
+                        openList.pop();
+                    } else {
+                        ignoredList[j] = 1;
+                    }
+                }
+            }
+            openList.forEach(j => {
+                ignoredList[j] = 1;
+            });
+            quoteStart = -1;
+        }
+    }
+
+    const edgeList = new Int8Array(text.length);
+    const openList = [];
+    for (let i = 0; i < text.length; i++) {
+        if (ignoredList[i]) {
+            continue;
+        }
+        if (text[i] === open) {
+            openList.push(i);
+        } else if (text[i] === close && openList.length > 0) {
+            edgeList[openList.pop()] = 1;
+            edgeList[i] = -1;
+        }
+    }
+
+    const depthList = new Uint16Array(text.length);
+    let depth = 0;
+    for (let i = 0; i < text.length; i++) {
+        if (edgeList[i] === 1) {
+            depth = depth + 1;
+        }
+        depthList[i] = depth;
+        if (edgeList[i] === -1) {
+            depth = depth - 1;
+        }
+    }
+    return depthList;
 }
 
 function scroll(container, toY, duration) {

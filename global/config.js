@@ -7,6 +7,16 @@ export const Config = {
     setToc,
     getSupplProvision,
     setSupplProvision,
+    getParenHighlight,
+    setParenHighlight,
+    getWordHighlight,
+    setWordHighlight,
+    getParenStyleMap,
+    setParenStyleMap,
+    getWordStyleMap,
+    setWordStyleMap,
+    getWordList,
+    setWordList,
     getFontFamily,
     setFontFamily,
     getFontSize,
@@ -27,6 +37,16 @@ const prefix = 'config-';
 const defaults = {
     'toc': false,
     'suppl-provision': false,
+    'paren-highlight': false,
+    'word-highlight': false,
+    'paren-style': {},
+    'word-style': {},
+    'word-list': [
+        { value: '及び', exclusionList: [], isDefault: true },
+        { value: '並びに', exclusionList: [], isDefault: true },
+        { value: '又は', exclusionList: [], isDefault: true },
+        { value: '若しくは', exclusionList: [], isDefault: true },
+    ],
     'font-family': 'sans-serif',
     'font-size': 16,
     'line-height': 1.8,
@@ -57,6 +77,46 @@ function getSupplProvision() {
 
 function setSupplProvision(value) {
     write('suppl-provision', value);
+}
+
+function getParenHighlight() {
+    return read('paren-highlight');
+}
+
+function setParenHighlight(value) {
+    write('paren-highlight', value);
+}
+
+function getWordHighlight() {
+    return read('word-highlight');
+}
+
+function setWordHighlight(value) {
+    write('word-highlight', value);
+}
+
+function getParenStyleMap() {
+    return read('paren-style');
+}
+
+function setParenStyleMap(value) {
+    write('paren-style', value);
+}
+
+function getWordStyleMap() {
+    return read('word-style');
+}
+
+function setWordStyleMap(value) {
+    write('word-style', value);
+}
+
+function getWordList() {
+    return read('word-list');
+}
+
+function setWordList(value) {
+    write('word-list', value);
 }
 
 function getFontFamily() {

@@ -16,22 +16,52 @@ const INSET_SIZE = 'calc(100% - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_SIZE + ')';
 const SLIDE_DURATION = 200;
+const EXPAND_DURATION = 200;
+const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
+const WORD_COLOR = '#4169e1';
+const HIGHLIGHT_SIZE_MIN = 0.5;
+const HIGHLIGHT_SIZE_MAX = 1.5;
+const HIGHLIGHT_SIZE_STEP = 0.05;
+const HATCH_COLOR = 'rgba(128,128,128,0.2)';
+const BACKGROUND_MAP = {
+    none: 'none',
+    fill: 'color-mix(in srgb, currentColor 15%, transparent)',
+    hatch: 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)',
+};
 
 const styleMap = {};
 const style = document.createElement('style');
 const refreshList = [];
 
 let modal;
+let api;
 let content;
 let mainPage;
 let advancedPage;
-let mainScrollTop = 0;
+let parenPage;
+let wordPage;
+let parenEntryList;
+let pageList = [];
+
+const wordEntryPageMap = new Map();
 
 let messagePreferenceCleared;
 let messageCacheDeleted;
 let messageCacheDeleteFailed;
 
-function init() {
+function init(value) {
+    api = value;
+
+    parenEntryList = PAREN_COLOR_LIST.map((color, index) => {
+        const depth = index + 1;
+        const isDeepest = depth === PAREN_COLOR_LIST.length;
+        return {
+            key: String(depth),
+            label: Text.getParenDepth(depth),
+            selector: isDeepest ? '.content .paren' : '.content .paren[data-depth="' + depth + '"]',
+            color,
+        };
+    });
     document.head.appendChild(style);
     applyAll();
 
@@ -49,6 +79,27 @@ function init() {
         Config.setSupplProvision(value);
         applySupplProvision(value);
     }));
+    mainPage.appendChild(buildDivider());
+    const parenNavigationItem = buildNavigationItem(Text.getParenHighlightPreference(), () => {
+        showNextPage(Text.getParenHighlightPreference(), parenPage);
+    });
+    const wordNavigationItem = buildNavigationItem(Text.getWordHighlightPreference(), () => {
+        showNextPage(Text.getWordHighlightPreference(), wordPage);
+    });
+    mainPage.appendChild(buildSwitchItem(Text.getParenHighlight(), Config.getParenHighlight, (value) => {
+        Config.setParenHighlight(value);
+        applyParenHighlight();
+        toggleItem(parenNavigationItem, value);
+    }));
+    mainPage.appendChild(parenNavigationItem);
+    mainPage.appendChild(buildSwitchItem(Text.getWordHighlight(), Config.getWordHighlight, (value) => {
+        Config.setWordHighlight(value);
+        applyWordHighlight();
+        toggleItem(wordNavigationItem, value);
+    }));
+    mainPage.appendChild(wordNavigationItem);
+    showItem(parenNavigationItem, Config.getParenHighlight);
+    showItem(wordNavigationItem, Config.getWordHighlight);
     mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildRadioItem(Text.getFontFamily(), [
         { value: 'sans-serif', label: Text.getSansSerif() },
@@ -71,7 +122,7 @@ function init() {
     }));
     mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildNavigationItem(Text.getAdvancedPreference(), () => {
-        showSubPage(Text.getAdvancedPreference(), advancedPage);
+        showNextPage(Text.getAdvancedPreference(), advancedPage);
     }));
     mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildActionItem(Text.getCacheDelete(), () => {
@@ -92,6 +143,11 @@ function init() {
         applyWidthLimit(Config.getWidthLimit(), value);
     }));
 
+    parenPage = buildHighlightPage(parenEntryList, Config.getParenStyleMap, Config.setParenStyleMap, applyParenHighlight);
+    wordPage = document.createElement('div');
+    wordPage.classList.add('preference-page');
+    renderWordPage();
+
     content = document.createElement('div');
     content.classList.add('preference-content');
     content.appendChild(mainPage);
@@ -108,8 +164,8 @@ function init() {
 
 function show() {
     applySize();
-    modal.setTitle(Text.getPreference());
-    modal.disableBackButton();
+    pageList = [{ title: Text.getPreference(), page: mainPage, scrollTop: 0 }];
+    renderTitle();
     modal.clearNav();
     modal.fitHeight(() => {
         content.replaceChildren(mainPage);
@@ -130,19 +186,30 @@ function applySize() {
     }
 }
 
-function showMainPage() {
-    modal.setTitle(Text.getPreference());
-    modal.disableBackButton();
-    modal.clearNav();
-    switchPage(mainPage, mainScrollTop, 100);
+function renderTitle() {
+    modal.setTitle(pageList[pageList.length - 1].title);
+    if (pageList.length > 1) {
+        modal.enableBackButton(showPreviousPage);
+    } else {
+        modal.disableBackButton();
+    }
 }
 
-function showSubPage(title, page) {
-    mainScrollTop = content.closest('.dialog-scroll').scrollTop;
+function showNextPage(title, page) {
+    pageList[pageList.length - 1].scrollTop = content.closest('.dialog-scroll').scrollTop;
+    pageList.push({ title, page, scrollTop: 0 });
 
-    modal.setTitle(title);
-    modal.enableBackButton(showMainPage);
+    renderTitle();
     switchPage(page, 0, -100);
+}
+
+function showPreviousPage() {
+    pageList.pop();
+    const current = pageList[pageList.length - 1];
+
+    renderTitle();
+    modal.clearNav();
+    switchPage(current.page, current.scrollTop, 100);
 }
 
 function switchPage(page, scrollTop, shift) {
@@ -183,22 +250,25 @@ function showConfirmPage(title, text, actionLabel, onConfirm) {
     page.textContent = text;
 
     modal.addRightButton(actionLabel, onConfirm);
-    showSubPage(title, page);
+    showNextPage(title, page);
 }
 
 function clearPreference() {
     Config.clear();
     applyAll();
     refreshList.forEach(refresh => refresh());
-    mainScrollTop = 0;
-    showMainPage();
+    wordEntryPageMap.clear();
+    renderWordPage();
+    api.onWordChange();
+    pageList[0].scrollTop = 0;
+    showPreviousPage();
     messagePreferenceCleared.show();
 }
 
 async function deleteCache() {
     try {
         await Cache.deleteAll();
-        showMainPage();
+        showPreviousPage();
         messageCacheDeleted.show();
     } catch (e) {
         console.error(e);
@@ -214,6 +284,8 @@ function setStyle(name, text) {
 function applyAll() {
     applyToc(Config.getToc());
     applySupplProvision(Config.getSupplProvision());
+    applyParenHighlight();
+    applyWordHighlight();
     applyFontFamily(Config.getFontFamily());
     applyFontSize(Config.getFontSize());
     applyLineHeight(Config.getLineHeight());
@@ -227,6 +299,30 @@ function applyToc(isShown) {
 
 function applySupplProvision(isShown) {
     setStyle('suppl-provision', isShown ? '' : '.content .LawBody > .SupplProvision { display: none; }');
+}
+
+function applyParenHighlight() {
+    const isEnabled = Config.getParenHighlight();
+    setStyle('paren-highlight', isEnabled ? buildHighlightRule(parenEntryList, Config.getParenStyleMap()) : '');
+}
+
+function applyWordHighlight() {
+    const isEnabled = Config.getWordHighlight();
+    setStyle('word-highlight', isEnabled ? buildHighlightRule(buildWordEntryList(), Config.getWordStyleMap()) : '');
+}
+
+function buildHighlightRule(entryList, styleMap) {
+    return entryList.map(entry => {
+        const entryStyle = readEntryStyle(styleMap, entry);
+        return entry.selector + ' { '
+            + 'color: ' + (entryStyle.color || entry.color) + '; '
+            + 'font-size: ' + entryStyle.size + 'em; '
+            + 'background: ' + BACKGROUND_MAP[entryStyle.background] + '; }';
+    }).join(' ');
+}
+
+function readEntryStyle(styleMap, entry) {
+    return Object.assign({ size: 1, color: '', background: 'none' }, styleMap[entry.key]);
 }
 
 function applyFontFamily(value) {
@@ -263,6 +359,241 @@ function formatLetterSpacing(value) {
 
 function formatWidthLimitSize(value) {
     return value + 'px';
+}
+
+function formatHighlightSize(value) {
+    return value.toFixed(2) + 'em';
+}
+
+function showItem(item, get) {
+    item.style.display = get() ? '' : 'none';
+    refreshList.push(() => {
+        item.style.display = get() ? '' : 'none';
+    });
+}
+
+function toggleItem(item, isShown) {
+    item.getAnimations().forEach(animation => animation.cancel());
+    modal.fitHeight(() => {
+        item.style.display = isShown ? '' : 'none';
+    });
+
+    item.style.display = '';
+    item.style.overflow = 'hidden';
+    const keyframeList = [
+        { height: '0px', minHeight: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 },
+        { height: item.offsetHeight + 'px', minHeight: '0px', opacity: 1 },
+    ];
+    const animation = item.animate(isShown ? keyframeList : keyframeList.reverse(), { duration: EXPAND_DURATION, easing: 'ease' });
+    animation.onfinish = () => {
+        item.style.overflow = '';
+        item.style.display = isShown ? '' : 'none';
+    };
+}
+
+function buildHighlightPage(entryList, getMap, setMap, apply) {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+
+    entryList.forEach(entry => {
+        const entryPage = buildHighlightEntryPage(entry, getMap, setMap, apply);
+        page.appendChild(buildNavigationItem(entry.label, () => {
+            showNextPage(entry.label, entryPage);
+        }));
+    });
+    return page;
+}
+
+function buildHighlightEntryPage(entry, getMap, setMap, apply) {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+
+    const get = () => readEntryStyle(getMap(), entry);
+    const update = (change) => {
+        const styleMap = Object.assign({}, getMap());
+        styleMap[entry.key] = Object.assign(get(), change);
+        setMap(styleMap);
+        apply();
+    };
+
+    page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, HIGHLIGHT_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
+        update({ size: value });
+    }));
+    page.appendChild(buildColorItem(Text.getHighlightColor(), entry.color, () => get().color, (value) => {
+        update({ color: value });
+    }));
+    page.appendChild(buildRadioItem(Text.getHighlightBackground(), [
+        { value: 'none', label: Text.getBackgroundNone() },
+        { value: 'fill', label: Text.getBackgroundFill() },
+        { value: 'hatch', label: Text.getBackgroundHatch() },
+    ], () => get().background, (value) => {
+        update({ background: value });
+    }));
+    return page;
+}
+
+function buildWordEntryList() {
+    return Config.getWordList().map((word, index) => ({
+        key: word.value,
+        selector: '.content .word-' + index,
+        color: WORD_COLOR,
+    }));
+}
+
+function findWord(value) {
+    return Config.getWordList().find(word => word.value === value);
+}
+
+function addWord(value) {
+    if (findWord(value)) {
+        return;
+    }
+    Config.setWordList(Config.getWordList().concat({ value, exclusionList: [] }));
+    changeWord();
+}
+
+function updateWord(value, change) {
+    Config.setWordList(Config.getWordList().map(word => word.value === value ? Object.assign({}, word, change) : word));
+    changeWord();
+}
+
+function removeWord(value) {
+    Config.setWordList(Config.getWordList().filter(word => word.value !== value));
+    const wordStyleMap = Object.assign({}, Config.getWordStyleMap());
+    delete wordStyleMap[value];
+    Config.setWordStyleMap(wordStyleMap);
+    wordEntryPageMap.delete(value);
+    changeWord();
+}
+
+function changeWord() {
+    renderWordPage();
+    applyWordHighlight();
+    api.onWordChange();
+}
+
+function renderWordPage() {
+    wordPage.replaceChildren();
+    Config.getWordList().forEach(word => {
+        wordPage.appendChild(buildNavigationItem(word.value, () => {
+            showWordEntryPage(word.value);
+        }));
+    });
+    wordPage.appendChild(buildDivider());
+    wordPage.appendChild(buildNavigationItem(Text.getWordAdd(), () => {
+        showInputPage(Text.getWordAdd(), addWord);
+    }));
+}
+
+function showWordEntryPage(value) {
+    if (!wordEntryPageMap.has(value)) {
+        wordEntryPageMap.set(value, buildWordEntryPage(value));
+    }
+    showNextPage(value, wordEntryPageMap.get(value));
+}
+
+function buildWordEntryPage(value) {
+    const page = buildHighlightEntryPage({ key: value, color: WORD_COLOR }, Config.getWordStyleMap, Config.setWordStyleMap, applyWordHighlight);
+
+    const exclusionSection = document.createElement('div');
+    const renderExclusion = () => {
+        exclusionSection.replaceChildren(buildCaption(Text.getExclusion()));
+        findWord(value).exclusionList.forEach(exclusion => {
+            exclusionSection.appendChild(buildRemovableItem(exclusion, () => {
+                updateWord(value, { exclusionList: findWord(value).exclusionList.filter(item => item !== exclusion) });
+                modal.fitHeight(renderExclusion);
+            }));
+        });
+        exclusionSection.appendChild(buildNavigationItem(Text.getExclusionAdd(), () => {
+            showInputPage(Text.getExclusionAdd(), (exclusion) => {
+                const exclusionList = findWord(value).exclusionList;
+                if (exclusionList.includes(exclusion)) {
+                    return;
+                }
+                updateWord(value, { exclusionList: exclusionList.concat(exclusion) });
+                renderExclusion();
+            });
+        }));
+    };
+    renderExclusion();
+
+    page.appendChild(buildDivider());
+    page.appendChild(exclusionSection);
+    if (!findWord(value).isDefault) {
+        page.appendChild(buildDivider());
+        page.appendChild(buildActionItem(Text.getWordRemove(), () => {
+            removeWord(value);
+            showPreviousPage();
+        }));
+    }
+    return page;
+}
+
+function showInputPage(title, onSubmit) {
+    const input = document.createElement('input');
+    input.classList.add('preference-input');
+    input.type = 'text';
+
+    const page = document.createElement('div');
+    page.classList.add('preference-page', 'input');
+    page.appendChild(input);
+
+    let isSubmitted = false;
+    const submit = () => {
+        const value = input.value.trim();
+        if (isSubmitted || !value) {
+            return;
+        }
+        isSubmitted = true;
+        onSubmit(value);
+        showPreviousPage();
+    };
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) {
+            e.preventDefault();
+            submit();
+        }
+    });
+
+    modal.addRightButton(Text.getAdd(), submit);
+    showNextPage(title, page);
+    input.focus({ preventScroll: true });
+}
+
+function buildColorItem(labelText, defaultColor, get, onChange) {
+    const picker = Component.createColorPicker(get() || defaultColor, (next) => {
+        radio.setValue('custom');
+        onChange(next);
+    });
+
+    const radio = Component.createRadio([
+        { value: 'default', label: Text.getDefaultColor() },
+        { value: 'custom', label: Text.getCustomColor() },
+    ], get() ? 'custom' : 'default', (next) => {
+        if (next === 'default') {
+            picker.setValue(defaultColor);
+            onChange('');
+        } else {
+            onChange(picker.getValue());
+        }
+    });
+
+    refreshList.push(() => {
+        radio.setValue(get() ? 'custom' : 'default');
+        picker.setValue(get() || defaultColor);
+    });
+
+    const control = document.createElement('div');
+    control.classList.add('preference-color');
+    control.appendChild(radio.getElement());
+    control.appendChild(picker.getElement());
+
+    const item = document.createElement('div');
+    item.classList.add('preference-item');
+    item.appendChild(buildLabel(labelText));
+    item.appendChild(control);
+    return item;
 }
 
 function buildSwitchItem(labelText, get, onChange) {
@@ -344,6 +675,27 @@ function buildLabel(text) {
     label.classList.add('preference-label');
     label.textContent = text;
     return label;
+}
+
+function buildRemovableItem(labelText, onRemove) {
+    const button = document.createElement('button');
+    button.classList.add('preference-remove');
+    button.type = 'button';
+    button.innerHTML = Design.getIcon('close', 'var(--color-gray)');
+    button.addEventListener('click', onRemove);
+
+    const item = document.createElement('div');
+    item.classList.add('preference-item');
+    item.appendChild(buildLabel(labelText));
+    item.appendChild(button);
+    return item;
+}
+
+function buildCaption(text) {
+    const caption = document.createElement('div');
+    caption.classList.add('preference-caption');
+    caption.textContent = text;
+    return caption;
 }
 
 function buildDivider() {

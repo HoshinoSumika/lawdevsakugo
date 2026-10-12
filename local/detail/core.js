@@ -3,9 +3,11 @@ import { Dialog } from '/lib/dialog.js';
 import { Flex } from '/lib/flex.js';
 import { Message } from '/lib/message.js';
 
+import { Config } from '/global/config.js';
 import { Route } from '/global/route.js';
 import { Service } from '/global/service.js';
 import { Text } from '/global/text.js';
+import { Util } from '/global/util.js';
 
 import { History } from './view/history.js';
 import { Info } from './view/info.js';
@@ -13,6 +15,9 @@ import { Menu } from './view/menu.js';
 import { Nav } from './view/nav.js';
 import { Preference } from './view/preference.js';
 import { Search } from './view/search.js';
+
+const PAREN_PAIR = ['（', '）'];
+const QUOTE_PAIR = ['「', '」'];
 
 const contentEl = document.querySelector('#content');
 
@@ -26,6 +31,7 @@ const api = {
     onPreferenceSelect: () => Preference.show(),
     onRevisionSelect: (id) => move(id),
     onSearchSelect: () => Search.show(),
+    onWordChange: () => changeWord(),
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -61,7 +67,7 @@ async function init() {
     Info.init(api);
     Menu.init(api);
     Nav.init(api);
-    Preference.init();
+    Preference.init(api);
     Search.init(api);
 
     await load();
@@ -101,11 +107,39 @@ async function load() {
     messageMissingId.hide();
     messageLoadError.hide();
 
-    contentEl.innerHTML = law;
+    const template = document.createElement('template');
+    template.innerHTML = law;
+    markSentence(template.content);
+    contentEl.replaceChildren(template.content);
 
     const title = contentEl.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
     document.title = title;
     Nav.setTitle(title);
 
     messageLoading.hide();
+}
+
+function markSentence(root) {
+    findSentenceParentSet(root).forEach(parent => {
+        Util.nest(parent, PAREN_PAIR, QUOTE_PAIR, 'paren');
+    });
+    markWord(root);
+}
+
+function markWord(root) {
+    const wordList = Config.getWordList();
+    findSentenceParentSet(root).forEach(parent => {
+        wordList.forEach((word, index) => {
+            Util.mark(parent, word.value, 'word word-' + index, 'rt', word.exclusionList);
+        });
+    });
+}
+
+function changeWord() {
+    Util.unwrap(contentEl, 'word');
+    markWord(contentEl);
+}
+
+function findSentenceParentSet(root) {
+    return new Set(Array.from(root.querySelectorAll('.Sentence'), sentence => sentence.parentElement));
 }

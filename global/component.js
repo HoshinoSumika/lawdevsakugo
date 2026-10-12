@@ -2,6 +2,7 @@ export const Component = {
     createSwitch,
     createRadio,
     createSeekbar,
+    createColorPicker,
 };
 
 const SWITCH_WIDTH = 34;
@@ -23,6 +24,8 @@ const SEEKBAR_HEIGHT = 24;
 const SEEKBAR_TRACK_HEIGHT = 2;
 const SEEKBAR_THUMB_SIZE = 16;
 const SEEKBAR_THUMB_PRESSED_SCALE = 1.25;
+
+const COLOR_PICKER_SIZE = 28;
 
 function createSwitch(value, onChange) {
     let current = value;
@@ -322,5 +325,55 @@ function createSeekbar(min, max, step, value, onChange) {
     };
 
     api.setValue(current);
+    return api;
+}
+
+function createColorPicker(value, onChange) {
+    let current = value;
+
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.style.position = 'absolute';
+    input.style.inset = '0px';
+    input.style.width = '100%';
+    input.style.height = '100%';
+    input.style.padding = '0px';
+    input.style.cursor = 'pointer';
+    input.style.opacity = '0';
+    input.style.border = 'none';
+
+    const picker = document.createElement('div');
+    picker.className = 'component-color-picker';
+    picker.style.position = 'relative';
+    picker.style.flexShrink = '0';
+    picker.style.width = COLOR_PICKER_SIZE + 'px';
+    picker.style.height = COLOR_PICKER_SIZE + 'px';
+    picker.style.border = '1px solid var(--color-border)';
+    picker.style.borderRadius = '50%';
+    picker.appendChild(input);
+
+    const render = () => {
+        input.value = current;
+        picker.style.backgroundColor = current;
+    };
+
+    const api = {};
+
+    api.getElement = () => picker;
+
+    api.getValue = () => current;
+
+    api.setValue = (next) => {
+        current = next;
+        render();
+    };
+
+    input.addEventListener('input', () => {
+        current = input.value;
+        render();
+        onChange(current);
+    });
+
+    render();
     return api;
 }

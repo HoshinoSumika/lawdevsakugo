@@ -7,6 +7,23 @@ export const Text = {
     getPreference,
     getShowToc,
     getShowSupplProvision,
+    getParenHighlight,
+    getWordHighlight,
+    getParenHighlightPreference,
+    getWordHighlightPreference,
+    getWordAdd,
+    getWordRemove,
+    getExclusion,
+    getExclusionAdd,
+    getAdd,
+    getHighlightColor,
+    getHighlightBackground,
+    getDefaultColor,
+    getCustomColor,
+    getBackgroundNone,
+    getBackgroundFill,
+    getBackgroundHatch,
+    getParenDepth,
     getFontFamily,
     getFontSize,
     getLineHeight,
@@ -46,6 +63,8 @@ export const Text = {
     getSearchLimit,
 };
 
+const KANJI_NUMBER_LIST = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+
 function getLoading() {
     return '読み込み中';
 }
@@ -76,6 +95,74 @@ function getShowToc() {
 
 function getShowSupplProvision() {
     return '附則を表示';
+}
+
+function getParenHighlight() {
+    return '括弧を強調表示';
+}
+
+function getWordHighlight() {
+    return '語句を強調表示';
+}
+
+function getParenHighlightPreference() {
+    return '括弧の強調表示の詳細設定';
+}
+
+function getWordHighlightPreference() {
+    return '語句の強調表示の詳細設定';
+}
+
+function getWordAdd() {
+    return '語句を追加';
+}
+
+function getWordRemove() {
+    return '語句を削除';
+}
+
+function getExclusion() {
+    return '除外する語句';
+}
+
+function getExclusionAdd() {
+    return '除外する語句を追加';
+}
+
+function getAdd() {
+    return '追加';
+}
+
+function getHighlightColor() {
+    return '色';
+}
+
+function getHighlightBackground() {
+    return '背景';
+}
+
+function getDefaultColor() {
+    return '既定';
+}
+
+function getCustomColor() {
+    return 'カスタム';
+}
+
+function getBackgroundNone() {
+    return 'なし';
+}
+
+function getBackgroundFill() {
+    return '塗り';
+}
+
+function getBackgroundHatch() {
+    return '網掛け';
+}
+
+function getParenDepth(depth) {
+    return '第' + KANJI_NUMBER_LIST[depth] + '階層';
 }
 
 function getFontFamily() {
