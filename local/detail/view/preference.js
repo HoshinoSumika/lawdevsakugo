@@ -23,6 +23,7 @@ const FADE_DURATION = 50;
 const CONTENT_WIDTH_STANDARD = 800;
 const CONTENT_WIDTH_WIDE = 1200;
 const EXPAND_DURATION = 200;
+const PARAGRAPH_SPACING_WIDE = 8;
 const PAREN_PAIR = ['（', '）'];
 const QUOTE_PAIR = ['「', '」'];
 const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
@@ -147,6 +148,13 @@ function init(value) {
     typesettingPage.appendChild(buildSeekbarItem(Text.getLetterSpacing(), 0, 0.2, 0.01, Config.getLetterSpacing, formatLetterSpacing, (value) => {
         Config.setLetterSpacing(value);
         applyLetterSpacing(value);
+    }));
+    typesettingPage.appendChild(buildRadioItem(Text.getParagraphSpacing(), [
+        { value: 'standard', label: Text.getParagraphSpacingStandard() },
+        { value: 'wide', label: Text.getParagraphSpacingWide() },
+    ], Config.getParagraphSpacing, (value) => {
+        Config.setParagraphSpacing(value);
+        applyParagraphSpacing(value);
     }));
     typesettingPage.appendChild(buildRadioItem(Text.getVerticalAlign(), [
         { value: 'top', label: Text.getVerticalAlignTop() },
@@ -323,6 +331,7 @@ function applyAll() {
     applyFontFamily(Config.getFontFamily());
     applyFontSize(Config.getFontSize());
     applyLineHeight(Config.getLineHeight());
+    applyParagraphSpacing(Config.getParagraphSpacing());
     applyLetterSpacing(Config.getLetterSpacing());
     applyContentWidth(Config.getContentWidth());
 }
@@ -438,6 +447,18 @@ function applyFontSize(value) {
 
 function applyLineHeight(value) {
     setStyle('line-height', '.content { line-height: ' + value + '; }');
+}
+
+function applyParagraphSpacing(value) {
+    if (value !== 'wide') {
+        setStyle('paragraph-spacing', '');
+        return;
+    }
+    const lawMargin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--law-margin'));
+    setStyle('paragraph-spacing', '.content { --law-margin: ' + (lawMargin + PARAGRAPH_SPACING_WIDE) + 'px; } '
+        + '.content .Paragraph + .Paragraph, .content .ArticleCaption + .Paragraph, .content .ParagraphCaption + .Paragraph, '
+        + '.content .Item, .content .Subitem1, .content .Subitem2, .content .Subitem3, .content .Subitem4, .content .Subitem5 { '
+        + 'margin-top: ' + PARAGRAPH_SPACING_WIDE + 'px; }');
 }
 
 function applyLetterSpacing(value) {

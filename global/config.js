@@ -31,6 +31,8 @@ export const Config = {
     setFontSize,
     getLineHeight,
     setLineHeight,
+    getParagraphSpacing,
+    setParagraphSpacing,
     getLetterSpacing,
     setLetterSpacing,
     getContentWidth,
@@ -60,6 +62,7 @@ const defaults = {
     'font-family': 'sans-serif',
     'font-size': 16,
     'line-height': 1.8,
+    'paragraph-spacing': 'standard',
     'letter-spacing': 0,
     'content-width': 800,
 };
@@ -182,6 +185,14 @@ function getLineHeight() {
 
 function setLineHeight(value) {
     write('line-height', value);
+}
+
+function getParagraphSpacing() {
+    return read('paragraph-spacing');
+}
+
+function setParagraphSpacing(value) {
+    write('paragraph-spacing', value);
 }
 
 function getLetterSpacing() {

@@ -45,6 +45,9 @@ export const Text = {
     getBold,
     getItalic,
     getLineHeight,
+    getParagraphSpacing,
+    getParagraphSpacingStandard,
+    getParagraphSpacingWide,
     getLetterSpacing,
     getContentWidth,
     getContentWidthStandard,
@@ -270,6 +273,18 @@ function getItalic() {
 
 function getLineHeight() {
     return '行間';
+}
+
+function getParagraphSpacing() {
+    return '段落の間隔';
+}
+
+function getParagraphSpacingStandard() {
+    return '標準';
+}
+
+function getParagraphSpacingWide() {
+    return '広い';
 }
 
 function getLetterSpacing() {
