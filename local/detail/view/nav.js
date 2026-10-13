@@ -11,11 +11,16 @@ function init(api) {
     const nav = document.createElement('nav');
     nav.classList.add('nav');
 
-    title = document.createElement('div');
-    title.classList.add('nav-title');
+    title = document.createElement('span');
+    title.classList.add('nav-title-text');
+    title.addEventListener('click', api.onInfoSelect);
+
+    const titleArea = document.createElement('div');
+    titleArea.classList.add('nav-title');
+    titleArea.appendChild(title);
 
     nav.appendChild(buildButton('menu', api.onMenuSelect));
-    nav.appendChild(title);
+    nav.appendChild(titleArea);
     nav.appendChild(buildButton('search', api.onSearchSelect));
 
     document.body.prepend(nav);

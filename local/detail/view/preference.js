@@ -611,9 +611,8 @@ function buildStructureHeadingEntryPage(entry) {
     }));
     appendHeadingColorItem(page, get, update);
     page.appendChild(buildDivider());
-    appendColorChoiceItem(page, Text.getHighlightBackground(), [
+    appendColorChoiceItem(page, Text.getBackgroundColor(), [
         { value: 'none', label: Text.getBackgroundNone() },
-        { value: 'default', label: Text.getBackgroundDefault() },
         { value: 'custom', label: Text.getCustomColor() },
     ], 'background', 'backgroundColor', BACKGROUND_CUSTOM_COLOR, get, update);
     return page;

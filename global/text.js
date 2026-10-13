@@ -19,6 +19,7 @@ export const Text = {
     getHighlightColor,
     getHighlightColorNone,
     getHighlightBackground,
+    getBackgroundColor,
     getDefaultColor,
     getCustomColor,
     getHighlightCustomColor,
@@ -169,6 +170,10 @@ function getHighlightColorNone() {
 
 function getHighlightBackground() {
     return '背景';
+}
+
+function getBackgroundColor() {
+    return '背景の色';
 }
 
 function getDefaultColor() {
