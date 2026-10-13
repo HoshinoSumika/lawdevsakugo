@@ -70,7 +70,7 @@ const defaults = {
     'letter-spacing': 0,
     'content-width': 800,
     'article-placement': 'default',
-    'single-paragraph-num': 'hidden',
+    'single-paragraph-num': 'shown',
 };
 
 function getDev() {
