@@ -17,7 +17,6 @@ export const Text = {
     getExclusionAdd,
     getAdd,
     getHighlightColor,
-    getHighlightColorNone,
     getHighlightBackground,
     getBackgroundColor,
     getDefaultColor,
@@ -178,10 +177,6 @@ function getHighlightColor() {
     return '文字の色';
 }
 
-function getHighlightColorNone() {
-    return 'なし';
-}
-
 function getHighlightBackground() {
     return '背景';
 }
@@ -199,7 +194,7 @@ function getCustomColor() {
 }
 
 function getHighlightCustomColor() {
-    return '指定色';
+    return '指定の色';
 }
 
 function getBackgroundNone() {

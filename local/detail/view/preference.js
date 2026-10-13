@@ -28,6 +28,7 @@ const PAREN_PAIR = ['（', '）'];
 const QUOTE_PAIR = ['「', '」'];
 const PAREN_COLOR_LIST = ['#ba55d3', '#3cb371', '#ff7f50', '#808080'];
 const WORD_COLOR = '#4169e1';
+const WORD_DEFAULT_STYLE = { isBold: false };
 const HIGHLIGHT_SIZE_MIN = 0.5;
 const PAREN_SIZE_MAX = 1;
 const VERTICAL_ALIGN_RATIO_MAP = { bottom: 0.25, middle: 0.5, top: 0.75 };
@@ -380,6 +381,7 @@ function buildWordRule(entryList, styleMap) {
         const entryStyle = readEntryStyle(styleMap, entry);
         const size = Math.min(entryStyle.size, WORD_SIZE_MAX);
         return entry.selector + ' { '
+            + buildFontDeclaration(entryStyle)
             + 'color: ' + buildHighlightColor(entry, entryStyle) + '; '
             + 'font-size: ' + size + 'em; '
             + 'vertical-align: ' + buildVerticalAlign(size) + '; '
@@ -404,10 +406,13 @@ function applyHeadingStyle() {
 
 function buildHeadingDeclaration(entryStyle) {
     const color = entryStyle.colorMode === 'custom' ? entryStyle.color || HEADING_COLOR : 'inherit';
+    return buildFontDeclaration(entryStyle) + 'color: ' + color + '; ';
+}
+
+function buildFontDeclaration(entryStyle) {
     return 'font-family: ' + entryStyle.fontFamily + '; '
         + 'font-weight: ' + (entryStyle.isBold ? 'bold' : 'normal') + '; '
-        + 'font-style: ' + (entryStyle.isItalic ? 'italic' : 'normal') + '; '
-        + 'color: ' + color + '; ';
+        + 'font-style: ' + (entryStyle.isItalic ? 'italic' : 'normal') + '; ';
 }
 
 function buildEntryBackground(entryStyle) {
@@ -418,13 +423,10 @@ function buildEntryBackground(entryStyle) {
 }
 
 function buildHighlightColor(entry, entryStyle) {
-    if (entryStyle.colorMode === 'none') {
-        return 'inherit';
-    }
     if (entryStyle.colorMode === 'custom') {
         return entryStyle.color || entry.color;
     }
-    return entry.color;
+    return 'inherit';
 }
 
 function buildHighlightBackground(background) {
@@ -438,7 +440,8 @@ function buildHighlightBackground(background) {
 }
 
 function readEntryStyle(styleMap, entry) {
-    return Object.assign({ fontFamily: 'inherit', isBold: true, isItalic: false, size: 1, colorMode: 'default', color: '', background: 'none', backgroundColor: '' }, styleMap[entry.key]);
+    const colorMode = entry.color ? 'custom' : 'default';
+    return Object.assign({ fontFamily: 'inherit', isBold: true, isItalic: false, size: 1, colorMode, color: entry.color || '', background: 'none', backgroundColor: '' }, entry.defaultStyle, styleMap[entry.key]);
 }
 
 function applyFontFamily(value) {
@@ -700,11 +703,11 @@ function buildStructureHeadingEntryPage(entry) {
 
     const { get, update } = bindEntryStyle(entry, Config.getHeadingStyleMap, Config.setHeadingStyleMap, applyHeadingStyle);
 
-    page.appendChild(buildHeadingFontFamilyItem(get, update));
-    appendHeadingDecorationItem(page, get, update);
+    page.appendChild(buildFontFamilyItem(get, update));
     page.appendChild(buildSeekbarItem(Text.getFontSize(), HEADING_SIZE_MIN, HEADING_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
         update({ size: value });
     }));
+    appendDecorationItem(page, get, update);
     appendHeadingColorItem(page, get, update);
     page.appendChild(buildDivider());
     appendColorChoiceItem(page, Text.getBackgroundColor(), [
@@ -720,13 +723,13 @@ function buildArticleHeadingPage(entry) {
 
     const { get, update } = bindEntryStyle(entry, Config.getHeadingStyleMap, Config.setHeadingStyleMap, applyHeadingStyle);
 
-    page.appendChild(buildHeadingFontFamilyItem(get, update));
-    appendHeadingDecorationItem(page, get, update);
+    page.appendChild(buildFontFamilyItem(get, update));
+    appendDecorationItem(page, get, update);
     appendHeadingColorItem(page, get, update);
     return page;
 }
 
-function appendHeadingDecorationItem(page, get, update) {
+function appendDecorationItem(page, get, update) {
     page.appendChild(buildSwitchItem(Text.getBold(), () => get().isBold, (value) => {
         update({ isBold: value });
     }));
@@ -735,7 +738,7 @@ function appendHeadingDecorationItem(page, get, update) {
     }));
 }
 
-function buildHeadingFontFamilyItem(get, update) {
+function buildFontFamilyItem(get, update) {
     return buildRadioItem(Text.getFontFamily(), [
         { value: 'inherit', label: Text.getFontFamilyDefault() },
         { value: 'sans-serif', label: Text.getSansSerif() },
@@ -758,14 +761,15 @@ function buildWordStylePage(entry) {
 
     const { get, update } = bindEntryStyle(entry, Config.getWordStyleMap, Config.setWordStyleMap, applyWordHighlight);
 
+    page.appendChild(buildFontFamilyItem(get, update));
     page.appendChild(buildSeekbarItem(Text.getFontSize(), HIGHLIGHT_SIZE_MIN, WORD_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
         update({ size: value });
     }));
+    appendDecorationItem(page, get, update);
     appendTextColorItem(page, entry, get, update);
     page.appendChild(buildDivider());
-    appendColorChoiceItem(page, Text.getHighlightBackground(), [
+    appendColorChoiceItem(page, Text.getBackgroundColor(), [
         { value: 'none', label: Text.getBackgroundNone() },
-        { value: 'default', label: Text.getBackgroundDefault() },
         { value: 'custom', label: Text.getCustomColor() },
     ], 'background', 'backgroundColor', BACKGROUND_CUSTOM_COLOR, get, update);
     return page;
@@ -784,7 +788,6 @@ function bindEntryStyle(entry, getMap, setMap, apply) {
 
 function appendTextColorItem(page, entry, get, update) {
     appendColorChoiceItem(page, Text.getHighlightColor(), [
-        { value: 'none', label: Text.getHighlightColorNone() },
         { value: 'default', label: Text.getDefaultColor() },
         { value: 'custom', label: Text.getCustomColor() },
     ], 'colorMode', 'color', entry.color, get, update);
@@ -818,6 +821,7 @@ function buildWordEntryList() {
         key: word.value,
         selector: '.content .word-' + index,
         color: WORD_COLOR,
+        defaultStyle: WORD_DEFAULT_STYLE,
     }));
 }
 
@@ -884,7 +888,7 @@ function showWordEntryPage(value) {
 }
 
 function buildWordEntryPage(value) {
-    const page = buildWordStylePage({ key: value, color: WORD_COLOR });
+    const page = buildWordStylePage({ key: value, color: WORD_COLOR, defaultStyle: WORD_DEFAULT_STYLE });
     if (findWord(value).isDefault) {
         return page;
     }
