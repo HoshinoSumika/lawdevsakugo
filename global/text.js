@@ -34,6 +34,20 @@ export const Text = {
     getFontFamily,
     getFontSize,
     getTypesettingPreference,
+    getArticlePlacement,
+    getCaptionPlacement,
+    getPlacementDefault,
+    getPlacementReverse,
+    getSingleParagraphNum,
+    getShown,
+    getHidden,
+    getArticlePlacementPreviewCaption,
+    getArticlePlacementPreviewTitle,
+    getArticlePlacementPreviewSingleTitle,
+    getArticlePlacementPreviewParagraphNum,
+    getArticlePlacementPreviewSentence,
+    getArticlePlacementPreviewSecondSentence,
+    getArticlePlacementPreviewSingleSentence,
     getArticleCaptionDisplay,
     getArticleTitleDisplay,
     getStructureHeadingDisplay,
@@ -230,6 +244,62 @@ function getFontSize() {
 
 function getTypesettingPreference() {
     return '組版の詳細設定';
+}
+
+function getArticlePlacement() {
+    return '条文の配置';
+}
+
+function getCaptionPlacement() {
+    return '見出しの配置';
+}
+
+function getPlacementDefault() {
+    return '既定';
+}
+
+function getPlacementReverse() {
+    return '反転';
+}
+
+function getSingleParagraphNum() {
+    return '第一項のみの条文の項番号';
+}
+
+function getShown() {
+    return '表示';
+}
+
+function getHidden() {
+    return '非表示';
+}
+
+function getArticlePlacementPreviewCaption() {
+    return '（見出し）';
+}
+
+function getArticlePlacementPreviewTitle() {
+    return '第百二十三条';
+}
+
+function getArticlePlacementPreviewSingleTitle() {
+    return '第百二十四条';
+}
+
+function getArticlePlacementPreviewParagraphNum() {
+    return '２';
+}
+
+function getArticlePlacementPreviewSentence() {
+    return 'これは、条文の配置を確認するための例文である。';
+}
+
+function getArticlePlacementPreviewSecondSentence() {
+    return '前項の規定は、第二項以下の配置を確認する場合について準用する。';
+}
+
+function getArticlePlacementPreviewSingleSentence() {
+    return 'これは、第一項のみの条文の配置を確認するための例文である。';
 }
 
 function getArticleCaptionDisplay() {

@@ -4,6 +4,7 @@ import { Flex } from '/lib/flex.js';
 import { Message } from '/lib/message.js';
 
 import { Config } from '/global/config.js';
+import { Convert } from '/global/convert.js';
 import { Route } from '/global/route.js';
 import { Service } from '/global/service.js';
 import { Text } from '/global/text.js';
@@ -32,6 +33,8 @@ const api = {
     onRevisionSelect: (id) => move(id),
     onSearchSelect: () => Search.show(),
     onWordChange: () => changeWord(),
+    onArticlePlacementChange: () => arrangeArticle(contentEl),
+    arrangeArticle: (root) => arrangeArticle(root),
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -110,6 +113,7 @@ async function load() {
     const template = document.createElement('template');
     template.innerHTML = law;
     markSentence(template.content);
+    arrangeArticle(template.content);
     contentEl.replaceChildren(template.content);
 
     const title = contentEl.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
@@ -142,4 +146,8 @@ function changeWord() {
 
 function findSentenceParentSet(root) {
     return new Set(Array.from(root.querySelectorAll('.Sentence'), sentence => sentence.parentElement));
+}
+
+function arrangeArticle(root) {
+    Convert.setArticleCaption(root, Config.getArticlePlacement() === 'reverse', Config.getSingleParagraphNum() === 'shown');
 }

@@ -95,6 +95,13 @@
     border: 1px solid var(--color-border); border-radius: var(--radius-small);
 }
 
+.preference-preview > .Article:first-child {
+    margin-top: 0px;
+}
+.preference-preview > .Article:last-child {
+    margin-bottom: 0px;
+}
+
 .preference-caption {
     width: 100%; padding: 8px 24px 0px 24px;
     user-select: none; -webkit-user-select: none;

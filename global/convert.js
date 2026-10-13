@@ -1,6 +1,10 @@
 export const Convert = {
     encode,
+    setArticleCaption,
 };
+
+const ZENKAKU_SPACE = '\u3000';
+const CIRCLED_NUM_PATTERN = /^[\u2460-\u2473]$/;
 
 function encode(xmlStr) {
     let temp = xmlStr;
@@ -45,6 +49,14 @@ function encode(xmlStr) {
     temp = addFigLinks(temp);
 
     return temp.outerHTML;
+}
+
+function setArticleCaption(el, isReversed, isSingleParagraphNumShown) {
+    restoreArticle(el);
+    if (isReversed) {
+        reverseArticle(el, isSingleParagraphNumShown);
+    }
+    return el;
 }
 
 function transformXmlToHtml(xmlStr) {
@@ -472,4 +484,104 @@ function addZenkakuSpaceAfterClass(el, targetClass) {
     });
 
     return el;
+}
+
+function reverseArticle(el, isSingleParagraphNumShown) {
+    el.querySelectorAll('.Article').forEach(article => {
+        const paragraphList = article.querySelectorAll(':scope > .Paragraph');
+        const firstParagraph = paragraphList[0];
+        const title = firstParagraph?.querySelector(':scope > .ArticleTitle');
+        if (!title) {
+            return;
+        }
+        const caption = article.querySelector(':scope > .ArticleCaption');
+        const firstNum = buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown);
+
+        const heading = el.ownerDocument.createElement('div');
+        heading.className = 'ArticleHeading';
+        article.insertBefore(heading, caption || findParagraphStart(firstParagraph));
+        removeZenkakuSpaceAfter(title);
+        heading.appendChild(title);
+        if (caption) {
+            heading.appendChild(caption);
+        }
+
+        const num = firstParagraph.querySelector(':scope > .ParagraphNum');
+        if (firstNum) {
+            num.textContent = firstNum;
+            num.classList.add('ParagraphNumFilled');
+            num.after(ZENKAKU_SPACE);
+        } else if (!num || !num.textContent.trim()) {
+            firstParagraph.classList.add('ParagraphBlankNum');
+            firstParagraph.classList.add('ParagraphBlankNumFilled');
+        }
+    });
+}
+
+function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown) {
+    const firstNum = paragraphList[0].querySelector(':scope > .ParagraphNum');
+    if (!firstNum || firstNum.textContent.trim()) {
+        return '';
+    }
+    if (paragraphList.length === 1) {
+        if (!isSingleParagraphNumShown) {
+            return '';
+        }
+        return paragraphList[0].getAttribute('data-oldnum') === 'true' ? formatCircledNumber(1) : '１';
+    }
+    const secondNum = paragraphList[1].querySelector(':scope > .ParagraphNum');
+    if (!secondNum) {
+        return '';
+    }
+    const secondText = secondNum.textContent.trim();
+    if (!secondText) {
+        return '';
+    }
+    return CIRCLED_NUM_PATTERN.test(secondText) ? formatCircledNumber(1) : '１';
+}
+
+function findParagraphStart(paragraph) {
+    const prev = paragraph.previousElementSibling;
+    if (prev && prev.classList.contains('ParagraphCaption')) {
+        return prev;
+    }
+    return paragraph;
+}
+
+function restoreArticle(el) {
+    el.querySelectorAll('.ArticleHeading').forEach(heading => {
+        const article = heading.parentElement;
+        const firstParagraph = article.querySelector(':scope > .Paragraph');
+        const title = heading.querySelector(':scope > .ArticleTitle');
+        const caption = heading.querySelector(':scope > .ArticleCaption');
+        if (caption) {
+            article.insertBefore(caption, heading);
+        }
+        heading.remove();
+
+        const num = firstParagraph.querySelector(':scope > .ParagraphNumFilled');
+        if (num) {
+            removeZenkakuSpaceAfter(num);
+            num.textContent = '';
+            num.classList.remove('ParagraphNumFilled');
+        }
+        if (firstParagraph.classList.contains('ParagraphBlankNumFilled')) {
+            firstParagraph.classList.remove('ParagraphBlankNum');
+            firstParagraph.classList.remove('ParagraphBlankNumFilled');
+        }
+
+        firstParagraph.insertBefore(title, firstParagraph.firstChild);
+        title.after(ZENKAKU_SPACE);
+    });
+}
+
+function removeZenkakuSpaceAfter(node) {
+    const next = node.nextSibling;
+    if (!next || next.nodeType !== Node.TEXT_NODE || !next.data.startsWith(ZENKAKU_SPACE)) {
+        return;
+    }
+    next.data = next.data.slice(ZENKAKU_SPACE.length);
+    if (!next.data) {
+        next.remove();
+    }
 }

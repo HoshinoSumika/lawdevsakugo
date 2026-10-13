@@ -166,6 +166,8 @@ function init(value) {
         applyWordHighlight();
     }));
     typesettingPage.appendChild(buildDivider());
+    appendHeadingNavigationItem(typesettingPage, Text.getArticlePlacement(), buildArticlePlacementPage());
+    typesettingPage.appendChild(buildDivider());
     appendHeadingNavigationItem(typesettingPage, Text.getArticleCaptionDisplay(), buildArticleHeadingPage(ARTICLE_CAPTION_ENTRY));
     appendHeadingNavigationItem(typesettingPage, Text.getArticleTitleDisplay(), buildArticleHeadingPage(ARTICLE_TITLE_ENTRY));
     appendHeadingNavigationItem(typesettingPage, Text.getStructureHeadingDisplay(), buildStructureHeadingPage());
@@ -301,6 +303,7 @@ function clearPreference() {
     wordEntryPageMap.clear();
     renderWordPage();
     api.onWordChange();
+    api.onArticlePlacementChange();
     pageList[0].scrollTop = 0;
     showPreviousPage();
     messagePreferenceCleared.show();
@@ -334,6 +337,7 @@ function applyAll() {
     applyParagraphSpacing(Config.getParagraphSpacing());
     applyLetterSpacing(Config.getLetterSpacing());
     applyContentWidth(Config.getContentWidth());
+    applyArticlePlacement();
 }
 
 function applyToc(isShown) {
@@ -456,7 +460,7 @@ function applyParagraphSpacing(value) {
     }
     const lawMargin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--law-margin'));
     setStyle('paragraph-spacing', '.content { --law-margin: ' + (lawMargin + PARAGRAPH_SPACING_WIDE) + 'px; } '
-        + '.content .Paragraph + .Paragraph, .content .ArticleCaption + .Paragraph, .content .ParagraphCaption + .Paragraph, '
+        + '.content .Paragraph + .Paragraph, .content .ArticleCaption + .Paragraph, .content .ArticleHeading + .Paragraph, .content .ParagraphCaption + .Paragraph, '
         + '.content .Item, .content .Subitem1, .content .Subitem2, .content .Subitem3, .content .Subitem4, .content .Subitem5 { '
         + 'margin-top: ' + PARAGRAPH_SPACING_WIDE + 'px; }');
 }
@@ -467,6 +471,10 @@ function applyLetterSpacing(value) {
 
 function applyContentWidth(value) {
     setStyle('content-width', value ? '.content { max-width: ' + value + 'px; }' : '');
+}
+
+function applyArticlePlacement() {
+    setStyle('article-placement', isArticleReversed() ? '.content .ArticleHeading > .ArticleCaption { display: inline; margin-left: 0em; }' : '');
 }
 
 function formatFontSize(value) {
@@ -581,6 +589,94 @@ function buildParenPreview() {
     preview.classList.add('preference-preview', 'content');
     preview.appendChild(paragraph);
     return preview;
+}
+
+function buildArticlePlacementPage() {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+
+    const preview = buildArticlePlacementPreview();
+    page.appendChild(preview);
+    refreshList.push(() => api.arrangeArticle(preview));
+
+    const singleParagraphNumItem = buildRadioItem(Text.getSingleParagraphNum(), [
+        { value: 'shown', label: Text.getShown() },
+        { value: 'hidden', label: Text.getHidden() },
+    ], Config.getSingleParagraphNum, (value) => {
+        Config.setSingleParagraphNum(value);
+        changeArticlePlacement(preview);
+    });
+    page.appendChild(buildRadioItem(Text.getCaptionPlacement(), [
+        { value: 'default', label: Text.getPlacementDefault() },
+        { value: 'reverse', label: Text.getPlacementReverse() },
+    ], Config.getArticlePlacement, (value) => {
+        Config.setArticlePlacement(value);
+        changeArticlePlacement(preview);
+        toggleItem(singleParagraphNumItem, isArticleReversed());
+    }));
+    page.appendChild(singleParagraphNumItem);
+    showItem(singleParagraphNumItem, isArticleReversed);
+    return page;
+}
+
+function isArticleReversed() {
+    return Config.getArticlePlacement() === 'reverse';
+}
+
+function changeArticlePlacement(preview) {
+    applyArticlePlacement();
+    api.arrangeArticle(preview);
+    api.onArticlePlacementChange();
+}
+
+function buildArticlePlacementPreview() {
+    const preview = document.createElement('div');
+    preview.classList.add('preference-preview', 'content');
+    preview.appendChild(buildPreviewArticle(Text.getArticlePlacementPreviewTitle(), [
+        { numText: '', sentenceText: Text.getArticlePlacementPreviewSentence() },
+        { numText: Text.getArticlePlacementPreviewParagraphNum(), sentenceText: Text.getArticlePlacementPreviewSecondSentence() },
+    ]));
+    preview.appendChild(buildPreviewArticle(Text.getArticlePlacementPreviewSingleTitle(), [
+        { numText: '', sentenceText: Text.getArticlePlacementPreviewSingleSentence() },
+    ]));
+    api.arrangeArticle(preview);
+    return preview;
+}
+
+function buildPreviewArticle(titleText, paragraphList) {
+    const caption = document.createElement('div');
+    caption.classList.add('ArticleCaption');
+    caption.textContent = Text.getArticlePlacementPreviewCaption();
+
+    const article = document.createElement('section');
+    article.classList.add('Article');
+    article.appendChild(caption);
+
+    paragraphList.forEach(({ numText, sentenceText }, index) => {
+        const paragraph = document.createElement('div');
+        paragraph.classList.add('Paragraph');
+        if (index === 0) {
+            const title = document.createElement('span');
+            title.classList.add('ArticleTitle');
+            title.textContent = titleText;
+            paragraph.append(title, '　');
+        }
+
+        const num = document.createElement('span');
+        num.classList.add('ParagraphNum');
+        num.textContent = numText;
+        paragraph.appendChild(num);
+        if (numText) {
+            paragraph.append('　');
+        }
+
+        const sentence = document.createElement('span');
+        sentence.classList.add('ParagraphSentence');
+        sentence.textContent = sentenceText;
+        paragraph.appendChild(sentence);
+        article.appendChild(paragraph);
+    });
+    return article;
 }
 
 function buildStructureHeadingPage() {

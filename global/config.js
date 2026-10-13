@@ -37,6 +37,10 @@ export const Config = {
     setLetterSpacing,
     getContentWidth,
     setContentWidth,
+    getArticlePlacement,
+    setArticlePlacement,
+    getSingleParagraphNum,
+    setSingleParagraphNum,
     clear,
 };
 
@@ -65,6 +69,8 @@ const defaults = {
     'paragraph-spacing': 'standard',
     'letter-spacing': 0,
     'content-width': 800,
+    'article-placement': 'default',
+    'single-paragraph-num': 'hidden',
 };
 
 function getDev() {
@@ -209,6 +215,22 @@ function getContentWidth() {
 
 function setContentWidth(value) {
     write('content-width', value);
+}
+
+function getArticlePlacement() {
+    return read('article-placement');
+}
+
+function setArticlePlacement(value) {
+    write('article-placement', value);
+}
+
+function getSingleParagraphNum() {
+    return read('single-paragraph-num');
+}
+
+function setSingleParagraphNum(value) {
+    write('single-paragraph-num', value);
 }
 
 function clear() {
