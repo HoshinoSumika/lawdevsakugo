@@ -33,6 +33,17 @@ export const Text = {
     getFontFamily,
     getFontSize,
     getTypesettingPreference,
+    getArticleCaptionDisplay,
+    getArticleTitleDisplay,
+    getStructureHeadingDisplay,
+    getPartHeading,
+    getChapterHeading,
+    getSectionHeading,
+    getSubsectionHeading,
+    getDivisionHeading,
+    getFontFamilyDefault,
+    getBold,
+    getItalic,
     getLineHeight,
     getLetterSpacing,
     getContentWidth,
@@ -211,6 +222,50 @@ function getFontSize() {
 
 function getTypesettingPreference() {
     return '組版の詳細設定';
+}
+
+function getArticleCaptionDisplay() {
+    return '条文の見出しの表示';
+}
+
+function getArticleTitleDisplay() {
+    return '条文の番号の表示';
+}
+
+function getStructureHeadingDisplay() {
+    return '編・章・節・款・目の表示';
+}
+
+function getPartHeading() {
+    return '編';
+}
+
+function getChapterHeading() {
+    return '章';
+}
+
+function getSectionHeading() {
+    return '節';
+}
+
+function getSubsectionHeading() {
+    return '款';
+}
+
+function getDivisionHeading() {
+    return '目';
+}
+
+function getFontFamilyDefault() {
+    return '既定';
+}
+
+function getBold() {
+    return '太字';
+}
+
+function getItalic() {
+    return '斜体';
 }
 
 function getLineHeight() {

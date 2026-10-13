@@ -22,6 +22,11 @@ function encode(xmlStr) {
     temp = extractParagraphCaptionBeforeParagraph(temp);
     temp = tagParagraphBlankNum(temp);
     temp = addParagraphContainer(temp);
+    temp = addTitleContainer(temp, 'PartTitle');
+    temp = addTitleContainer(temp, 'ChapterTitle');
+    temp = addTitleContainer(temp, 'SectionTitle');
+    temp = addTitleContainer(temp, 'SubsectionTitle');
+    temp = addTitleContainer(temp, 'DivisionTitle');
 
     temp = trim(temp);
 
@@ -318,6 +323,22 @@ function addParagraphContainer(el) {
         }
 
         container.appendChild(p);
+    });
+
+    return el;
+}
+
+function addTitleContainer(el, className) {
+    el.querySelectorAll('.' + className).forEach(title => {
+        if (title.closest('.TOC')) return;
+
+        const parent = title.parentNode;
+        if (!parent) return;
+
+        const container = el.ownerDocument.createElement('div');
+        container.className = className + 'Container';
+        parent.insertBefore(container, title);
+        container.appendChild(title);
     });
 
     return el;

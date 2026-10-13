@@ -37,6 +37,18 @@ const BACKGROUND_DEFAULT = 'rgba(128, 128, 128, 0.2)';
 const BACKGROUND_CUSTOM_COLOR = '#e6e6e6';
 const HATCH_COLOR = 'rgba(128,128,128,0.2)';
 const HATCH_BACKGROUND = 'repeating-linear-gradient(45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px), repeating-linear-gradient(-45deg, transparent 0px 1px, ' + HATCH_COLOR + ' 1px 2px)';
+const HEADING_COLOR = '#4169e1';
+const HEADING_SIZE_MIN = 1;
+const HEADING_SIZE_MAX = 1.5;
+const STRUCTURE_HEADING_LIST = [
+    { key: 'part', label: Text.getPartHeading(), selector: '.content .PartTitle:not(.TOC *)', containerSelector: '.content .PartTitleContainer' },
+    { key: 'chapter', label: Text.getChapterHeading(), selector: '.content .ChapterTitle:not(.TOC *)', containerSelector: '.content .ChapterTitleContainer' },
+    { key: 'section', label: Text.getSectionHeading(), selector: '.content .SectionTitle:not(.TOC *)', containerSelector: '.content .SectionTitleContainer' },
+    { key: 'subsection', label: Text.getSubsectionHeading(), selector: '.content .SubsectionTitle:not(.TOC *)', containerSelector: '.content .SubsectionTitleContainer' },
+    { key: 'division', label: Text.getDivisionHeading(), selector: '.content .DivisionTitle:not(.TOC *)', containerSelector: '.content .DivisionTitleContainer' },
+];
+const ARTICLE_CAPTION_ENTRY = { key: 'article-caption', selector: '.content .ArticleCaption' };
+const ARTICLE_TITLE_ENTRY = { key: 'article-title', selector: '.content .ArticleTitle' };
 
 const styleMap = {};
 const style = document.createElement('style');
@@ -79,6 +91,11 @@ function init(value) {
     messageCacheCleared = Message.info(Text.getCacheCleared());
     messageCacheClearFailed = Message.error(Text.getCacheClearFailed());
 
+    parenPage = buildParenPage();
+    wordPage = document.createElement('div');
+    wordPage.classList.add('preference-page');
+    renderWordPage();
+
     mainPage = document.createElement('div');
     mainPage.classList.add('preference-page');
     mainPage.appendChild(buildSwitchItem(Text.getShowToc(), Config.getToc, (value) => {
@@ -90,26 +107,8 @@ function init(value) {
         applySupplProvision(value);
     }));
     mainPage.appendChild(buildDivider());
-    const parenNavigationItem = buildNavigationItem(Text.getParenHighlightPreference(), () => {
-        showNextPage(Text.getParenHighlightPreference(), parenPage);
-    });
-    const wordNavigationItem = buildNavigationItem(Text.getWordHighlightPreference(), () => {
-        showNextPage(Text.getWordHighlightPreference(), wordPage);
-    });
-    mainPage.appendChild(buildSwitchItem(Text.getParenHighlight(), Config.getParenHighlight, (value) => {
-        Config.setParenHighlight(value);
-        applyParenHighlight();
-        toggleItem(parenNavigationItem, value);
-    }));
-    mainPage.appendChild(parenNavigationItem);
-    mainPage.appendChild(buildSwitchItem(Text.getWordHighlight(), Config.getWordHighlight, (value) => {
-        Config.setWordHighlight(value);
-        applyWordHighlight();
-        toggleItem(wordNavigationItem, value);
-    }));
-    mainPage.appendChild(wordNavigationItem);
-    showItem(parenNavigationItem, Config.getParenHighlight);
-    showItem(wordNavigationItem, Config.getWordHighlight);
+    appendHighlightItem(Text.getParenHighlight(), Text.getParenHighlightPreference(), parenPage, Config.getParenHighlight, Config.setParenHighlight, applyParenHighlight);
+    appendHighlightItem(Text.getWordHighlight(), Text.getWordHighlightPreference(), wordPage, Config.getWordHighlight, Config.setWordHighlight, applyWordHighlight);
     mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildRadioItem(Text.getFontFamily(), [
         { value: 'sans-serif', label: Text.getSansSerif() },
@@ -158,6 +157,10 @@ function init(value) {
         applyParenHighlight();
         applyWordHighlight();
     }));
+    typesettingPage.appendChild(buildDivider());
+    appendHeadingNavigationItem(typesettingPage, Text.getArticleCaptionDisplay(), buildArticleHeadingPage(ARTICLE_CAPTION_ENTRY));
+    appendHeadingNavigationItem(typesettingPage, Text.getArticleTitleDisplay(), buildArticleHeadingPage(ARTICLE_TITLE_ENTRY));
+    appendHeadingNavigationItem(typesettingPage, Text.getStructureHeadingDisplay(), buildStructureHeadingPage());
 
     storagePage = document.createElement('div');
     storagePage.classList.add('preference-page');
@@ -167,11 +170,6 @@ function init(value) {
     storagePage.appendChild(buildActionItem(Text.getPreferenceClear(), () => {
         showConfirmPage(Text.getPreferenceClear(), Text.getPreferenceClearConfirm(), Text.getClear(), clearPreference);
     }));
-
-    parenPage = buildParenPage();
-    wordPage = document.createElement('div');
-    wordPage.classList.add('preference-page');
-    renderWordPage();
 
     content = document.createElement('div');
     content.classList.add('preference-content');
@@ -321,6 +319,7 @@ function applyAll() {
     applySupplProvision(Config.getSupplProvision());
     applyParenHighlight();
     applyWordHighlight();
+    applyHeadingStyle();
     applyFontFamily(Config.getFontFamily());
     applyFontSize(Config.getFontSize());
     applyLineHeight(Config.getLineHeight());
@@ -366,14 +365,43 @@ function applyWordHighlight() {
 function buildWordRule(entryList, styleMap) {
     return entryList.map(entry => {
         const entryStyle = readEntryStyle(styleMap, entry);
-        const background = entryStyle.background === 'custom' ? entryStyle.backgroundColor || BACKGROUND_CUSTOM_COLOR : buildHighlightBackground(entryStyle.background);
         const size = Math.min(entryStyle.size, WORD_SIZE_MAX);
         return entry.selector + ' { '
             + 'color: ' + buildHighlightColor(entry, entryStyle) + '; '
             + 'font-size: ' + size + 'em; '
             + 'vertical-align: ' + buildVerticalAlign(size) + '; '
-            + 'background: ' + background + '; }';
+            + 'background: ' + buildEntryBackground(entryStyle) + '; }';
     }).join(' ');
+}
+
+function applyHeadingStyle() {
+    const styleMap = Config.getHeadingStyleMap();
+    const ruleList = STRUCTURE_HEADING_LIST.map(entry => {
+        const entryStyle = readEntryStyle(styleMap, entry);
+        return entry.selector + ' { '
+            + buildHeadingDeclaration(entryStyle)
+            + 'font-size: ' + entryStyle.size + 'em; } '
+            + entry.containerSelector + ' { background: ' + buildEntryBackground(entryStyle) + '; }';
+    });
+    [ARTICLE_CAPTION_ENTRY, ARTICLE_TITLE_ENTRY].forEach(entry => {
+        ruleList.push(entry.selector + ' { ' + buildHeadingDeclaration(readEntryStyle(styleMap, entry)) + '}');
+    });
+    setStyle('heading-style', ruleList.join(' '));
+}
+
+function buildHeadingDeclaration(entryStyle) {
+    const color = entryStyle.colorMode === 'custom' ? entryStyle.color || HEADING_COLOR : 'inherit';
+    return 'font-family: ' + entryStyle.fontFamily + '; '
+        + 'font-weight: ' + (entryStyle.isBold ? 'bold' : 'normal') + '; '
+        + 'font-style: ' + (entryStyle.isItalic ? 'italic' : 'normal') + '; '
+        + 'color: ' + color + '; ';
+}
+
+function buildEntryBackground(entryStyle) {
+    if (entryStyle.background === 'custom') {
+        return entryStyle.backgroundColor || BACKGROUND_CUSTOM_COLOR;
+    }
+    return buildHighlightBackground(entryStyle.background);
 }
 
 function buildHighlightColor(entry, entryStyle) {
@@ -397,7 +425,7 @@ function buildHighlightBackground(background) {
 }
 
 function readEntryStyle(styleMap, entry) {
-    return Object.assign({ size: 1, colorMode: 'default', color: '', background: 'none', backgroundColor: '' }, styleMap[entry.key]);
+    return Object.assign({ fontFamily: 'inherit', isBold: true, isItalic: false, size: 1, colorMode: 'default', color: '', background: 'none', backgroundColor: '' }, styleMap[entry.key]);
 }
 
 function applyFontFamily(value) {
@@ -434,6 +462,19 @@ function formatLetterSpacing(value) {
 
 function formatHighlightSize(value) {
     return value.toFixed(2) + 'em';
+}
+
+function appendHighlightItem(labelText, preferenceText, page, get, set, apply) {
+    const navigationItem = buildNavigationItem(preferenceText, () => {
+        showNextPage(preferenceText, page);
+    });
+    mainPage.appendChild(buildSwitchItem(labelText, get, (value) => {
+        set(value);
+        apply();
+        toggleItem(navigationItem, value);
+    }));
+    mainPage.appendChild(navigationItem);
+    showItem(navigationItem, get);
 }
 
 function showItem(item, get) {
@@ -519,6 +560,80 @@ function buildParenPreview() {
     preview.classList.add('preference-preview', 'content');
     preview.appendChild(paragraph);
     return preview;
+}
+
+function buildStructureHeadingPage() {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+    STRUCTURE_HEADING_LIST.forEach(entry => {
+        appendHeadingNavigationItem(page, entry.label, buildStructureHeadingEntryPage(entry));
+    });
+    return page;
+}
+
+function appendHeadingNavigationItem(page, labelText, entryPage) {
+    page.appendChild(buildNavigationItem(labelText, () => {
+        showNextPage(labelText, entryPage);
+    }));
+}
+
+function buildStructureHeadingEntryPage(entry) {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+
+    const { get, update } = bindEntryStyle(entry, Config.getHeadingStyleMap, Config.setHeadingStyleMap, applyHeadingStyle);
+
+    page.appendChild(buildHeadingFontFamilyItem(get, update));
+    appendHeadingDecorationItem(page, get, update);
+    page.appendChild(buildSeekbarItem(Text.getFontSize(), HEADING_SIZE_MIN, HEADING_SIZE_MAX, HIGHLIGHT_SIZE_STEP, () => get().size, formatHighlightSize, (value) => {
+        update({ size: value });
+    }));
+    appendHeadingColorItem(page, get, update);
+    page.appendChild(buildDivider());
+    appendColorChoiceItem(page, Text.getHighlightBackground(), [
+        { value: 'none', label: Text.getBackgroundNone() },
+        { value: 'default', label: Text.getBackgroundDefault() },
+        { value: 'custom', label: Text.getCustomColor() },
+    ], 'background', 'backgroundColor', BACKGROUND_CUSTOM_COLOR, get, update);
+    return page;
+}
+
+function buildArticleHeadingPage(entry) {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+
+    const { get, update } = bindEntryStyle(entry, Config.getHeadingStyleMap, Config.setHeadingStyleMap, applyHeadingStyle);
+
+    page.appendChild(buildHeadingFontFamilyItem(get, update));
+    appendHeadingDecorationItem(page, get, update);
+    appendHeadingColorItem(page, get, update);
+    return page;
+}
+
+function appendHeadingDecorationItem(page, get, update) {
+    page.appendChild(buildSwitchItem(Text.getBold(), () => get().isBold, (value) => {
+        update({ isBold: value });
+    }));
+    page.appendChild(buildSwitchItem(Text.getItalic(), () => get().isItalic, (value) => {
+        update({ isItalic: value });
+    }));
+}
+
+function buildHeadingFontFamilyItem(get, update) {
+    return buildRadioItem(Text.getFontFamily(), [
+        { value: 'inherit', label: Text.getFontFamilyDefault() },
+        { value: 'sans-serif', label: Text.getSansSerif() },
+        { value: 'serif', label: Text.getSerif() },
+    ], () => get().fontFamily, (value) => {
+        update({ fontFamily: value });
+    });
+}
+
+function appendHeadingColorItem(page, get, update) {
+    appendColorChoiceItem(page, Text.getHighlightColor(), [
+        { value: 'default', label: Text.getDefaultColor() },
+        { value: 'custom', label: Text.getCustomColor() },
+    ], 'colorMode', 'color', HEADING_COLOR, get, update);
 }
 
 function buildWordStylePage(entry) {

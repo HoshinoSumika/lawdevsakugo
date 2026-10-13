@@ -21,6 +21,8 @@ export const Config = {
     setParenStyleMap,
     getWordStyleMap,
     setWordStyleMap,
+    getHeadingStyleMap,
+    setHeadingStyleMap,
     getWordList,
     setWordList,
     getFontFamily,
@@ -48,6 +50,7 @@ const defaults = {
     'vertical-align': 'middle',
     'paren-style': {},
     'word-style': {},
+    'heading-style': {},
     'word-list': [
         { value: '及び', exclusionList: [], isDefault: true },
         { value: '並びに', exclusionList: [], isDefault: true },
@@ -139,6 +142,14 @@ function getWordStyleMap() {
 
 function setWordStyleMap(value) {
     write('word-style', value);
+}
+
+function getHeadingStyleMap() {
+    return read('heading-style');
+}
+
+function setHeadingStyleMap(value) {
+    write('heading-style', value);
 }
 
 function getWordList() {
