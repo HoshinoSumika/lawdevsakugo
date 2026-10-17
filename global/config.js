@@ -19,6 +19,8 @@ export const Config = {
     setParenBackground,
     getVerticalAlign,
     setVerticalAlign,
+    getVerticalAlignOffset,
+    setVerticalAlignOffset,
     getParenStyleMap,
     setParenStyleMap,
     getWordStyleMap,
@@ -59,6 +61,7 @@ const defaults = {
     'paren-size': 1,
     'paren-background': 'default',
     'vertical-align': 'middle',
+    'vertical-align-offset': 0.25,
     'paren-style': {},
     'word-style': {},
     'heading-style': {},
@@ -156,6 +159,14 @@ function getVerticalAlign() {
 
 function setVerticalAlign(value) {
     write('vertical-align', value);
+}
+
+function getVerticalAlignOffset() {
+    return read('vertical-align-offset');
+}
+
+function setVerticalAlignOffset(value) {
+    write('vertical-align-offset', value);
 }
 
 function getParenStyleMap() {

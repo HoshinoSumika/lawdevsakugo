@@ -41,6 +41,10 @@ export const Text = {
     getFontFamily,
     getFontSize,
     getTypesettingPreference,
+    getCharacterPlacement,
+    getCharacterPlacementPreviewTitle,
+    getCharacterPlacementPreviewSentence,
+    getCharacterPlacementPreviewWordList,
     getArticlePlacement,
     getCaptionPlacement,
     getPlacementDefault,
@@ -79,6 +83,7 @@ export const Text = {
     getVerticalAlignBottom,
     getVerticalAlignMiddle,
     getVerticalAlignTop,
+    getVerticalAlignOffset,
     getStoragePreference,
     getPreferenceClear,
     getPreferenceClearConfirm,
@@ -281,6 +286,22 @@ function getTypesettingPreference() {
     return '組版の詳細設定';
 }
 
+function getCharacterPlacement() {
+    return '文字の配置';
+}
+
+function getCharacterPlacementPreviewTitle() {
+    return '第百二十三条';
+}
+
+function getCharacterPlacementPreviewSentence() {
+    return 'これは、文字の配置を確認するための例文（括弧の内容（第二階層の括弧の内容を含む。）を含む。）であり、括弧及び語句の文字サイズが本文と異なる場合又はその配置を変更した場合に用いる。';
+}
+
+function getCharacterPlacementPreviewWordList() {
+    return ['及び', '又は'];
+}
+
 function getArticlePlacement() {
     return '条文の配置';
 }
@@ -431,6 +452,10 @@ function getVerticalAlignMiddle() {
 
 function getVerticalAlignTop() {
     return '上';
+}
+
+function getVerticalAlignOffset() {
+    return '中央からのずれ';
 }
 
 function getStoragePreference() {

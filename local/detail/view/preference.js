@@ -31,7 +31,8 @@ const WORD_COLOR = '#4169e1';
 const WORD_DEFAULT_STYLE = { isBold: false };
 const HIGHLIGHT_SIZE_MIN = 0.5;
 const PAREN_SIZE_MAX = 1;
-const VERTICAL_ALIGN_RATIO_MAP = { bottom: 0.25, middle: 0.5, top: 0.75 };
+const VERTICAL_ALIGN_MIDDLE = 0.5;
+const VERTICAL_ALIGN_DIRECTION_MAP = { bottom: -1, middle: 0, top: 1 };
 const EM_BOX_BOTTOM = -0.15;
 const WORD_SIZE_MAX = 1.5;
 const HIGHLIGHT_SIZE_STEP = 0.05;
@@ -51,6 +52,10 @@ const STRUCTURE_HEADING_LIST = [
 ];
 const ARTICLE_CAPTION_ENTRY = { key: 'article-caption', selector: '.content .ArticleCaption' };
 const ARTICLE_TITLE_ENTRY = { key: 'article-title', selector: '.content .ArticleTitle' };
+const CHARACTER_PLACEMENT_PREVIEW_LIST = [
+    { selector: '.preference-preview.character-placement .paren', size: 0.75 },
+    { selector: '.preference-preview.character-placement .word', size: 1.5 },
+];
 
 const styleMap = {};
 const style = document.createElement('style');
@@ -158,16 +163,8 @@ function init(value) {
         Config.setParagraphSpacing(value);
         applyParagraphSpacing(value);
     }));
-    typesettingPage.appendChild(buildRadioItem(Text.getVerticalAlign(), [
-        { value: 'top', label: Text.getVerticalAlignTop() },
-        { value: 'middle', label: Text.getVerticalAlignMiddle() },
-        { value: 'bottom', label: Text.getVerticalAlignBottom() },
-    ], Config.getVerticalAlign, (value) => {
-        Config.setVerticalAlign(value);
-        applyParenHighlight();
-        applyWordHighlight();
-    }));
     typesettingPage.appendChild(buildDivider());
+    appendHeadingNavigationItem(typesettingPage, Text.getCharacterPlacement(), buildCharacterPlacementPage());
     appendHeadingNavigationItem(typesettingPage, Text.getArticlePlacement(), buildArticlePlacementPage());
     typesettingPage.appendChild(buildDivider());
     appendHeadingNavigationItem(typesettingPage, Text.getArticleCaptionDisplay(), buildArticleHeadingPage(ARTICLE_CAPTION_ENTRY));
@@ -333,6 +330,7 @@ function applyAll() {
     applySupplProvision(Config.getSupplProvision());
     applyParenHighlight();
     applyWordHighlight();
+    applyCharacterPlacementPreview();
     applyHeadingStyle();
     applyFontFamily(Config.getFontFamily());
     applyFontSize(Config.getFontSize());
@@ -368,8 +366,14 @@ function applyParenHighlight() {
     setStyle('paren-highlight', ruleList.join(' '));
 }
 
+function applyVerticalAlign() {
+    applyParenHighlight();
+    applyWordHighlight();
+    applyCharacterPlacementPreview();
+}
+
 function buildVerticalAlign(size) {
-    const ratio = VERTICAL_ALIGN_RATIO_MAP[Config.getVerticalAlign()] || 0;
+    const ratio = VERTICAL_ALIGN_MIDDLE + (VERTICAL_ALIGN_DIRECTION_MAP[Config.getVerticalAlign()] || 0) * Config.getVerticalAlignOffset();
     return ((EM_BOX_BOTTOM + ratio) * (1 - size) / size).toFixed(4) + 'em';
 }
 
@@ -389,6 +393,14 @@ function buildWordRule(entryList, styleMap) {
             + 'vertical-align: ' + buildVerticalAlign(size) + '; '
             + 'background: ' + buildEntryBackground(entryStyle) + '; }';
     }).join(' ');
+}
+
+function applyCharacterPlacementPreview() {
+    setStyle('character-placement-preview', CHARACTER_PLACEMENT_PREVIEW_LIST.map(entry => {
+        return entry.selector + ' { '
+            + 'font-size: ' + entry.size + 'em; '
+            + 'vertical-align: ' + buildVerticalAlign(entry.size) + '; }';
+    }).join(' '));
 }
 
 function applyHeadingStyle() {
@@ -494,6 +506,10 @@ function formatLetterSpacing(value) {
     return value.toFixed(2) + 'em';
 }
 
+function formatVerticalAlignOffset(value) {
+    return value.toFixed(2);
+}
+
 function formatHighlightSize(value) {
     return value.toFixed(2) + 'em';
 }
@@ -577,21 +593,60 @@ function buildParenPage() {
 }
 
 function buildParenPreview() {
+    const paragraph = buildPreviewParagraph(Text.getParenPreviewTitle(), Text.getParenPreviewSentence());
+    Util.nest(paragraph.querySelector('.Sentence'), PAREN_PAIR, QUOTE_PAIR, 'paren');
+
+    const preview = document.createElement('div');
+    preview.classList.add('preference-preview', 'content');
+    preview.appendChild(paragraph);
+    return preview;
+}
+
+function buildPreviewParagraph(titleText, sentenceText) {
     const title = document.createElement('span');
     title.classList.add('ArticleTitle');
-    title.textContent = Text.getParenPreviewTitle();
+    title.textContent = titleText;
 
     const sentence = document.createElement('span');
     sentence.classList.add('Sentence');
-    sentence.textContent = Text.getParenPreviewSentence();
-    Util.nest(sentence, PAREN_PAIR, QUOTE_PAIR, 'paren');
+    sentence.textContent = sentenceText;
 
     const paragraph = document.createElement('div');
     paragraph.classList.add('Paragraph');
     paragraph.append(title, '　', sentence);
+    return paragraph;
+}
+
+function buildCharacterPlacementPage() {
+    const page = document.createElement('div');
+    page.classList.add('preference-page');
+
+    page.appendChild(buildCharacterPlacementPreview());
+    page.appendChild(buildRadioItem(Text.getVerticalAlign(), [
+        { value: 'top', label: Text.getVerticalAlignTop() },
+        { value: 'middle', label: Text.getVerticalAlignMiddle() },
+        { value: 'bottom', label: Text.getVerticalAlignBottom() },
+    ], Config.getVerticalAlign, (value) => {
+        Config.setVerticalAlign(value);
+        applyVerticalAlign();
+    }));
+    page.appendChild(buildSeekbarItem(Text.getVerticalAlignOffset(), 0.25, VERTICAL_ALIGN_MIDDLE, 0.01, Config.getVerticalAlignOffset, formatVerticalAlignOffset, (value) => {
+        Config.setVerticalAlignOffset(value);
+        applyVerticalAlign();
+    }));
+    return page;
+}
+
+function buildCharacterPlacementPreview() {
+    const paragraph = buildPreviewParagraph(Text.getCharacterPlacementPreviewTitle(), Text.getCharacterPlacementPreviewSentence());
+    const sentence = paragraph.querySelector('.Sentence');
+    Util.nest(sentence, PAREN_PAIR, QUOTE_PAIR, 'paren');
+    Text.getCharacterPlacementPreviewWordList().forEach(word => {
+        Util.mark(sentence, word, 'word');
+    });
 
     const preview = document.createElement('div');
-    preview.classList.add('preference-preview', 'content');
+    preview.classList.add('preference-preview', 'content', 'character-placement');
     preview.appendChild(paragraph);
     return preview;
 }
