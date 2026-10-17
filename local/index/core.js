@@ -30,7 +30,7 @@ window.addEventListener('load', () => {
 window.addEventListener('pageshow', event => {
     if (event.persisted) {
         Search.reset();
-        changeQuery('');
+        resetQuery();
     }
 });
 
@@ -43,16 +43,28 @@ async function init() {
 
     Search.init(api);
     Shortcut.init(api);
-    changeQuery('');
+    renderQuery();
 
     await Dictionary.load();
     if (!internetQuery) {
-        changeQuery(query);
+        renderQuery();
     }
 }
 
 function changeQuery(value) {
+    if (value.trim() === query) {
+        return;
+    }
     query = value.trim();
+    renderQuery();
+}
+
+function resetQuery() {
+    query = '';
+    renderQuery();
+}
+
+function renderQuery() {
     internetQuery = '';
     searchVersion = searchVersion + 1;
 

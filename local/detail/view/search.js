@@ -49,6 +49,7 @@ let searchContainer;
 let searchInput;
 let searchClear;
 let searchResult;
+let query = '';
 let isShown = false;
 let selectedIndex = -1;
 
@@ -91,14 +92,14 @@ function init(api) {
     });
     searchInput.addEventListener('input', () => {
         searchClear.style.display = searchInput.value === '' ? 'none' : '';
-        updateResult(false);
+        changeQuery(searchInput.value);
     });
 
     searchClear.addEventListener('click', () => {
         searchInput.value = '';
         searchInput.focus();
         searchClear.style.display = 'none';
-        updateResult(false);
+        changeQuery('');
     });
 
     searchResult.addEventListener('touchstart', () => {
@@ -145,6 +146,15 @@ function resetSearch() {
     flex.stop();
     searchInput.value = '';
     searchClear.style.display = 'none';
+    query = '';
+    updateResult(false);
+}
+
+function changeQuery(value) {
+    if (value.trim() === query) {
+        return;
+    }
+    query = value.trim();
     updateResult(false);
 }
 
@@ -216,7 +226,6 @@ function buildFrame() {
 }
 
 function updateResult(isUnlimited) {
-    const query = searchInput.value.trim();
     const result = searchLaw(query, isUnlimited);
     const wasHidden = searchResult.style.display === 'none';
 
