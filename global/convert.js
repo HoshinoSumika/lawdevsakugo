@@ -392,12 +392,13 @@ function addZenkakuSpaceAfterClass(el, targetClass) {
 }
 
 function reverseArticle(el, isSingleParagraphNumShown) {
+    const isMainOldNum = el.querySelector('.MainProvision .Paragraph[data-oldnum="true"]') !== null;
     el.querySelectorAll('.Article').forEach(article => {
         const paragraphList = article.querySelectorAll(':scope > .Paragraph');
         const firstParagraph = paragraphList[0];
         const title = firstParagraph.querySelector(':scope > .ArticleTitle');
         const caption = article.querySelector(':scope > .ArticleCaption');
-        const firstNum = buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown);
+        const firstNum = buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown, isOldNumArticle(article, isMainOldNum));
 
         const heading = el.ownerDocument.createElement('div');
         heading.className = 'ArticleHeading';
@@ -420,7 +421,7 @@ function reverseArticle(el, isSingleParagraphNumShown) {
     });
 }
 
-function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown) {
+function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown, isOldNum) {
     const firstNum = paragraphList[0].querySelector(':scope > .ParagraphNum');
     if (firstNum.textContent.trim()) {
         return '';
@@ -429,7 +430,7 @@ function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown) {
         if (!isSingleParagraphNumShown) {
             return '';
         }
-        return paragraphList[0].getAttribute('data-oldnum') === 'true' ? formatCircledNumber(1) : '１';
+        return isOldNum ? formatCircledNumber(1) : '１';
     }
     const secondNum = paragraphList[1].querySelector(':scope > .ParagraphNum');
     const secondText = secondNum.textContent.trim();
@@ -437,6 +438,14 @@ function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown) {
         return '';
     }
     return CIRCLED_NUM_PATTERN.test(secondText) ? formatCircledNumber(1) : '１';
+}
+
+function isOldNumArticle(article, isMainOldNum) {
+    const supplProvision = article.closest('.SupplProvision');
+    if (!supplProvision || !supplProvision.querySelector('.Paragraph:not([data-num="1"])')) {
+        return isMainOldNum;
+    }
+    return supplProvision.querySelector('.Paragraph:not([data-num="1"]):not([data-oldnum="true"])') === null;
 }
 
 function findParagraphStart(paragraph) {
