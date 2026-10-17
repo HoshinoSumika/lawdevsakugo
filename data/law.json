@@ -5,65 +5,7 @@
         "kana": "にほんこくけんぽう",
         "type": "Constitution",
         "abbrevList": [],
-        "recommend": true
-    },
-    {
-        "id": "129AC0000000089",
-        "title": "民法",
-        "kana": "みんぽう",
-        "type": "Act",
-        "abbrevList": [],
-        "recommend": true
-    },
-    {
-        "id": "132AC0000000048",
-        "title": "商法",
-        "kana": "しょうほう",
-        "type": "Act",
-        "abbrevList": [],
-        "recommend": true
-    },
-    {
-        "id": "417AC0000000086",
-        "title": "会社法",
-        "kana": "かいしゃほう",
-        "type": "Act",
-        "abbrevList": [],
-        "recommend": true
-    },
-    {
-        "id": "408AC0000000109",
-        "title": "民事訴訟法",
-        "kana": "みんじそしょうほう",
-        "type": "Act",
-        "abbrevList": [
-            {
-                "title": "民訴法",
-                "kana": "みんそほう"
-            }
-        ],
-        "recommend": true
-    },
-    {
-        "id": "140AC0000000045",
-        "title": "刑法",
-        "kana": "けいほう",
-        "type": "Act",
-        "abbrevList": [],
-        "recommend": true
-    },
-    {
-        "id": "323AC0000000131",
-        "title": "刑事訴訟法",
-        "kana": "けいじそしょうほう",
-        "type": "Act",
-        "abbrevList": [
-            {
-                "title": "刑訴法",
-                "kana": "けいそほう"
-            }
-        ],
-        "recommend": true
+        "isMajor": true
     },
     {
         "id": "405AC0000000088",
@@ -76,7 +18,78 @@
                 "kana": "ぎょうてほう"
             }
         ],
-        "recommend": false
+        "isMajor": true
+    },
+    {
+        "id": "337AC0000000139",
+        "title": "行政事件訴訟法",
+        "kana": "ぎょうせいじけんそしょうほう",
+        "type": "Act",
+        "abbrevList": [
+            {
+                "title": "行訴法",
+                "kana": "ぎょうそほう"
+            }
+        ],
+        "isMajor": true
+    },
+    {
+        "id": "129AC0000000089",
+        "title": "民法",
+        "kana": "みんぽう",
+        "type": "Act",
+        "abbrevList": [],
+        "isMajor": true
+    },
+    {
+        "id": "132AC0000000048",
+        "title": "商法",
+        "kana": "しょうほう",
+        "type": "Act",
+        "abbrevList": [],
+        "isMajor": true
+    },
+    {
+        "id": "417AC0000000086",
+        "title": "会社法",
+        "kana": "かいしゃほう",
+        "type": "Act",
+        "abbrevList": [],
+        "isMajor": true
+    },
+    {
+        "id": "408AC0000000109",
+        "title": "民事訴訟法",
+        "kana": "みんじそしょうほう",
+        "type": "Act",
+        "abbrevList": [
+            {
+                "title": "民訴法",
+                "kana": "みんそほう"
+            }
+        ],
+        "isMajor": true
+    },
+    {
+        "id": "140AC0000000045",
+        "title": "刑法",
+        "kana": "けいほう",
+        "type": "Act",
+        "abbrevList": [],
+        "isMajor": true
+    },
+    {
+        "id": "323AC0000000131",
+        "title": "刑事訴訟法",
+        "kana": "けいじそしょうほう",
+        "type": "Act",
+        "abbrevList": [
+            {
+                "title": "刑訴法",
+                "kana": "けいそほう"
+            }
+        ],
+        "isMajor": true
     },
     {
         "id": "426AC0000000068",
@@ -93,20 +106,7 @@
                 "kana": "ぎょうふくほう"
             }
         ],
-        "recommend": false
-    },
-    {
-        "id": "337AC0000000139",
-        "title": "行政事件訴訟法",
-        "kana": "ぎょうせいじけんそしょうほう",
-        "type": "Act",
-        "abbrevList": [
-            {
-                "title": "行訴法",
-                "kana": "ぎょうそほう"
-            }
-        ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "322AC0000000125",
@@ -119,7 +119,7 @@
                 "kana": "こくばいほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "323AC0000000043",
@@ -127,7 +127,7 @@
         "kana": "ぎょうせいだいしっこうほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "322AC0000000067",
@@ -140,7 +140,7 @@
                 "kana": "ちじほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "322AC0000000059",
@@ -148,7 +148,7 @@
         "kana": "さいばんしょほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "324AC1000000205",
@@ -156,7 +156,7 @@
         "kana": "べんごしほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "326CO0000000319",
@@ -169,7 +169,7 @@
                 "kana": "にゅうかんほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "415AC0000000057",
@@ -182,7 +182,7 @@
                 "kana": "こじんじょうほうほごほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "403AC0000000090",
@@ -190,7 +190,7 @@
         "kana": "しゃくちしゃくやほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "416AC0000000123",
@@ -207,7 +207,7 @@
                 "kana": "ふとうほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "406AC0000000085",
@@ -220,7 +220,7 @@
                 "kana": "ぴーえるほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "412AC0000000061",
@@ -228,7 +228,7 @@
         "kana": "しょうひしゃけいやくほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "419AC0000000102",
@@ -236,7 +236,7 @@
         "kana": "でんしきろくさいけんほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "329AC0000000100",
@@ -249,7 +249,7 @@
                 "kana": "りげんほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "418AC0000000108",
@@ -257,7 +257,7 @@
         "kana": "しんたくほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "420AC0000000056",
@@ -265,7 +265,7 @@
         "kana": "ほけんほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "323AC0000000025",
@@ -282,7 +282,7 @@
                 "kana": "しょうとりほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "307AC0000000020",
@@ -290,7 +290,7 @@
         "kana": "てがたほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "308AC0000000057",
@@ -298,7 +298,7 @@
         "kana": "こぎってほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "354AC0000000004",
@@ -311,7 +311,7 @@
                 "kana": "みんしつほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "401AC0000000091",
@@ -328,7 +328,7 @@
                 "kana": "みんぽほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "415AC0000000109",
@@ -341,7 +341,7 @@
                 "kana": "じんそほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "423AC0000000052",
@@ -349,7 +349,7 @@
         "kana": "かじじけんてつづきほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "323AC0000000136",
@@ -362,7 +362,7 @@
                 "kana": "けいしょくほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "323AC0000000039",
@@ -370,7 +370,7 @@
         "kana": "けいはんざいほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "323AC0000000168",
@@ -378,7 +378,7 @@
         "kana": "しょうねんほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "419AC0000000128",
@@ -391,7 +391,7 @@
                 "kana": "ろうけいほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "322AC0000000049",
@@ -404,7 +404,7 @@
                 "kana": "ろうきほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "324AC0000000174",
@@ -425,7 +425,7 @@
                 "kana": "ろうどうさんぽう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "322AC0000000054",
@@ -442,7 +442,7 @@
                 "kana": "どくせんきんしほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "416AC0000000075",
@@ -450,7 +450,7 @@
         "kana": "はさんほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "411AC0000000225",
@@ -458,7 +458,7 @@
         "kana": "みんじさいせいほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "334AC0000000121",
@@ -466,7 +466,7 @@
         "kana": "とっきょほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "345AC0000000048",
@@ -474,7 +474,7 @@
         "kana": "ちょさくけんほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "334AC0000000127",
@@ -482,7 +482,7 @@
         "kana": "しょうひょうほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "418AC0000000078",
@@ -495,7 +495,7 @@
                 "kana": "ほうてきようつうそくほう"
             }
         ],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "337AC0000000066",
@@ -503,7 +503,7 @@
         "kana": "こくぜいつうそくほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "340AC0000000033",
@@ -511,7 +511,7 @@
         "kana": "しょとくぜいほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     },
     {
         "id": "340AC0000000034",
@@ -519,6 +519,6 @@
         "kana": "ほうじんぜいほう",
         "type": "Act",
         "abbrevList": [],
-        "recommend": false
+        "isMajor": false
     }
 ]

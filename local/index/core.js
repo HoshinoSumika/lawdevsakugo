@@ -13,7 +13,7 @@ const contentEl = document.querySelector('#content');
 
 const api = {
     getContent: () => contentEl,
-    getRecommendList: () => Dictionary.getRecommendList(),
+    getMajorList: () => Dictionary.getMajorList(),
     onQueryChange: (value) => changeQuery(value),
     onInternetSelect: () => selectInternet(),
     onInternetAllSelect: (totalCount) => selectInternetAll(totalCount),

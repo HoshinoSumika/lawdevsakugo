@@ -28,7 +28,7 @@ function show() {
     shortcut.replaceChildren();
     appendSection(Text.getBookmark(), bookmarkList);
     appendSection(Text.getRecent(), recentList);
-    appendSection(Text.getRecommend(), api.getRecommendList());
+    appendSection(Text.getMajorLaw(), api.getMajorList());
     shortcut.classList.remove('shortcut-hidden');
 }
 

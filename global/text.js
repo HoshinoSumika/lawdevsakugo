@@ -118,7 +118,7 @@ export const Text = {
     getSearchPlaceholder,
     getBookmark,
     getRecent,
-    getRecommend,
+    getMajorLaw,
     getLawType,
     getInternetSearch,
     getInternetSearching,
@@ -620,8 +620,8 @@ function getRecent() {
     return '閲覧履歴';
 }
 
-function getRecommend() {
-    return 'おすすめ';
+function getMajorLaw() {
+    return '主要法令';
 }
 
 function getLawType(type) {

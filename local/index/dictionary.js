@@ -1,7 +1,7 @@
 export const Dictionary = {
     load,
     find,
-    getRecommendList,
+    getMajorList,
 };
 
 const DATA_URL = '/data/law.json';
@@ -103,8 +103,8 @@ function find(query, limit) {
     return matchList.slice(0, limit).map(match => match.law);
 }
 
-function getRecommendList() {
-    return entryList.filter(entry => entry.law.recommend).map(entry => entry.law);
+function getMajorList() {
+    return entryList.filter(entry => entry.law.isMajor).map(entry => entry.law);
 }
 
 function buildEntry(law) {
