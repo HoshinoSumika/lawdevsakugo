@@ -9,7 +9,6 @@ import { Route } from '/global/route.js';
 import { Text } from '/global/text.js';
 
 const RECENT_LIMIT = 10;
-const RECOMMEND_THRESHOLD = 10;
 
 let api;
 let shortcut;
@@ -25,17 +24,11 @@ function init(value) {
 function show() {
     const bookmarkList = Config.getBookmarkList();
     const recentList = Config.getRecentList().filter(recent => !includes(bookmarkList, recent.id)).slice(-RECENT_LIMIT).reverse();
-    const shownList = bookmarkList.concat(recentList);
-
-    let recommendList = [];
-    if (shownList.length < RECOMMEND_THRESHOLD) {
-        recommendList = api.getRecommendList().filter(law => !includes(shownList, law.id));
-    }
 
     shortcut.replaceChildren();
     appendSection(Text.getBookmark(), bookmarkList);
     appendSection(Text.getRecent(), recentList);
-    appendSection(Text.getRecommend(), recommendList);
+    appendSection(Text.getRecommend(), api.getRecommendList());
     shortcut.classList.remove('shortcut-hidden');
 }
 

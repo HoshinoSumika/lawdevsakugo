@@ -108,7 +108,7 @@
     vertical-align: calc((0.5 - 0.15) * (1 - 0.85) / 0.85 * 1em);
     white-space: nowrap;
     color: var(--color-gray);
-    border: 1px solid var(--color-border); border-radius: var(--radius-small);
+    border: 1px solid var(--color-border); border-radius: var(--radius-max);
 }
 
 .search-item-repealed .search-item-title {
