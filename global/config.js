@@ -1,5 +1,3 @@
-import { Storage } from '/lib/storage.js';
-
 export const Config = {
     getDev,
     setDev,
@@ -43,6 +41,8 @@ export const Config = {
     setSingleParagraphNum,
     clear,
 };
+
+import { Storage } from '/lib/storage.js';
 
 const prefix = 'config-';
 

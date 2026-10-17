@@ -8,7 +8,7 @@ const overlayColor = 'rgba(0,0,0,0.32)';
 const frameBackground = 'var(--color-white)';
 const frameBorder = '1px solid var(--color-border)';
 const frameRadius = 'var(--radius-large)';
-const frameShadow = '0 8px 32px rgba(0,0,0,0.18)';
+const frameShadow = '0px 8px 32px rgba(0,0,0,0.18)';
 const frameTransition = 'opacity var(--transition-duration)';
 
 let logEl;

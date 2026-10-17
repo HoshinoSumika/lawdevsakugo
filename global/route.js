@@ -1,9 +1,9 @@
-import { Config } from '/global/config.js';
-
 export const Route = {
     getLawId,
     getLawHref,
 };
+
+import { Config } from '/global/config.js';
 
 const lawIdPattern = /^\d{3}[0-9A-Z_]+$/;
 

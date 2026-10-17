@@ -199,8 +199,8 @@ function buildFrame() {
 
     const panel = frame.getPanel();
     panel.classList.add('search-overlay');
-    panel.style.top = '0';
-    panel.style.left = '0';
+    panel.style.top = '0px';
+    panel.style.left = '0px';
     panel.style.width = '100vw';
     panel.style.height = '100vh';
 

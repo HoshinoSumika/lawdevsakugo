@@ -11,18 +11,18 @@ function encode(xmlStr) {
 
     temp = transformXmlToHtml(temp);
 
-    if (!(temp instanceof Node)) {
+    if (!temp) {
         return null;
     }
 
-    temp = removeIgnorableSpaces(temp);
+    temp = removeIgnorableSpace(temp);
 
     temp = extractLaw(temp);
 
     temp = moveRemarksAfterTableStruct(temp);
     temp = moveArticleCaptionBeforeTitle(temp);
-    temp = moveArticleTitlesIntoFirstParagraphStrict(temp);
-    temp = addOldParagraphCircledNums(temp);
+    temp = moveArticleTitleIntoFirstParagraph(temp);
+    temp = addOldParagraphCircledNum(temp);
     temp = extractParagraphCaptionBeforeParagraph(temp);
     temp = tagParagraphBlankNum(temp);
     temp = addParagraphContainer(temp);
@@ -46,7 +46,7 @@ function encode(xmlStr) {
     temp = addZenkakuSpaceAfterClass(temp, 'Subitem4Title');
     temp = addZenkakuSpaceAfterClass(temp, 'Subitem5Title');
     temp = addZenkakuSpaceAfterClass(temp, 'Column');
-    temp = addFigLinks(temp);
+    temp = addFigLink(temp);
 
     return temp.outerHTML;
 }
@@ -104,26 +104,21 @@ function transformXmlToHtml(xmlStr) {
 
     function convertNode(xmlNode, htmlDoc) {
         if (xmlNode.nodeType === Node.ELEMENT_NODE) {
-            const origName = xmlNode.localName || xmlNode.nodeName;
+            const origName = xmlNode.localName;
             const tagName = tagMap[origName] || 'div';
             const element = htmlDoc.createElement(tagName);
             element.className = origName;
 
-            if (xmlNode.attributes && xmlNode.attributes.length) {
-                for (let i = 0; i < xmlNode.attributes.length; i++) {
-                    const attr = xmlNode.attributes[i];
-                    const nameLower = attr.name.toLowerCase();
+            for (let i = 0; i < xmlNode.attributes.length; i++) {
+                const attr = xmlNode.attributes[i];
+                const nameLower = attr.name.toLowerCase();
 
-                    if (tagName === 'td' && (nameLower === 'rowspan' || nameLower === 'colspan')) {
-                        element.setAttribute(nameLower, attr.value);
-                        continue;
-                    }
-
-                    const prefix = attr.prefix ? attr.prefix + '-' : '';
-                    const safeLocal = (attr.localName || attr.name).replace(/[^a-zA-Z0-9_\-]+/g, '-');
-                    const dataName = 'data-' + prefix + safeLocal;
-                    element.setAttribute(dataName, attr.value);
+                if (tagName === 'td' && (nameLower === 'rowspan' || nameLower === 'colspan')) {
+                    element.setAttribute(nameLower, attr.value);
+                    continue;
                 }
+
+                element.setAttribute('data-' + nameLower, attr.value);
             }
 
             for (let child = xmlNode.firstChild; child; child = child.nextSibling) {
@@ -136,7 +131,7 @@ function transformXmlToHtml(xmlStr) {
         }
 
         if (xmlNode.nodeType === Node.TEXT_NODE) {
-            return xmlNode.nodeValue.length ? htmlDoc.createTextNode(xmlNode.nodeValue) : null;
+            return htmlDoc.createTextNode(xmlNode.nodeValue);
         }
 
         return null;
@@ -146,7 +141,7 @@ function transformXmlToHtml(xmlStr) {
     return convertNode(xmlDoc.documentElement, htmlDoc);
 }
 
-function removeIgnorableSpaces(el) {
+function removeIgnorableSpace(el) {
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
     const removeList = [];
     let node;
@@ -156,9 +151,7 @@ function removeIgnorableSpaces(el) {
         }
     }
     removeList.forEach(n => {
-        if (n.parentNode) {
-            n.parentNode.removeChild(n);
-        }
+        n.remove();
     });
 
     return el;
@@ -166,46 +159,28 @@ function removeIgnorableSpaces(el) {
 
 function extractLaw(el) {
     const container = el.querySelector('.law_full_text');
-    if (!container) {
-        return el.ownerDocument.createElement('div');
-    }
-
     const law = container.querySelector('.Law');
-    if (!law) {
-        return el.ownerDocument.createElement('div');
-    }
 
     const lawInfo = el.querySelector('.law_info');
-    if (lawInfo) {
-        const childElements = lawInfo.children;
-        for (let i = 0; i < childElements.length; i++) {
-            const childEl = childElements[i];
-            const dataKey = childEl.className.toLowerCase();
-            const textContent = childEl.textContent.trim();
-            law.setAttribute('data-law_info_' + dataKey, textContent);
-        }
+    for (const childEl of lawInfo.children) {
+        const dataKey = childEl.className.toLowerCase();
+        const textContent = childEl.textContent.trim();
+        law.setAttribute('data-law_info_' + dataKey, textContent);
     }
 
     const revisionInfo = el.querySelector('.revision_info');
-    if (revisionInfo) {
-        const childElements = revisionInfo.children;
-        for (let i = 0; i < childElements.length; i++) {
-            const childEl = childElements[i];
-            const dataKey = childEl.className.toLowerCase();
-            const textContent = childEl.textContent.trim();
-            law.setAttribute('data-revision_info_' + dataKey, textContent);
-        }
+    for (const childEl of revisionInfo.children) {
+        const dataKey = childEl.className.toLowerCase();
+        const textContent = childEl.textContent.trim();
+        law.setAttribute('data-revision_info_' + dataKey, textContent);
     }
 
     return law;
 }
 
 function moveRemarksAfterTableStruct(el) {
-    const tableStructs = el.querySelectorAll('.TableStruct');
-    tableStructs.forEach(table => {
+    el.querySelectorAll('.TableStruct').forEach(table => {
         const parent = table.parentNode;
-        if (!parent) return;
-
         const ref = table.nextSibling;
         table.querySelectorAll(':scope > .Remarks').forEach(remarks => {
             parent.insertBefore(remarks, ref);
@@ -216,12 +191,11 @@ function moveRemarksAfterTableStruct(el) {
 }
 
 function moveArticleCaptionBeforeTitle(el) {
-    const articles = el.querySelectorAll('.Article');
-    articles.forEach(article => {
+    el.querySelectorAll('.Article').forEach(article => {
         const title = article.querySelector(':scope > .ArticleTitle');
         const caption = article.querySelector(':scope > .ArticleCaption');
 
-        if (title && caption && title.nextElementSibling === caption) {
+        if (caption && title.nextElementSibling === caption) {
             article.insertBefore(caption, title);
         }
     });
@@ -229,42 +203,21 @@ function moveArticleCaptionBeforeTitle(el) {
     return el;
 }
 
-function moveArticleTitlesIntoFirstParagraphStrict(el) {
-    const articles = el.querySelectorAll('.Article');
-    articles.forEach(article => {
+function moveArticleTitleIntoFirstParagraph(el) {
+    el.querySelectorAll('.Article').forEach(article => {
         const title = article.querySelector(':scope > .ArticleTitle');
-        if (!title) {
-            return;
-        }
-        const sib = title.nextElementSibling;
-        if (!sib || !sib.classList.contains('Paragraph')) {
-            return;
-        }
-        sib.insertBefore(title, sib.firstChild);
+        const paragraph = title.nextElementSibling;
+        paragraph.insertBefore(title, paragraph.firstChild);
     });
 
     return el;
 }
 
-function addOldParagraphCircledNums(el) {
-    const oldParas = el.querySelectorAll('.Paragraph[data-oldnum]');
-    oldParas.forEach(p => {
-        const oldVal = p.getAttribute('data-oldnum');
-        if (!oldVal || oldVal.trim().toLowerCase() !== 'true') {
-            return;
-        }
-
-        const numAttr = p.getAttribute('data-num');
-        const n = numAttr ? parseInt(numAttr, 10) : NaN;
-        if (!Number.isInteger(n) || n <= 0) {
-            return;
-        }
+function addOldParagraphCircledNum(el) {
+    el.querySelectorAll('.Paragraph[data-oldnum="true"]').forEach(p => {
+        const n = parseInt(p.getAttribute('data-num'), 10);
 
         const pn = p.querySelector(':scope > .ParagraphNum');
-        if (!pn) {
-            return;
-        }
-
         if (pn.textContent.trim().length > 0) {
             return;
         }
@@ -276,26 +229,20 @@ function addOldParagraphCircledNums(el) {
 }
 
 function formatCircledNumber(n) {
-    if (n >= 1 && n <= 20) {
+    if (n <= 20) {
         return String.fromCharCode(0x2460 + (n - 1));
     }
     return '(' + n + ')';
 }
 
 function extractParagraphCaptionBeforeParagraph(el) {
-    const paras = el.querySelectorAll('.Paragraph');
-    paras.forEach(p => {
+    el.querySelectorAll('.Paragraph').forEach(p => {
         const cap = p.querySelector(':scope > .ParagraphCaption');
         if (!cap) {
             return;
         }
 
-        const parent = p.parentNode;
-        if (!parent) {
-            return;
-        }
-
-        parent.insertBefore(cap, p);
+        p.parentNode.insertBefore(cap, p);
     });
 
     return el;
@@ -304,11 +251,11 @@ function extractParagraphCaptionBeforeParagraph(el) {
 function tagParagraphBlankNum(el) {
     let str = '.Preamble > .Paragraph, ';
     str += '.MainProvision > .Paragraph, .SupplProvision > .Paragraph, ';
-    str += '.MainProvision > .Article > .Paragraph[data-num]:not([data-num="1"]), ';
-    str += '.SupplProvision > .Article > .Paragraph[data-num]:not([data-num="1"])';
+    str += '.MainProvision > .Article > .Paragraph:not([data-num="1"]), ';
+    str += '.SupplProvision > .Article > .Paragraph:not([data-num="1"])';
     el.querySelectorAll(str).forEach(p => {
         const pn = p.querySelector(':scope > .ParagraphNum');
-        if (!pn || pn.textContent.trim()) return;
+        if (pn.textContent.trim()) return;
         p.classList.add('ParagraphBlankNum');
     });
     return el;
@@ -319,7 +266,6 @@ function addParagraphContainer(el) {
         if (p.closest('.Article')) return;
 
         const parent = p.parentNode;
-        if (!parent) return;
 
         const prev = p.previousElementSibling;
         const hasCaption = prev && prev.classList.contains('ParagraphCaption');
@@ -345,8 +291,6 @@ function addTitleContainer(el, className) {
         if (title.closest('.TOC')) return;
 
         const parent = title.parentNode;
-        if (!parent) return;
-
         const container = el.ownerDocument.createElement('div');
         container.className = className + 'Container';
         parent.insertBefore(container, title);
@@ -372,29 +316,16 @@ function trim(el) {
         }
     }
     removeList.forEach(n => {
-        if (n.parentNode) {
-            n.parentNode.removeChild(n);
-        }
+        n.remove();
     });
     return el;
 }
 
 function addSupplProvisionAmendLawNum(el) {
-    const sections = el.querySelectorAll('.SupplProvision[data-amendlawnum]');
-    sections.forEach(sec => {
+    el.querySelectorAll('.SupplProvision[data-amendlawnum]').forEach(sec => {
         const lawnum = sec.getAttribute('data-amendlawnum');
-        if (!lawnum || lawnum.trim() === '') {
-            return;
-        }
         const label = sec.querySelector(':scope > .SupplProvisionLabel');
-        if (!label) {
-            return;
-        }
         const suffix = '　' + '（' + lawnum + '）';
-        const currentText = label.textContent || '';
-        if (currentText.includes(suffix)) {
-            return;
-        }
         label.appendChild(document.createTextNode(suffix));
     });
 
@@ -402,38 +333,21 @@ function addSupplProvisionAmendLawNum(el) {
 }
 
 function addSupplProvisionExtractLabel(el) {
-    const sections = el.querySelectorAll('.SupplProvision[data-extract="true"]');
-    sections.forEach(sec => {
+    el.querySelectorAll('.SupplProvision[data-extract="true"]').forEach(sec => {
         const label = sec.querySelector(':scope > .SupplProvisionLabel');
-        if (!label) {
-            return;
-        }
         const suffix = '　' + '抄';
-        const currentText = label.textContent || '';
-        if (currentText.includes(suffix)) {
-            return;
-        }
         label.appendChild(document.createTextNode(suffix));
     });
 
     return el;
 }
 
-function addFigLinks(el) {
+function addFigLink(el) {
     const lawRevisionId = el.getAttribute('data-revision_info_law_revision_id');
 
-    el.querySelectorAll('.Fig[data-src]').forEach(fig => {
+    el.querySelectorAll('.Fig').forEach(fig => {
         const src = fig.getAttribute('data-src');
-        if (!src) return;
-
         const fileExtension = getFileExtension(src);
-        if (!lawRevisionId) {
-            const label = el.ownerDocument.createElement('span');
-            label.className = 'FigFile';
-            label.textContent = fileExtension;
-            fig.appendChild(label);
-            return;
-        }
 
         const url = new URL('https://laws.e-gov.go.jp/api/2/attachment/' + encodeURIComponent(lawRevisionId));
         url.searchParams.set('src', src);
@@ -449,37 +363,28 @@ function addFigLinks(el) {
 }
 
 function getFileExtension(src) {
-    const path = src.split(/[?#]/, 1)[0];
-    const fileName = path.split('/').pop() || '';
-    const dotIndex = fileName.lastIndexOf('.');
-    if (dotIndex === -1 || dotIndex === fileName.length - 1) {
-        return 'FILE';
-    }
-    return fileName.slice(dotIndex + 1).toUpperCase();
+    const fileName = src.split('/').pop();
+    return fileName.slice(fileName.lastIndexOf('.') + 1).toUpperCase();
 }
 
 function addZenkakuSpaceAfterClass(el, targetClass) {
-    const targets = el.querySelectorAll('.' + CSS.escape(targetClass));
     const zenkaku = '\u3000';
 
-    targets.forEach(node => {
+    el.querySelectorAll('.' + targetClass).forEach(node => {
         if (node.textContent.trim().length === 0) {
             return;
         }
         const parent = node.parentElement;
-        if (!parent) {
-            return;
-        }
         if (parent.lastElementChild === node) {
             return;
         }
         const nextNode = node.nextSibling;
-        if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+        if (nextNode.nodeType === Node.TEXT_NODE) {
             if (!nextNode.data.startsWith(zenkaku)) {
                 nextNode.data = zenkaku + nextNode.data;
             }
         } else {
-            parent.insertBefore(document.createTextNode(zenkaku), nextNode || node.nextSibling);
+            parent.insertBefore(document.createTextNode(zenkaku), nextNode);
         }
     });
 
@@ -490,10 +395,7 @@ function reverseArticle(el, isSingleParagraphNumShown) {
     el.querySelectorAll('.Article').forEach(article => {
         const paragraphList = article.querySelectorAll(':scope > .Paragraph');
         const firstParagraph = paragraphList[0];
-        const title = firstParagraph?.querySelector(':scope > .ArticleTitle');
-        if (!title) {
-            return;
-        }
+        const title = firstParagraph.querySelector(':scope > .ArticleTitle');
         const caption = article.querySelector(':scope > .ArticleCaption');
         const firstNum = buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown);
 
@@ -511,7 +413,7 @@ function reverseArticle(el, isSingleParagraphNumShown) {
             num.textContent = firstNum;
             num.classList.add('ParagraphNumFilled');
             num.after(ZENKAKU_SPACE);
-        } else if (!num || !num.textContent.trim()) {
+        } else if (!num.textContent.trim()) {
             firstParagraph.classList.add('ParagraphBlankNum');
             firstParagraph.classList.add('ParagraphBlankNumFilled');
         }
@@ -520,7 +422,7 @@ function reverseArticle(el, isSingleParagraphNumShown) {
 
 function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown) {
     const firstNum = paragraphList[0].querySelector(':scope > .ParagraphNum');
-    if (!firstNum || firstNum.textContent.trim()) {
+    if (firstNum.textContent.trim()) {
         return '';
     }
     if (paragraphList.length === 1) {
@@ -530,9 +432,6 @@ function buildFirstParagraphNum(paragraphList, isSingleParagraphNumShown) {
         return paragraphList[0].getAttribute('data-oldnum') === 'true' ? formatCircledNumber(1) : '１';
     }
     const secondNum = paragraphList[1].querySelector(':scope > .ParagraphNum');
-    if (!secondNum) {
-        return '';
-    }
     const secondText = secondNum.textContent.trim();
     if (!secondText) {
         return '';
@@ -577,9 +476,6 @@ function restoreArticle(el) {
 
 function removeZenkakuSpaceAfter(node) {
     const next = node.nextSibling;
-    if (!next || next.nodeType !== Node.TEXT_NODE || !next.data.startsWith(ZENKAKU_SPACE)) {
-        return;
-    }
     next.data = next.data.slice(ZENKAKU_SPACE.length);
     if (!next.data) {
         next.remove();

@@ -70,7 +70,7 @@ async function show() {
     modal.resetScroll();
     modal.show();
 
-    const loaded = await Service.getLawRevisions(baseLawId);
+    const loaded = await Service.getLawRevisionList(baseLawId);
     if (version !== requestVersion) {
         return;
     }

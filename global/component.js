@@ -9,11 +9,11 @@ const SWITCH_WIDTH = 34;
 const SWITCH_HEIGHT = 20;
 const SWITCH_KNOB_SIZE = 14;
 const SWITCH_KNOB_OFFSET = (SWITCH_HEIGHT - SWITCH_KNOB_SIZE) / 2;
-const SWITCH_OFF_COLOR = '#dddddd';
-const SWITCH_OFF_BORDER_COLOR = '#cccccc';
-const SWITCH_ON_COLOR = '#05c46b';
-const SWITCH_ON_BORDER_COLOR = '#04b360';
-const SWITCH_KNOB_SHADOW = '0 2px 5px rgba(0,0,0,0.2)';
+const SWITCH_OFF_COLOR = 'var(--color-silver)';
+const SWITCH_OFF_BORDER_COLOR = 'var(--color-border)';
+const SWITCH_ON_COLOR = 'var(--color-green)';
+const SWITCH_ON_BORDER_COLOR = 'var(--color-green)';
+const SWITCH_KNOB_SHADOW = '0px 2px 5px rgba(0,0,0,0.2)';
 
 const RADIO_PADDING = 4;
 const RADIO_GAP = 4;
@@ -37,7 +37,7 @@ function createSwitch(value, onChange) {
     knob.style.width = SWITCH_KNOB_SIZE + 'px';
     knob.style.height = SWITCH_KNOB_SIZE + 'px';
     knob.style.transition = 'transform var(--transition-duration) ease';
-    knob.style.backgroundColor = '#ffffff';
+    knob.style.backgroundColor = 'var(--color-white)';
     knob.style.borderRadius = '50%';
     knob.style.boxShadow = SWITCH_KNOB_SHADOW;
 
@@ -59,7 +59,7 @@ function createSwitch(value, onChange) {
     const render = () => {
         toggle.setAttribute('aria-checked', current ? 'true' : 'false');
         toggle.style.backgroundColor = current ? SWITCH_ON_COLOR : SWITCH_OFF_COLOR;
-        toggle.style.boxShadow = 'inset 0 0 0 2px ' + (current ? SWITCH_ON_BORDER_COLOR : SWITCH_OFF_BORDER_COLOR);
+        toggle.style.boxShadow = 'inset 0px 0px 0px 2px ' + (current ? SWITCH_ON_BORDER_COLOR : SWITCH_OFF_BORDER_COLOR);
         knob.style.transform = current ? 'translateX(' + (SWITCH_WIDTH - SWITCH_HEIGHT) + 'px)' : '';
     };
 

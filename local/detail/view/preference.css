@@ -4,8 +4,8 @@
 }
 
 .preference-ghost {
-    position: absolute; left: 0px;
     overflow: hidden;
+    position: absolute; left: 0px;
     width: 100%; padding: 8px 0px 16px 0px;
     pointer-events: none;
 }
@@ -73,7 +73,6 @@
 .preference-seekbar-header {
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
 }
-
 
 .preference-page.input {
     padding: 8px 24px 8px 24px;

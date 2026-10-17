@@ -46,24 +46,15 @@ function openDatabase(name) {
 
         request.onupgradeneeded = e => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains(STORAGE_NAME_CONTENT)) {
-                db.createObjectStore(STORAGE_NAME_CONTENT);
-            }
-            if (!db.objectStoreNames.contains(STORAGE_NAME_SIZE)) {
-                db.createObjectStore(STORAGE_NAME_SIZE);
-            }
-            if (!db.objectStoreNames.contains(STORAGE_NAME_TIME)) {
-                db.createObjectStore(STORAGE_NAME_TIME);
-            }
+            db.createObjectStore(STORAGE_NAME_CONTENT);
+            db.createObjectStore(STORAGE_NAME_SIZE);
+            db.createObjectStore(STORAGE_NAME_TIME);
         };
 
         request.onsuccess = e => {
             const database = e.target.result;
             database.onversionchange = () => {
-                try {
-                    database.close();
-                } catch {
-                }
+                database.close();
             };
             resolve(database);
         };
@@ -76,11 +67,6 @@ function openDatabase(name) {
 
 function setItem(key, value, database) {
     return new Promise((resolve, reject) => {
-        if (!database) {
-            reject(new Error('DB is not initialized'));
-            return;
-        }
-
         const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
         const contentStore = tx.objectStore(STORAGE_NAME_CONTENT);
         const sizeStore = tx.objectStore(STORAGE_NAME_SIZE);
@@ -99,36 +85,22 @@ function setItem(key, value, database) {
 }
 
 function getItem(key, database) {
-    return new Promise(async (resolve, reject) => {
-        if (!database) {
-            reject(new Error('DB is not initialized'));
-            return;
-        }
+    return new Promise((resolve, reject) => {
+        const tx = database.transaction(STORAGE_NAME_CONTENT, 'readonly');
+        const store = tx.objectStore(STORAGE_NAME_CONTENT);
+        const request = store.get(key);
 
-        try {
-            const tx = database.transaction(STORAGE_NAME_CONTENT, 'readonly');
-            const store = tx.objectStore(STORAGE_NAME_CONTENT);
-            const request = store.get(key);
-
-            request.onsuccess = e => {
-                resolve(e.target.result ?? null);
-            };
-            request.onerror = e => {
-                reject(e.target.error);
-            };
-        } catch (error) {
-            reject(error);
-        }
+        request.onsuccess = e => {
+            resolve(e.target.result ?? null);
+        };
+        request.onerror = e => {
+            reject(e.target.error);
+        };
     });
 }
 
 function removeItem(key, database) {
     return new Promise((resolve, reject) => {
-        if (!database) {
-            reject(new Error('DB is not initialized'));
-            return;
-        }
-
         const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
         tx.objectStore(STORAGE_NAME_CONTENT).delete(key);
         tx.objectStore(STORAGE_NAME_SIZE).delete(key);
@@ -141,11 +113,6 @@ function removeItem(key, database) {
 
 function clear(database) {
     return new Promise((resolve, reject) => {
-        if (!database) {
-            reject(new Error('DB is not initialized'));
-            return;
-        }
-
         const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
         tx.objectStore(STORAGE_NAME_CONTENT).clear();
         tx.objectStore(STORAGE_NAME_SIZE).clear();
@@ -158,24 +125,19 @@ function clear(database) {
 
 function getSize(database) {
     return new Promise((resolve, reject) => {
-        if (!database) {
-            reject(new Error('DB is not initialized'));
-            return;
-        }
-
         const tx = database.transaction(STORAGE_NAME_SIZE, 'readonly');
         const store = tx.objectStore(STORAGE_NAME_SIZE);
 
-        const sizes = [];
+        const sizeList = [];
         const request = store.openCursor();
 
         request.onsuccess = e => {
             const cursor = e.target.result;
             if (cursor) {
-                sizes.push(cursor.value);
+                sizeList.push(cursor.value);
                 cursor.continue();
             } else {
-                const totalSize = sizes.reduce((acc, cur) => acc + cur, 0);
+                const totalSize = sizeList.reduce((acc, cur) => acc + cur, 0);
                 resolve(totalSize);
             }
         };
@@ -214,14 +176,11 @@ function setMaxTime(time, name) {
 }
 
 async function cleanup(database, name) {
-    if (!database) {
-        throw new Error('DB is not initialized');
-    }
     const maxTime = getMaxTime(name);
     const maxSize = getMaxSize(name);
     const now = Date.now();
     let currentSize = 0;
-    const allItems = [];
+    const itemList = [];
     await new Promise((resolve, reject) => {
         const tx = database.transaction([STORAGE_NAME_TIME, STORAGE_NAME_SIZE], 'readonly');
         const timeStore = tx.objectStore(STORAGE_NAME_TIME);
@@ -230,8 +189,8 @@ async function cleanup(database, name) {
         const fetchSizeAndAdd = (key, time) => {
             const sizeRequest = sizeStore.get(key);
             sizeRequest.onsuccess = (e) => {
-                const size = e.target.result ?? 0;
-                allItems.push({ key, time, size });
+                const size = e.target.result;
+                itemList.push({ key, time, size });
                 currentSize += size;
                 fetchedCount++;
             };
@@ -249,26 +208,26 @@ async function cleanup(database, name) {
         tx.oncomplete = () => resolve();
         tx.onerror = (e) => reject(e.target.error);
     });
-    const expiredKeys = allItems.filter(item => now - item.time > maxTime).map(item => item.key);
-    let keysToDelete = [...expiredKeys];
-    let deleteSize = expiredKeys.reduce((sum, key) => sum + (allItems.find(i => i.key === key)?.size ?? 0), 0);
+    const expiredKeyList = itemList.filter(item => now - item.time > maxTime).map(item => item.key);
+    let deleteKeyList = [...expiredKeyList];
+    let deleteSize = expiredKeyList.reduce((sum, key) => sum + itemList.find(i => i.key === key).size, 0);
     let remainingSize = currentSize - deleteSize;
     if (remainingSize > maxSize) {
-        const nonExpiredItems = allItems.filter(item => !expiredKeys.includes(item.key)).sort((a, b) => a.time - b.time);
-        for (const item of nonExpiredItems) {
+        const nonExpiredItemList = itemList.filter(item => !expiredKeyList.includes(item.key)).sort((a, b) => a.time - b.time);
+        for (const item of nonExpiredItemList) {
             if (remainingSize <= maxSize) break;
-            keysToDelete.push(item.key);
+            deleteKeyList.push(item.key);
             remainingSize -= item.size;
         }
     }
-    if (keysToDelete.length > 0) {
+    if (deleteKeyList.length > 0) {
         await new Promise((resolve, reject) => {
             const tx = database.transaction([STORAGE_NAME_CONTENT, STORAGE_NAME_SIZE, STORAGE_NAME_TIME], 'readwrite');
             const contentStore = tx.objectStore(STORAGE_NAME_CONTENT);
             const sizeStore = tx.objectStore(STORAGE_NAME_SIZE);
             const timeStore = tx.objectStore(STORAGE_NAME_TIME);
 
-            for (const key of keysToDelete) {
+            for (const key of deleteKeyList) {
                 contentStore.delete(key);
                 sizeStore.delete(key);
                 timeStore.delete(key);
