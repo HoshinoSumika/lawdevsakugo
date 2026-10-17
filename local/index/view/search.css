@@ -105,6 +105,7 @@
 .search-item-tag {
     margin: 0px 0px 0px 8px; padding: 0px 6px;
     font-size: 0.85em;
+    vertical-align: calc((0.5 - 0.15) * (1 - 0.85) / 0.85 * 1em);
     white-space: nowrap;
     color: var(--color-gray);
     border: 1px solid var(--color-border); border-radius: var(--radius-small);
