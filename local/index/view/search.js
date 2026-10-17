@@ -28,6 +28,7 @@ let searchInput;
 let searchClear;
 let searchList;
 let selectedIndex = 0;
+let queryFrame = 0;
 
 function init(value) {
     api = value;
@@ -62,6 +63,7 @@ function init(value) {
         if (event.isComposing || event.keyCode === IME_KEY_CODE) {
             return;
         }
+        flushQueryChange();
         if (Device.isTouch()) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -85,7 +87,7 @@ function init(value) {
     });
     searchInput.addEventListener('input', () => {
         renderClear();
-        api.onQueryChange(searchInput.value);
+        scheduleQueryChange();
     });
 
     searchClear.addEventListener('click', () => {
@@ -198,6 +200,22 @@ function clearValue() {
     }
     setValue('');
     api.onQueryChange('');
+}
+
+function scheduleQueryChange() {
+    if (queryFrame) {
+        return;
+    }
+    queryFrame = requestAnimationFrame(flushQueryChange);
+}
+
+function flushQueryChange() {
+    if (!queryFrame) {
+        return;
+    }
+    cancelAnimationFrame(queryFrame);
+    queryFrame = 0;
+    api.onQueryChange(searchInput.value);
 }
 
 function renderClear() {

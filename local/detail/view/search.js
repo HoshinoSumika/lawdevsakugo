@@ -34,6 +34,7 @@ const TEXT_SELECTOR = [
     '.Remarks > .Sentence',
 ].join(', ');
 
+const IME_KEY_CODE = 229;
 const HIGHLIGHT_CLASS = 'highlight';
 const SCROLL_DURATION = 500;
 const FADE_DURATION = 180;
@@ -50,6 +51,7 @@ let searchInput;
 let searchClear;
 let searchResult;
 let query = '';
+let queryFrame = 0;
 let isShown = false;
 let selectedIndex = -1;
 
@@ -61,9 +63,10 @@ function init(api) {
     buildFrame();
 
     searchInput.addEventListener('keydown', event => {
-        if (event.isComposing) {
+        if (event.isComposing || event.keyCode === IME_KEY_CODE) {
             return;
         }
+        flushQueryChange();
         if (Device.isTouch()) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -92,7 +95,7 @@ function init(api) {
     });
     searchInput.addEventListener('input', () => {
         searchClear.style.display = searchInput.value === '' ? 'none' : '';
-        changeQuery(searchInput.value);
+        scheduleQueryChange();
     });
 
     searchClear.addEventListener('click', () => {
@@ -148,6 +151,22 @@ function resetSearch() {
     searchClear.style.display = 'none';
     query = '';
     updateResult(false);
+}
+
+function scheduleQueryChange() {
+    if (queryFrame) {
+        return;
+    }
+    queryFrame = requestAnimationFrame(flushQueryChange);
+}
+
+function flushQueryChange() {
+    if (!queryFrame) {
+        return;
+    }
+    cancelAnimationFrame(queryFrame);
+    queryFrame = 0;
+    changeQuery(searchInput.value);
 }
 
 function changeQuery(value) {
