@@ -1,6 +1,8 @@
 export const Config = {
     getDev,
     setDev,
+    getBookmarkList,
+    setBookmarkList,
     getOutline,
     setOutline,
     getToc,
@@ -82,6 +84,14 @@ function getDev() {
 
 function setDev(value) {
     Storage.set('dev', value);
+}
+
+function getBookmarkList() {
+    return Storage.get('bookmark-list', []);
+}
+
+function setBookmarkList(value) {
+    Storage.set('bookmark-list', value);
 }
 
 function getOutline() {

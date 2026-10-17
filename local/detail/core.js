@@ -27,6 +27,7 @@ const api = {
     getContent: () => contentEl,
     getContainer: () => contentEl.parentElement,
     getLawId: () => Route.getLawId(),
+    getLawTitle: () => findLawTitle(contentEl),
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
     onMenuSelect: () => Menu.show(),
@@ -121,12 +122,16 @@ async function load() {
     arrangeArticle(template.content);
     contentEl.replaceChildren(template.content);
 
-    const title = contentEl.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
+    const title = findLawTitle(contentEl);
     document.title = title;
     Nav.setTitle(title);
     Outline.update();
 
     messageLoading.hide();
+}
+
+function findLawTitle(root) {
+    return root.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
 }
 
 function markSentence(root) {

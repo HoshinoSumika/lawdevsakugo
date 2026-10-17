@@ -5,32 +5,55 @@ export const Menu = {
 
 import { Design } from '/lib/design.js';
 import { Dialog } from '/lib/dialog.js';
+import { Message } from '/lib/message.js';
 
+import { Config } from '/global/config.js';
 import { Text } from '/global/text.js';
 
+let api;
 let modal;
+let bookmarkItem;
 
-function init(api) {
-    const content = document.createElement('div');
-    content.classList.add('menu-content');
-    content.appendChild(buildItem('home', Text.getTopPage(), () => {
+let messageBookmarkAdded;
+let messageBookmarkRemoved;
+
+function init(value) {
+    api = value;
+
+    messageBookmarkAdded = Message.info(Text.getBookmarkAdded());
+    messageBookmarkRemoved = Message.info(Text.getBookmarkRemoved());
+
+    bookmarkItem = buildItem('bookmark', '', () => {
+        hide();
+        toggleBookmark();
+    });
+
+    const scroll = document.createElement('div');
+    scroll.classList.add('menu-scroll');
+    scroll.appendChild(buildItem('home', Text.getTopPage(), () => {
         window.location.href = '/';
     }));
-    content.appendChild(buildDivider());
-    content.appendChild(buildItem('info', Text.getInfo(), () => {
+    scroll.appendChild(buildDivider());
+    scroll.appendChild(buildItem('info', Text.getInfo(), () => {
         hide();
         api.onInfoSelect();
     }));
-    content.appendChild(buildItem('history', Text.getHistory(), () => {
+    scroll.appendChild(buildItem('history', Text.getHistory(), () => {
         hide();
         api.onHistorySelect();
     }));
-    content.appendChild(buildDivider());
-    content.appendChild(buildItem('toc', Text.getOutline(), () => {
+    scroll.appendChild(buildDivider());
+    scroll.appendChild(buildItem('toc', Text.getOutline(), () => {
         hide();
         api.onOutlineSelect();
     }));
-    content.appendChild(buildDivider());
+    scroll.appendChild(buildItem('code', Text.getCompare(), () => {}));
+    scroll.appendChild(buildDivider());
+    scroll.appendChild(bookmarkItem);
+
+    const content = document.createElement('div');
+    content.classList.add('menu-content');
+    content.appendChild(scroll);
     content.appendChild(buildItem('config', Text.getPreference(), () => {
         hide();
         api.onPreferenceSelect();
@@ -43,11 +66,39 @@ function init(api) {
 }
 
 function show() {
+    renderBookmarkItem();
     modal.show();
 }
 
 function hide() {
     modal.hide();
+}
+
+function renderBookmarkItem() {
+    bookmarkItem.style.display = api.getLawTitle() ? '' : 'none';
+    bookmarkItem.querySelector('span').textContent = isBookmarked(getBaseLawId()) ? Text.getBookmarkRemove() : Text.getBookmarkAdd();
+}
+
+function toggleBookmark() {
+    const id = getBaseLawId();
+    const bookmarkList = Config.getBookmarkList();
+    if (isBookmarked(id)) {
+        Config.setBookmarkList(bookmarkList.filter(bookmark => bookmark.id !== id));
+        messageBookmarkAdded.hide();
+        messageBookmarkRemoved.show();
+        return;
+    }
+    Config.setBookmarkList(bookmarkList.concat({ id, title: api.getLawTitle() }));
+    messageBookmarkRemoved.hide();
+    messageBookmarkAdded.show();
+}
+
+function isBookmarked(id) {
+    return Config.getBookmarkList().some(bookmark => bookmark.id === id);
+}
+
+function getBaseLawId() {
+    return api.getLawId().split('_')[0];
 }
 
 function buildItem(icon, label, onClick) {

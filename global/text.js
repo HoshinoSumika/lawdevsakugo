@@ -4,7 +4,12 @@ export const Text = {
     getTopPage,
     getInfo,
     getHistory,
+    getBookmarkAdd,
+    getBookmarkRemove,
+    getBookmarkAdded,
+    getBookmarkRemoved,
     getOutline,
+    getCompare,
     getOutlineLawInfo,
     getMainProvision,
     getPreference,
@@ -128,8 +133,28 @@ function getHistory() {
     return '改正履歴';
 }
 
+function getBookmarkAdd() {
+    return 'ブックマークを追加';
+}
+
+function getBookmarkRemove() {
+    return 'ブックマークを削除';
+}
+
+function getBookmarkAdded() {
+    return 'ブックマークに追加しました。';
+}
+
+function getBookmarkRemoved() {
+    return 'ブックマークから削除しました。';
+}
+
 function getOutline() {
     return '目次';
+}
+
+function getCompare() {
+    return '条文比較';
 }
 
 function getOutlineLawInfo() {
