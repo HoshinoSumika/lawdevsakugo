@@ -28,24 +28,30 @@ window.addEventListener('load', () => {
 });
 
 window.addEventListener('pageshow', event => {
-    if (event.persisted) {
-        Search.reset();
-        resetQuery();
-    }
+    showPage(event.persisted);
 });
 
 let query = '';
 let internetQuery = '';
 let searchVersion = 0;
+let dictionaryLoad = null;
 
-async function init() {
+function init() {
     Flex.setColor('var(--color-black)', 'var(--color-white)');
 
     Search.init(api);
     Shortcut.init(api);
-    renderQuery();
+    dictionaryLoad = Dictionary.load();
+}
 
-    await Dictionary.load();
+async function showPage(isPersisted) {
+    if (isPersisted) {
+        Search.reset();
+        query = '';
+        internetQuery = '';
+    }
+
+    await dictionaryLoad;
     if (!internetQuery) {
         renderQuery();
     }
@@ -56,11 +62,6 @@ function changeQuery(value) {
         return;
     }
     query = value.trim();
-    renderQuery();
-}
-
-function resetQuery() {
-    query = '';
     renderQuery();
 }
 
