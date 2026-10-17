@@ -609,7 +609,7 @@ function getSiteName() {
 }
 
 function getSearchPlaceholder() {
-    return '法令名・略称・よみがな';
+    return '法令名';
 }
 
 function getBookmark() {
