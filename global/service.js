@@ -13,7 +13,7 @@ const CACHE_NAME_FULL_TEXT = 'LawFullTextBeta';
 const CACHE_NAME_REVISION_LIST = 'LawRevisionsBeta';
 const CACHE_NAME_LAW_ID = 'LawIdsBeta';
 
-async function search(title) {
+async function search(title, limit) {
     if (Config.getDev()) {
         try {
             const url = '/ignore/' + title + '.json';
@@ -28,7 +28,7 @@ async function search(title) {
     }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
-        const query = '?response_format=json' + '&limit=9999' + '&law_title=' + title;
+        const query = '?response_format=json' + '&limit=' + limit + '&law_title=' + encodeURIComponent(title);
         const encodedApiUrl = encodeURIComponent(apiBaseUrl + query);
         const proxyUrl = '/proxy?url=' + encodedApiUrl;
         const res = await fetch(proxyUrl);

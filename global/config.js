@@ -3,6 +3,8 @@ export const Config = {
     setDev,
     getBookmarkList,
     setBookmarkList,
+    getRecentList,
+    setRecentList,
     getOutline,
     setOutline,
     getToc,
@@ -95,6 +97,14 @@ function getBookmarkList() {
 
 function setBookmarkList(value) {
     Storage.set('bookmark-list', value);
+}
+
+function getRecentList() {
+    return Storage.get('recent-list', []);
+}
+
+function setRecentList(value) {
+    Storage.set('recent-list', value);
 }
 
 function getOutline() {

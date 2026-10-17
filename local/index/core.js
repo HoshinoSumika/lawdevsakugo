@@ -1,6 +1,23 @@
 import { Device } from '/lib/device.js';
+import { Flex } from '/lib/flex.js';
 
-import { Route } from '/global/route.js';
+import { Dictionary } from './dictionary.js';
+import { Internet } from './internet.js';
+import { Search } from './view/search.js';
+import { Shortcut } from './view/shortcut.js';
+
+const CANDIDATE_LIMIT = 10;
+const INTERNET_LIMIT = 100;
+
+const contentEl = document.querySelector('#content');
+
+const api = {
+    getContent: () => contentEl,
+    getRecommendList: () => Dictionary.getRecommendList(),
+    onQueryChange: (value) => changeQuery(value),
+    onInternetSelect: () => selectInternet(),
+    onInternetAllSelect: (totalCount) => selectInternetAll(totalCount),
+};
 
 window.addEventListener('DOMContentLoaded', () => {
     init();
@@ -10,22 +27,72 @@ window.addEventListener('load', () => {
     Device.optimizeForTouch();
 });
 
-function init() {
-    const content = document.querySelector('#content');
-    content.appendChild(buildLawLink('321CONSTITUTION', '日本国憲法'));
-    content.appendChild(buildLawLink('129AC0000000089', '民法'));
-    content.appendChild(buildLawLink('417AC0000000086', '会社法'));
-    content.appendChild(buildLawLink('408AC0000000109', '民事訴訟法'));
-    content.appendChild(buildLawLink('140AC0000000045', '刑法'));
-    content.appendChild(buildLawLink('323AC0000000131', '刑事訴訟法'));
-    content.appendChild(buildLawLink('340AC0000000033', '所得税法'));
-    content.appendChild(buildLawLink('340AC0000000034', '法人税法'));
+window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+        Search.reset();
+        changeQuery('');
+    }
+});
+
+let query = '';
+let internetQuery = '';
+let searchVersion = 0;
+
+async function init() {
+    Flex.setColor('var(--color-black)', 'var(--color-white)');
+
+    Search.init(api);
+    Shortcut.init(api);
+    changeQuery('');
+
+    await Dictionary.load();
+    if (!internetQuery) {
+        changeQuery(query);
+    }
 }
 
-function buildLawLink(id, name) {
-    const link = document.createElement('a');
-    link.classList.add('law-link');
-    link.href = Route.getLawHref(id);
-    link.textContent = name;
-    return link;
+function changeQuery(value) {
+    query = value.trim();
+    internetQuery = '';
+    searchVersion = searchVersion + 1;
+
+    if (query) {
+        Shortcut.hide();
+        Search.showCandidate(query, Dictionary.find(query, CANDIDATE_LIMIT));
+    } else {
+        Search.hideList();
+        Shortcut.show();
+    }
+}
+
+function selectInternet() {
+    if (Device.isTouch()) {
+        Search.blur();
+    }
+    if (!query || internetQuery === query) {
+        return;
+    }
+    searchInternet(query, INTERNET_LIMIT);
+}
+
+function selectInternetAll(totalCount) {
+    searchInternet(internetQuery, totalCount);
+}
+
+async function searchInternet(value, limit) {
+    internetQuery = value;
+
+    searchVersion = searchVersion + 1;
+    const functionVersion = searchVersion;
+    Search.showLoading();
+
+    const result = await Internet.search(value, limit);
+    if (functionVersion !== searchVersion) {
+        return;
+    }
+    if (!result) {
+        Search.showError();
+        return;
+    }
+    Search.showInternetResult(value, result);
 }

@@ -114,6 +114,19 @@ export const Text = {
     getSearchEmpty,
     getSearchShowAll,
     getSearchLimit,
+    getSiteName,
+    getSearchPlaceholder,
+    getBookmark,
+    getRecent,
+    getRecommend,
+    getLawType,
+    getInternetSearch,
+    getInternetSearching,
+    getInternetResult,
+    getInternetResultLimit,
+    getInternetEmpty,
+    getInternetFailed,
+    getUnenforcedLaw,
 };
 
 const KANJI_NUMBER_LIST = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
@@ -589,4 +602,69 @@ function getSearchShowAll() {
 
 function getSearchLimit(limit) {
     return '（現在は' + limit + '件のみ表示）';
+}
+
+function getSiteName() {
+    return '法令検索';
+}
+
+function getSearchPlaceholder() {
+    return '法令名・略称・よみがな';
+}
+
+function getBookmark() {
+    return 'ブックマーク';
+}
+
+function getRecent() {
+    return '閲覧履歴';
+}
+
+function getRecommend() {
+    return 'おすすめ';
+}
+
+function getLawType(type) {
+    if (type === 'Constitution') {
+        return '憲法';
+    } else if (type === 'Act') {
+        return '法律';
+    } else if (type === 'CabinetOrder') {
+        return '政令';
+    } else if (type === 'ImperialOrder') {
+        return '勅令';
+    } else if (type === 'MinisterialOrdinance') {
+        return '府省令';
+    } else if (type === 'Rule') {
+        return '規則';
+    }
+    return 'その他';
+}
+
+function getInternetSearch(query) {
+    return '「' + query + '」を e-Gov で検索';
+}
+
+function getInternetSearching() {
+    return 'e-Gov で検索中';
+}
+
+function getInternetResult(count) {
+    return 'e-Gov の検索結果 ' + count.toLocaleString() + ' 件';
+}
+
+function getInternetResultLimit(totalCount, limit) {
+    return totalCount.toLocaleString() + ' 件のうち ' + limit + ' 件を表示';
+}
+
+function getInternetEmpty(query) {
+    return '「' + query + '」に一致する法令は見つかりませんでした。';
+}
+
+function getInternetFailed() {
+    return '検索結果を取得できませんでした。';
+}
+
+function getUnenforcedLaw() {
+    return '未施行';
 }

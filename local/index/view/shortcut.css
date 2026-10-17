@@ -1,0 +1,42 @@
+.shortcut {
+    padding: 8px 0px 0px 0px;
+    transition: opacity var(--transition-duration) ease, visibility var(--transition-duration);
+}
+.shortcut.shortcut-hidden {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.shortcut-heading {
+    margin: 16px 0px 8px 0px;
+    user-select: none; -webkit-user-select: none;
+    font-size: 13px; font-weight: normal;
+    line-height: 1.5;
+    color: var(--color-gray);
+}
+
+.shortcut-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+.shortcut-item {
+    max-width: min(100%, 16em); height: var(--size-small); padding: 0px 14px;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex; align-items: center;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--color-black); background-color: var(--color-smoke);
+    border-radius: var(--radius-max);
+}
+.shortcut-item:hover {
+    background-color: var(--color-silver);
+}
+.shortcut-item:active {
+    background-color: var(--color-silver);
+}
+
+.shortcut-item > span {
+    overflow: hidden;
+    white-space: nowrap; text-overflow: ellipsis;
+}

@@ -126,12 +126,21 @@ async function load() {
     document.title = title;
     Nav.setTitle(title);
     Outline.update();
+    addRecent(id.split('_')[0], title);
 
     messageLoading.hide();
 }
 
 function findLawTitle(root) {
     return root.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
+}
+
+function addRecent(id, title) {
+    if (!title) {
+        return;
+    }
+    const recentList = Config.getRecentList().filter(recent => recent.id !== id);
+    Config.setRecentList(recentList.concat({ id, title }));
 }
 
 function markSentence(root) {
