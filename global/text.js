@@ -4,6 +4,9 @@ export const Text = {
     getTopPage,
     getInfo,
     getHistory,
+    getOutline,
+    getOutlineLawInfo,
+    getMainProvision,
     getPreference,
     getShowToc,
     getShowSupplProvision,
@@ -123,6 +126,18 @@ function getInfo() {
 
 function getHistory() {
     return '改正履歴';
+}
+
+function getOutline() {
+    return '目次';
+}
+
+function getOutlineLawInfo() {
+    return '法令情報';
+}
+
+function getMainProvision() {
+    return '本　則';
 }
 
 function getPreference() {

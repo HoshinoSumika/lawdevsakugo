@@ -1,6 +1,8 @@
 export const Config = {
     getDev,
     setDev,
+    getOutline,
+    setOutline,
     getToc,
     setToc,
     getSupplProvision,
@@ -47,6 +49,7 @@ import { Storage } from '/lib/storage.js';
 const prefix = 'config-';
 
 const defaults = {
+    'outline': true,
     'toc': false,
     'suppl-provision': false,
     'paren-highlight': false,
@@ -79,6 +82,14 @@ function getDev() {
 
 function setDev(value) {
     Storage.set('dev', value);
+}
+
+function getOutline() {
+    return read('outline');
+}
+
+function setOutline(value) {
+    write('outline', value);
 }
 
 function getToc() {

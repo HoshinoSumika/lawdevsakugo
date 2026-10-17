@@ -4,4 +4,9 @@ html, body {
 
 main {
     overflow-y: auto;
+    flex-direction: row; justify-content: center; align-items: start;
+}
+
+main > .content {
+    min-width: 0px;
 }

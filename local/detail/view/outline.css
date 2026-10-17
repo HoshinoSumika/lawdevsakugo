@@ -1,0 +1,78 @@
+:root {
+    --outline-width: 360px;
+    --outline-min-width: 280px;
+}
+
+.outline-desktop {
+    overflow-y: auto; overscroll-behavior: contain;
+    position: sticky; top: 0px;
+    flex-shrink: 100;
+    width: var(--outline-width); min-width: var(--outline-min-width); height: 100%; padding: 16px 0px 16px 16px;
+    scrollbar-color: transparent transparent;
+    font-size: 14px;
+}
+.outline-desktop:hover {
+    scrollbar-color: var(--color-gray) var(--color-smoke);
+}
+
+.outline-spacer {
+    flex: 1 0 0px;
+    max-width: var(--outline-width);
+}
+
+.outline-mobile {
+    width: 100%; padding: 8px 16px 16px 16px;
+    font-size: 15px;
+}
+
+.outline-tree,
+.outline-tree ul {
+    margin: 0px; padding: 0px;
+    list-style: none;
+}
+
+.outline-tree li {
+    position: relative;
+    padding: 0px 0px 0px 2em;
+}
+.outline-tree > li {
+    padding: 0px;
+}
+
+.outline-tree li::before {
+    content: '';
+    position: absolute; top: 0px; left: 1.5em;
+    width: 1px; height: 100%;
+    background-color: var(--color-silver);
+}
+.outline-tree > li::before {
+    display: none;
+}
+.outline-mobile .outline-tree li::before {
+    background-color: var(--color-border);
+}
+.outline-tree li:has(> .outline-item:hover)::before,
+.outline-tree li:has(> .outline-item:active)::before {
+    background-color: var(--color-black);
+}
+
+.outline-item {
+    cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    line-height: 1.6;
+    color: var(--color-gray);
+}
+.outline-desktop .outline-item {
+    padding: 4px 1em 4px 1em;
+}
+.outline-mobile .outline-item {
+    padding: 8px 1em 8px 1em;
+}
+.outline-item:hover,
+.outline-item:active {
+    color: var(--color-black);
+}
+.outline-item.current {
+    font-weight: bold;
+    color: var(--color-black);
+}

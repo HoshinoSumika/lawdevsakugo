@@ -26,6 +26,11 @@ function init(api) {
         api.onHistorySelect();
     }));
     content.appendChild(buildDivider());
+    content.appendChild(buildItem('toc', Text.getOutline(), () => {
+        hide();
+        api.onOutlineSelect();
+    }));
+    content.appendChild(buildDivider());
     content.appendChild(buildItem('config', Text.getPreference(), () => {
         hide();
         api.onPreferenceSelect();

@@ -21,7 +21,7 @@ const SLIDE_DURATION = 200;
 const SLIDE_EASING = 'ease-out';
 const FADE_DURATION = 50;
 const CONTENT_WIDTH_STANDARD = 800;
-const CONTENT_WIDTH_WIDE = 1200;
+const CONTENT_WIDTH_WIDE = 1000;
 const EXPAND_DURATION = 200;
 const PARAGRAPH_SPACING_WIDE = 8;
 const PAREN_PAIR = ['（', '）'];
@@ -107,6 +107,7 @@ function init(value) {
     mainPage.appendChild(buildSwitchItem(Text.getShowSupplProvision(), Config.getSupplProvision, (value) => {
         Config.setSupplProvision(value);
         applySupplProvision(value);
+        api.onSupplProvisionChange();
     }));
     mainPage.appendChild(buildDivider());
     appendHighlightItem(Text.getParenHighlight(), Text.getParenHighlightPreference(), parenPage, Config.getParenHighlight, Config.setParenHighlight, applyParenHighlight);
@@ -305,6 +306,7 @@ function clearPreference() {
     renderWordPage();
     api.onWordChange();
     api.onArticlePlacementChange();
+    api.onSupplProvisionChange();
     pageList[0].scrollTop = 0;
     showPreviousPage();
     messagePreferenceCleared.show();

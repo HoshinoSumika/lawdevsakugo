@@ -14,6 +14,7 @@ import { History } from './view/history.js';
 import { Info } from './view/info.js';
 import { Menu } from './view/menu.js';
 import { Nav } from './view/nav.js';
+import { Outline } from './view/outline.js';
 import { Preference } from './view/preference.js';
 import { Search } from './view/search.js';
 
@@ -29,11 +30,13 @@ const api = {
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
     onMenuSelect: () => Menu.show(),
+    onOutlineSelect: () => Outline.toggle(),
     onPreferenceSelect: () => Preference.show(),
     onRevisionSelect: (id) => move(id),
     onSearchSelect: () => Search.show(),
     onWordChange: () => changeWord(),
     onArticlePlacementChange: () => arrangeArticle(contentEl),
+    onSupplProvisionChange: () => Outline.update(),
     arrangeArticle: (root) => arrangeArticle(root),
 };
 
@@ -70,6 +73,7 @@ async function init() {
     Info.init(api);
     Menu.init(api);
     Nav.init(api);
+    Outline.init(api);
     Preference.init(api);
     Search.init(api);
 
@@ -86,6 +90,7 @@ async function load() {
     const functionVersion = contentVersion;
 
     contentEl.innerHTML = '';
+    Outline.update();
 
     const id = Route.getLawId();
     if (!id) {
@@ -119,6 +124,7 @@ async function load() {
     const title = contentEl.querySelector('.Law > .LawBody > .LawTitle')?.textContent || '';
     document.title = title;
     Nav.setTitle(title);
+    Outline.update();
 
     messageLoading.hide();
 }
