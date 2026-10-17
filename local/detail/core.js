@@ -56,6 +56,7 @@ window.addEventListener('popstate', () => {
 let messageMissingId;
 let messageLoadError;
 let messageLoading;
+let messageRepeal = null;
 
 let contentVersion = 0;
 
@@ -93,6 +94,11 @@ async function load() {
     contentEl.innerHTML = '';
     Outline.update();
 
+    if (messageRepeal) {
+        messageRepeal.hide();
+        messageRepeal = null;
+    }
+
     const id = Route.getLawId();
     if (!id) {
         messageLoading.hide();
@@ -129,6 +135,12 @@ async function load() {
     addRecent(id.split('_')[0], title);
 
     messageLoading.hide();
+
+    const repealStatus = contentEl.querySelector('.Law')?.dataset.revision_info_repeal_status;
+    if (repealStatus && repealStatus !== 'None') {
+        messageRepeal = Message.alert(Text.getRepealAlert(repealStatus));
+        messageRepeal.show();
+    }
 }
 
 function findLawTitle(root) {

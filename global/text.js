@@ -111,6 +111,7 @@ export const Text = {
     getEnforcementDate,
     getAmendmentLaw,
     getRepealStatus,
+    getRepealAlert,
     getSearchEmpty,
     getSearchShowAll,
     getSearchLimit,
@@ -590,6 +591,10 @@ function getRepealStatus(...argList) {
         return '実効性喪失';
     }
     return '';
+}
+
+function getRepealAlert(status) {
+    return 'この法令は「' + getRepealStatus(status) + '」の状態です。';
 }
 
 function getSearchEmpty() {
