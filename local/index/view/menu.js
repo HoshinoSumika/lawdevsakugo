@@ -34,6 +34,22 @@ function init(value) {
         hide();
         api.onPreferenceSelect();
     }));
+    menuPanel.appendChild(buildItem('help', Text.getHelp(), () => {
+        hide();
+        api.onInfoSelect('help');
+    }));
+    menuPanel.appendChild(buildItem('info', Text.getAbout(), () => {
+        hide();
+        api.onInfoSelect('about');
+    }));
+    menuPanel.appendChild(buildItem('article', Text.getTerms(), () => {
+        hide();
+        api.onInfoSelect('terms');
+    }));
+    menuPanel.appendChild(buildItem('shield', Text.getPrivacy(), () => {
+        hide();
+        api.onInfoSelect('privacy');
+    }));
 
     document.body.append(menuButton, menuOverlay, menuPanel);
 

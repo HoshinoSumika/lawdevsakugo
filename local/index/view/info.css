@@ -1,0 +1,26 @@
+.info-content {
+    width: 100%; padding: 0px 24px 16px 24px;
+    font-size: 14px;
+}
+
+.info-content h3 {
+    margin: 16px 0px 4px 0px;
+    font-size: 15px;
+}
+.info-content h4 {
+    margin: 12px 0px 4px 0px;
+    font-size: 14px;
+}
+.info-content p {
+    margin: 0px 0px 8px 0px;
+}
+.info-content a {
+    word-break: break-all;
+    color: inherit;
+}
+.info-content > :first-child {
+    margin-top: 0px;
+}
+.info-content > :last-child {
+    margin-bottom: 0px;
+}

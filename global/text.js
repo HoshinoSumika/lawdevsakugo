@@ -124,6 +124,14 @@ export const Text = {
     getShowBookmark,
     getShowRecent,
     getShowMajorLaw,
+    getHelp,
+    getHelpBody,
+    getTerms,
+    getTermsBody,
+    getPrivacy,
+    getPrivacyBody,
+    getAbout,
+    getAboutBody,
     getLawType,
     getInternetSearch,
     getInternetSearching,
@@ -647,6 +655,58 @@ function getShowRecent() {
 
 function getShowMajorLaw() {
     return '主要法令を表示';
+}
+
+function getHelp() {
+    return '使い方';
+}
+
+function getHelpBody() {
+    return '<h3>トップページ</h3>'
+        + '<p>検索予測は、一部の法令にのみ対応しています。</p>'
+        + '<h3>法令閲覧ページ</h3>'
+        + '<h4>検索</h4>'
+        + '<p>「検索」機能は、条文の検索に特化しています。「制定文」や「編」「章」「節」などは検索結果に含まれません。これらを検索する場合は、ブラウザーの検索機能をご利用ください。</p>'
+        + '<p>条番号で検索する際には、漢数字のみならず、半角数字や全角数字で検索することも可能です。たとえば「第四百十三条の二」を検索する場合には、「４１３　２」「413-2」などと入力すれば検索できます。</p>'
+        + '<h4>目次</h4>'
+        + '<p>「目次」機能で表示される目次では、「法令情報」が最初に表示されます。この「法令情報」は、本文中の「法令番号」「法令名」「制定文」「目次」など、法令番号から本則までのすべての内容を意味しています。</p>';
+}
+
+function getTerms() {
+    return '利用規約';
+}
+
+function getTermsBody() {
+    return '<h3>コンテンツの利用について</h3>'
+        + '<p>コンテンツ利用に当たっては、本利用規約に同意したものとみなします。</p>'
+        + '<h3>免責事項</h3>'
+        + '<p>当サイトの法令データが、官報に掲載している内容と異なる場合には、官報が優先します（当サイトの法令データの表記方法については、「当サイトについて」をあわせてご参照ください。）。</p>'
+        + '<p>当サイトは、利用者がコンテンツを用いて行う一切の行為について何ら責任を負うものではありません。</p>'
+        + '<h3>準拠法と合意管轄</h3>'
+        + '<p>本利用規約は、日本法に基づいて解釈されます。</p>'
+        + '<p>本利用規約によるコンテンツの利用及び本利用規約に関する紛争については、大阪地方裁判所を第一審の専属的合意管轄裁判所とします。</p>';
+}
+
+function getPrivacy() {
+    return 'プライバシー';
+}
+
+function getPrivacyBody() {
+    return '<h3>Cookie</h3>'
+        + '<p>当サイトでは、Cookie（クッキー）を使用しておりません。また、閲覧履歴や利用環境などの情報を収集する仕組みを設けておりません。</p>'
+        + '<p>ただし、当サイトの公開に利用しているサービスであるCloudflareが、サービス提供等のために必要な技術的情報を収集する場合があります。これらの情報の取り扱いについては、Cloudflareのプライバシーポリシーをご確認ください。</p>'
+        + '<h3>localStorageとIndexedDB</h3>'
+        + '<p>当サイトでは、設定の保持や利便性向上のため、localStorage及びIndexedDBを使用してブラウザにデータを保存しています。localStorageには各種設定を永続的に、IndexedDBには法令データを一時的に保存します。これらのデータは、利用者のブラウザー内でのみ利用されます。</p>';
+}
+
+function getAbout() {
+    return '当サイトについて';
+}
+
+function getAboutBody() {
+    return '<p>当サイトの法令データは、「e-Gov法令検索」（<a href="https://laws.e-gov.go.jp/">https://laws.e-gov.go.jp/</a>）のAPIを利用して取得しています。</p>'
+        + '<p>法令データは、当サイトのサービスに合わせて編集・加工等を行っております。法令の正確な内容や最新の情報については、必ず官報をご確認ください。</p>'
+        + '<p>当サイトは、項番号のない古い法律においては、第二項以下の項に「②」「③」などの丸数字を付与しています。</p>';
 }
 
 function getLawType(type) {

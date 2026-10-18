@@ -3,6 +3,7 @@ import { Dialog } from '/lib/dialog.js';
 import { Flex } from '/lib/flex.js';
 
 import { Dictionary } from './dictionary.js';
+import { Info } from './view/info.js';
 import { Internet } from './internet.js';
 import { Menu } from './view/menu.js';
 import { Preference } from './view/preference.js';
@@ -21,6 +22,7 @@ const api = {
     onInternetSelect: () => selectInternet(),
     onInternetAllSelect: (totalCount) => selectInternetAll(totalCount),
     onPreferenceSelect: () => Preference.show(),
+    onInfoSelect: (name) => Info.show(name),
     onShortcutChange: () => changeShortcut(),
 };
 
@@ -45,6 +47,7 @@ function init() {
     Dialog.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
     Flex.setColor('var(--color-black)', 'var(--color-white)');
 
+    Info.init();
     Menu.init(api);
     Preference.init(api);
     Search.init(api);
