@@ -10,7 +10,7 @@ import { Preference } from './view/preference.js';
 import { Search } from './view/search.js';
 import { Shortcut } from './view/shortcut.js';
 
-const CANDIDATE_LIMIT = 10;
+const CANDIDATE_LIMIT = 8;
 const INTERNET_LIMIT = 100;
 
 const contentEl = document.querySelector('#content');

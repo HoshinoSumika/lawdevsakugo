@@ -144,7 +144,7 @@ function showCandidate(query, lawList) {
         fragment.appendChild(buildLawItem(law));
     });
     fragment.appendChild(buildInternetItem(query));
-    render(fragment, false);
+    render(fragment, false, true);
 }
 
 function showLoading() {
@@ -193,17 +193,35 @@ function reset() {
     searchList.style.display = 'none';
 }
 
-function render(fragment, isFade) {
+function render(fragment, isFade, isFitted) {
     const wasHidden = searchList.style.display === 'none';
     flex.resize(() => {
         searchList.replaceChildren(fragment);
         searchList.style.display = '';
         searchList.scrollTop = 0;
+        if (isFitted) {
+            fitList();
+        }
         select(0, false);
     });
     if (wasHidden || isFade) {
         fadeIn(searchList);
     }
+}
+
+function fitList() {
+    const lawItemList = Array.from(searchList.querySelectorAll(':scope > a.search-item'));
+    const internetHeight = searchList.lastElementChild.offsetHeight;
+    const countFit = (bottom) => lawItemList.filter(item => item.getBoundingClientRect().bottom + internetHeight <= bottom).length;
+
+    let count = countFit(window.innerHeight);
+    if (Device.isTouch()) {
+        const visibleCount = countFit(window.visualViewport.offsetTop + window.visualViewport.height);
+        if (visibleCount > 0) {
+            count = Math.min(count, visibleCount);
+        }
+    }
+    lawItemList.slice(count).forEach(item => item.remove());
 }
 
 function toggleList(isShown) {
