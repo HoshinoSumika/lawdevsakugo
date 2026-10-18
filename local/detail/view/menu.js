@@ -43,7 +43,7 @@ function init(value) {
         api.onHistorySelect();
     }));
     scroll.appendChild(buildDivider());
-    scroll.appendChild(buildItem('toc', Text.getOutline(), () => {
+    scroll.appendChild(buildItem('outline', Text.getOutline(), () => {
         hide();
         api.onOutlineSelect();
     }));
