@@ -5,6 +5,12 @@ export const Config = {
     setBookmarkList,
     getRecentList,
     setRecentList,
+    getShortcutBookmark,
+    setShortcutBookmark,
+    getShortcutRecent,
+    setShortcutRecent,
+    getShortcutMajor,
+    setShortcutMajor,
     getOutline,
     setOutline,
     getToc,
@@ -55,6 +61,9 @@ import { Storage } from '/lib/storage.js';
 const prefix = 'config-';
 
 const defaults = {
+    'shortcut-bookmark': true,
+    'shortcut-recent': true,
+    'shortcut-major': true,
     'outline': true,
     'toc': false,
     'suppl-provision': false,
@@ -105,6 +114,30 @@ function getRecentList() {
 
 function setRecentList(value) {
     Storage.set('recent-list', value);
+}
+
+function getShortcutBookmark() {
+    return read('shortcut-bookmark');
+}
+
+function setShortcutBookmark(value) {
+    write('shortcut-bookmark', value);
+}
+
+function getShortcutRecent() {
+    return read('shortcut-recent');
+}
+
+function setShortcutRecent(value) {
+    write('shortcut-recent', value);
+}
+
+function getShortcutMajor() {
+    return read('shortcut-major');
+}
+
+function setShortcutMajor(value) {
+    write('shortcut-major', value);
 }
 
 function getOutline() {

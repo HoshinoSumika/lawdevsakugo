@@ -120,6 +120,10 @@ export const Text = {
     getBookmark,
     getRecent,
     getMajorLaw,
+    getMenu,
+    getShowBookmark,
+    getShowRecent,
+    getShowMajorLaw,
     getLawType,
     getInternetSearch,
     getInternetSearching,
@@ -627,6 +631,22 @@ function getRecent() {
 
 function getMajorLaw() {
     return '主要法令';
+}
+
+function getMenu() {
+    return 'メニュー';
+}
+
+function getShowBookmark() {
+    return 'ブックマークを表示';
+}
+
+function getShowRecent() {
+    return '閲覧履歴を表示';
+}
+
+function getShowMajorLaw() {
+    return '主要法令を表示';
 }
 
 function getLawType(type) {

@@ -1,0 +1,24 @@
+.preference-content {
+    position: relative;
+    width: 100%; padding: 8px 0px 16px 0px;
+}
+
+.preference-item {
+    width: 100%; min-height: var(--size-normal); padding: 8px 24px 8px 24px;
+    user-select: none; -webkit-user-select: none;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    font-size: 15px;
+}
+.preference-item.clickable {
+    cursor: pointer;
+}
+.preference-item.clickable:hover {
+    background-color: var(--color-hover);
+}
+.preference-item.clickable:active {
+    background-color: var(--color-active);
+}
+
+.preference-label {
+    flex: 1;
+}

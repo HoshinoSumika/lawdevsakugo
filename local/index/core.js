@@ -1,8 +1,11 @@
 import { Device } from '/lib/device.js';
+import { Dialog } from '/lib/dialog.js';
 import { Flex } from '/lib/flex.js';
 
 import { Dictionary } from './dictionary.js';
 import { Internet } from './internet.js';
+import { Menu } from './view/menu.js';
+import { Preference } from './view/preference.js';
 import { Search } from './view/search.js';
 import { Shortcut } from './view/shortcut.js';
 
@@ -17,6 +20,8 @@ const api = {
     onQueryChange: (value) => changeQuery(value),
     onInternetSelect: () => selectInternet(),
     onInternetAllSelect: (totalCount) => selectInternetAll(totalCount),
+    onPreferenceSelect: () => Preference.show(),
+    onShortcutChange: () => changeShortcut(),
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -37,8 +42,11 @@ let searchVersion = 0;
 let dictionaryLoad = null;
 
 function init() {
+    Dialog.setColor('var(--color-black)', 'var(--color-white)', 'rgba(0,0,0,0.32)');
     Flex.setColor('var(--color-black)', 'var(--color-white)');
 
+    Menu.init(api);
+    Preference.init(api);
     Search.init(api);
     Shortcut.init(api);
     dictionaryLoad = Dictionary.load();
@@ -74,6 +82,12 @@ function renderQuery() {
         Search.showCandidate(query, Dictionary.find(query, CANDIDATE_LIMIT));
     } else {
         Search.hideList();
+        Shortcut.show();
+    }
+}
+
+function changeShortcut() {
+    if (!query) {
         Shortcut.show();
     }
 }

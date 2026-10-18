@@ -22,13 +22,13 @@ function init(value) {
 }
 
 function show() {
-    const bookmarkList = Config.getBookmarkList();
-    const recentList = Config.getRecentList().filter(recent => !includes(bookmarkList, recent.id)).slice(-RECENT_LIMIT).reverse();
+    const bookmarkList = Config.getShortcutBookmark() ? Config.getBookmarkList() : [];
+    const recentList = Config.getShortcutRecent() ? Config.getRecentList().filter(recent => !includes(bookmarkList, recent.id)).slice(-RECENT_LIMIT).reverse() : [];
 
     shortcut.replaceChildren();
     appendSection(Text.getBookmark(), bookmarkList);
     appendSection(Text.getRecent(), recentList);
-    appendSection(Text.getMajorLaw(), api.getMajorList());
+    appendSection(Text.getMajorLaw(), Config.getShortcutMajor() ? api.getMajorList() : []);
     shortcut.classList.remove('shortcut-hidden');
 }
 

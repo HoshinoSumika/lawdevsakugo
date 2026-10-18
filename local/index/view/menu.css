@@ -1,0 +1,74 @@
+.menu-panel {
+    color: var(--color-black); background-color: rgba(255,255,255,0.5);
+    -webkit-backdrop-filter: blur(12px) saturate(180%); backdrop-filter: blur(12px) saturate(180%);
+    border: none;
+    box-shadow: inset 0px 0px 12px rgba(255,255,255,0.5), 0px 0px 0px 0.5px rgba(0,0,0,0.08), 0px 8px 24px rgba(0,0,0,0.12);
+}
+.menu-panel::before {
+    content: '';
+    position: absolute; inset: 0px;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.2) 70%, rgba(255,255,255,0.8));
+    border-radius: inherit;
+    -webkit-mask: linear-gradient(black, black) content-box, linear-gradient(black, black);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(black, black) content-box exclude, linear-gradient(black, black);
+}
+
+.menu-button {
+    position: absolute; top: calc(env(safe-area-inset-top) + var(--size-offset)); right: calc(env(safe-area-inset-right) + var(--size-offset)); z-index: 2;
+    height: calc(var(--size-normal) - var(--size-offset)); padding: 0px;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity var(--transition-duration) ease;
+    background-color: transparent;
+    border: none;
+}
+.menu-button.menu-button-open {
+    opacity: 0;
+}
+
+.menu-overlay {
+    position: absolute; inset: 0px; z-index: 3;
+    display: none;
+}
+.menu-overlay.menu-overlay-shown {
+    display: block;
+}
+
+.menu-panel {
+    position: absolute; top: calc(env(safe-area-inset-top) + 12px); right: calc(env(safe-area-inset-right) + 12px); z-index: 4;
+    min-width: 200px; max-width: calc(100% - 32px); padding: 8px;
+    transform-origin: top right;
+    transition: transform var(--transition-duration) cubic-bezier(0.32, 1.28, 0.6, 1), opacity var(--transition-duration) ease, visibility 0s;
+    display: flex; flex-direction: column;
+    border-radius: 30px;
+}
+.menu-panel.menu-panel-hidden {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.4);
+    transition-delay: 0s, 0s, var(--transition-duration);
+}
+
+.menu-item {
+    width: 100%; height: 44px; padding: 0px 16px 0px 16px;
+    cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex; align-items: center; gap: 12px;
+    font: inherit; font-size: 15px;
+    color: var(--color-black); background-color: transparent;
+    border: none; border-radius: var(--radius-max);
+}
+.menu-item:hover {
+    background-color: var(--color-hover);
+}
+.menu-item:active {
+    background-color: var(--color-active);
+}
+
+.menu-item > svg {
+    flex-shrink: 0;
+}
