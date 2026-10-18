@@ -20,7 +20,7 @@
     position: absolute; top: calc(env(safe-area-inset-top) + var(--size-offset)); right: calc(env(safe-area-inset-right) + var(--size-offset)); z-index: 2;
     height: calc(var(--size-normal) - var(--size-offset)); padding: 0px;
     -webkit-tap-highlight-color: transparent;
-    transition: opacity var(--transition-duration) ease;
+    transition: opacity calc(var(--transition-duration) * 1.5) ease;
     background-color: transparent;
     border: none;
 }
@@ -40,7 +40,7 @@
     position: absolute; top: calc(env(safe-area-inset-top) + 12px); right: calc(env(safe-area-inset-right) + 12px); z-index: 4;
     min-width: 200px; max-width: calc(100% - 32px); padding: 8px;
     transform-origin: top right;
-    transition: transform var(--transition-duration) cubic-bezier(0.32, 1.28, 0.6, 1), opacity var(--transition-duration) ease, visibility 0s;
+    transition: transform calc(var(--transition-duration) * 1.5) cubic-bezier(0.32, 1.28, 0.6, 1), opacity calc(var(--transition-duration) * 1.5) ease, visibility 0s;
     display: flex; flex-direction: column;
     border-radius: 30px;
 }
@@ -49,7 +49,7 @@
     pointer-events: none;
     opacity: 0;
     transform: scale(0.4);
-    transition-delay: 0s, 0s, var(--transition-duration);
+    transition-delay: 0s, 0s, calc(var(--transition-duration) * 1.5);
 }
 
 .menu-item {
