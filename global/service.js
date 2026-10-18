@@ -2,7 +2,6 @@ export const Service = {
     search,
     getLawRevisionList,
     getLawFullText,
-    getLawIdByNum,
 };
 
 import { Cache } from '/global/cache.js';
@@ -10,22 +9,9 @@ import { Config } from '/global/config.js';
 import { Convert } from '/global/convert.js';
 
 const CACHE_NAME_FULL_TEXT = 'LawFullTextBeta';
-const CACHE_NAME_REVISION_LIST = 'LawRevisionsBeta';
-const CACHE_NAME_LAW_ID = 'LawIdsBeta';
+const CACHE_NAME_REVISION_LIST = 'LawRevisionListBeta';
 
 async function search(title, limit) {
-    if (Config.getDev()) {
-        try {
-            const url = '/ignore/' + title + '.json';
-            const res = await fetch(url);
-            if (res.ok) {
-                const result = await res.json();
-                return result;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
         const query = '?response_format=json' + '&limit=' + limit + '&law_title=' + encodeURIComponent(title);
@@ -62,28 +48,7 @@ function getLawFullText(id) {
     );
 }
 
-function getLawIdByNum(lawNum) {
-    return loadCached(
-        CACHE_NAME_LAW_ID,
-        lawNum,
-        () => fetchLawIdByNum(lawNum),
-        value => typeof value === 'string',
-    );
-}
-
 async function fetchLawRevisionList(id) {
-    if (Config.getDev()) {
-        try {
-            const url = '/ignore/' + id + '.json';
-            const res = await fetch(url);
-            if (res.ok) {
-                const result = await res.json();
-                return result;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/law_revisions/';
         const query = '?response_format=json';
@@ -99,19 +64,6 @@ async function fetchLawRevisionList(id) {
 }
 
 async function fetchLawFullText(id) {
-    if (Config.getDev()) {
-        try {
-            const url = '/ignore/' + id + '.xml';
-            const res = await fetch(url);
-            if (res.ok) {
-                let result = await res.text();
-                result = Convert.encode(result);
-                return result;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/law_data/';
         const query = '?law_full_text_format=xml&response_format=xml';
@@ -120,22 +72,6 @@ async function fetchLawFullText(id) {
             let result = await res.text();
             result = Convert.encode(result);
             return result;
-        }
-    } catch (e) {
-        console.error(e);
-    }
-    return null;
-}
-
-async function fetchLawIdByNum(lawNum) {
-    try {
-        const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
-        const query = '?response_format=json' + '&law_num=' + encodeURIComponent(lawNum);
-        const res = await fetch(apiBaseUrl + query);
-        if (res.ok) {
-            const result = await res.json();
-            const law = result.laws.find(item => item.law_info.law_num === lawNum);
-            return law ? law.law_info.law_id : null;
         }
     } catch (e) {
         console.error(e);
