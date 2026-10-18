@@ -167,7 +167,7 @@ function scrollToCurrent(isAnimated) {
 }
 
 function getRequestId(revision) {
-    if (revision.current_revision_status === 'CurrentEnforced') {
+    if (revision.current_revision_status === 'CurrentEnforced' || revision.current_revision_status === 'Repeal') {
         return revisionLawId;
     }
     return revision.law_revision_id;
@@ -177,7 +177,7 @@ function isCurrentLaw(revision, lawId) {
     if (revision.law_revision_id === lawId) {
         return true;
     }
-    return revision.current_revision_status === 'CurrentEnforced'
+    return (revision.current_revision_status === 'CurrentEnforced' || revision.current_revision_status === 'Repeal')
         && revision.law_revision_id.split('_')[0] === lawId;
 }
 
@@ -191,10 +191,15 @@ function formatRevision(revision) {
         date = enforcementDate + '　' + Text.getCurrentEnforced();
     } else if (revision.current_revision_status === 'PreviousEnforced') {
         date = enforcementDate + '　' + Text.getPreviousEnforced();
+    } else if (revision.current_revision_status === 'Repeal') {
+        date = enforcementDate + '　' + Text.getRepealStatus(revision.repeal_status);
     }
 
-    const num = revision.amendment_law_num
-        ? '（' + revision.amendment_law_num + '）'
-        : '（' + Text.getNewEnactment() + '）';
+    let num = '';
+    if (revision.amendment_law_num) {
+        num = '（' + revision.amendment_law_num + '）';
+    } else if (revision.current_revision_status !== 'Repeal') {
+        num = '（' + Text.getNewEnactment() + '）';
+    }
     return { date, num };
 }
