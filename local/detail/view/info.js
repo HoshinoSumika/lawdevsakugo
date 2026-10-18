@@ -9,6 +9,7 @@ import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
 
 const INSET_WIDTH = 'calc(100% - var(--size-offset) * 4)';
+const INSET_HEIGHT = 'calc(100dvh - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
 
@@ -23,15 +24,27 @@ function init(api) {
     content.classList.add('info-content');
 
     modal = Dialog.createModal(content);
-    modal.setWidth(MODAL_WIDTH);
     modal.setTitle(Text.getInfo());
     modal.enableCloseButton(hide);
+
+    window.addEventListener('resize', () => {
+        applySize();
+    });
 }
 
 function show() {
+    applySize();
     render();
     modal.resetScroll();
     modal.show();
+}
+
+function applySize() {
+    modal.setPlacement('center');
+    modal.setWidth(MODAL_WIDTH);
+    if (content.closest('.dialog-modal').getBoundingClientRect().width < MODAL_MAX_WIDTH) {
+        modal.setMaxHeight(INSET_HEIGHT);
+    }
 }
 
 function hide() {
