@@ -7,6 +7,7 @@ export const Search = {
     showInternetResult,
     showError,
     hideList,
+    isListShown,
     reset,
 };
 
@@ -67,7 +68,7 @@ function init(value) {
         if (Device.isTouch()) {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                searchInput.blur();
+                blur();
             }
             return;
         }
@@ -105,9 +106,23 @@ function init(value) {
     });
     searchList.addEventListener('touchstart', () => {
         if (document.activeElement === searchInput) {
-            searchInput.blur();
+            blur();
         }
     }, { passive: true });
+
+    searchContent.addEventListener('focusin', () => {
+        toggleList(true);
+    });
+    searchContent.addEventListener('focusout', event => {
+        if (!searchContent.contains(event.relatedTarget)) {
+            toggleList(false);
+        }
+    });
+    document.addEventListener('pointerdown', event => {
+        if (!searchContent.contains(event.target) && searchContent.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+    });
 
     if (!Device.isTouch()) {
         searchInput.focus();
@@ -120,7 +135,7 @@ function setValue(value) {
 }
 
 function blur() {
-    searchInput.blur();
+    searchContent.focus({ preventScroll: true });
 }
 
 function showCandidate(query, lawList) {
@@ -167,6 +182,10 @@ function hideList() {
     });
 }
 
+function isListShown() {
+    return !searchList.classList.contains('search-list-hidden');
+}
+
 function reset() {
     flex.stop();
     setValue('');
@@ -185,6 +204,22 @@ function render(fragment, isFade) {
     if (wasHidden || isFade) {
         fadeIn(searchList);
     }
+}
+
+function toggleList(isShown) {
+    if (searchList.classList.contains('search-list-hidden') !== isShown) {
+        return;
+    }
+    flex.resize(() => {
+        searchList.classList.toggle('search-list-hidden', !isShown);
+    });
+    if (searchList.style.display === 'none') {
+        return;
+    }
+    if (isShown) {
+        fadeIn(searchList);
+    }
+    api.onListToggle();
 }
 
 function fadeIn(element) {
@@ -284,11 +319,12 @@ function buildContent() {
     searchBar.appendChild(searchClear);
 
     searchList = document.createElement('div');
-    searchList.className = 'search-list';
+    searchList.className = 'search-list search-list-hidden';
     searchList.style.display = 'none';
 
     searchContent = document.createElement('div');
     searchContent.className = 'search-content';
+    searchContent.tabIndex = -1;
     searchContent.appendChild(searchBar);
     searchContent.appendChild(searchList);
 }
@@ -319,6 +355,7 @@ function buildLawItem(law) {
     item.className = 'search-item';
     item.classList.toggle('search-item-repealed', isRepealed);
     item.href = Route.getLawHref(law.id);
+    item.draggable = false;
     item.appendChild(main);
     return item;
 }

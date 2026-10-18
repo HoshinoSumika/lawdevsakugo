@@ -30,17 +30,9 @@ function init(value) {
     menuPanel = document.createElement('div');
     menuPanel.className = 'menu-panel menu-panel-hidden';
     menuPanel.setAttribute('role', 'menu');
-    menuPanel.appendChild(buildItem('config', Text.getPreference(), () => {
-        hide();
-        api.onPreferenceSelect();
-    }));
     menuPanel.appendChild(buildItem('help', Text.getHelp(), () => {
         hide();
         api.onInfoSelect('help');
-    }));
-    menuPanel.appendChild(buildItem('info', Text.getAbout(), () => {
-        hide();
-        api.onInfoSelect('about');
     }));
     menuPanel.appendChild(buildItem('article', Text.getTerms(), () => {
         hide();
@@ -49,6 +41,14 @@ function init(value) {
     menuPanel.appendChild(buildItem('shield', Text.getPrivacy(), () => {
         hide();
         api.onInfoSelect('privacy');
+    }));
+    menuPanel.appendChild(buildItem('info', Text.getAbout(), () => {
+        hide();
+        api.onInfoSelect('about');
+    }));
+    menuPanel.appendChild(buildItem('config', Text.getPreference(), () => {
+        hide();
+        api.onPreferenceSelect();
     }));
 
     document.body.append(menuButton, menuOverlay, menuPanel);

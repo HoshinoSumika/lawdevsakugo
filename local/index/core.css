@@ -18,5 +18,5 @@ main {
 }
 
 main > .content {
-    max-width: calc(672px + var(--size-offset) * 4); padding: 0px calc(var(--size-offset) * 4) 32px calc(var(--size-offset) * 4);
+    max-width: calc(640px + var(--size-offset) * 8); padding: 0px calc(var(--size-offset) * 4) 32px calc(var(--size-offset) * 4);
 }

@@ -24,6 +24,7 @@ const api = {
     onPreferenceSelect: () => Preference.show(),
     onInfoSelect: (name) => Info.show(name),
     onShortcutChange: () => changeShortcut(),
+    onListToggle: () => changeShortcut(),
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -90,7 +91,9 @@ function renderQuery() {
 }
 
 function changeShortcut() {
-    if (!query) {
+    if (query && Search.isListShown()) {
+        Shortcut.hide();
+    } else {
         Shortcut.show();
     }
 }

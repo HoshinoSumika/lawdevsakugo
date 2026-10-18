@@ -8,11 +8,19 @@
 }
 
 .shortcut-heading {
-    margin: 16px 0px 8px 0px;
+    width: fit-content; margin: 16px 0px 8px 0px;
     user-select: none; -webkit-user-select: none;
+    display: flex; align-items: center; gap: 2px;
     font-size: 13px; font-weight: normal;
     line-height: 1.5;
     color: var(--color-gray);
+}
+.shortcut-heading.clickable {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.shortcut-heading.clickable:hover {
+    color: var(--color-black);
 }
 
 .shortcut-list {
@@ -20,7 +28,7 @@
 }
 
 .shortcut-item {
-    max-width: min(100%, 16em); height: var(--size-small); padding: 0px 14px;
+    max-width: calc((100% - 16px) / 3); height: var(--size-small); padding: 0px 14px;
     user-select: none; -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
     display: inline-flex; align-items: center;
@@ -30,13 +38,67 @@
     border-radius: var(--radius-max);
 }
 .shortcut-item:hover {
-    background-color: var(--color-silver);
+    background-color: var(--color-hover);
 }
 .shortcut-item:active {
-    background-color: var(--color-silver);
+    background-color: var(--color-active);
 }
 
 .shortcut-item > span {
     overflow: hidden;
     white-space: nowrap; text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+    .shortcut-item {
+        max-width: calc((100% - 8px) / 2);
+    }
+}
+
+.shortcut-content {
+    width: 100%; padding: 8px 0px 8px 0px;
+    display: flex; flex-direction: column;
+}
+
+.shortcut-row {
+    width: 100%; min-height: var(--size-normal); padding: 0px 16px 0px 0px;
+    display: flex; align-items: center; gap: 8px;
+}
+.shortcut-row:has(> .shortcut-link:hover) {
+    background-color: var(--color-hover);
+}
+.shortcut-row:has(> .shortcut-link:active) {
+    background-color: var(--color-active);
+}
+
+.shortcut-link {
+    flex: 1; align-self: stretch; min-width: 0px; padding: 8px 0px 8px 24px;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex; align-items: center;
+    font-size: 15px;
+    text-decoration: none;
+    color: var(--color-black);
+}
+
+.shortcut-remove {
+    flex-shrink: 0;
+    width: 32px; height: 32px; padding: 0px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: flex; justify-content: center; align-items: center;
+    background-color: transparent;
+    border: none; border-radius: var(--radius-max);
+}
+.shortcut-remove:hover {
+    background-color: var(--color-hover);
+}
+.shortcut-remove:active {
+    background-color: var(--color-active);
+}
+
+.shortcut-message {
+    padding: 32px 24px 32px 24px;
+    text-align: center;
+    color: var(--color-gray);
 }

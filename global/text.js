@@ -119,6 +119,8 @@ export const Text = {
     getSearchPlaceholder,
     getBookmark,
     getRecent,
+    getBookmarkEmpty,
+    getRecentEmpty,
     getMajorLaw,
     getMenu,
     getShowBookmark,
@@ -635,6 +637,14 @@ function getBookmark() {
 
 function getRecent() {
     return '閲覧履歴';
+}
+
+function getBookmarkEmpty() {
+    return 'ブックマークがありません。';
+}
+
+function getRecentEmpty() {
+    return '閲覧履歴がありません。';
 }
 
 function getMajorLaw() {
