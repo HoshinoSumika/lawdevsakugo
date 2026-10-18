@@ -25,10 +25,6 @@ const PAGE_MAP = {
         getTitle: Text.getPrivacy,
         getBody: Text.getPrivacyBody,
     },
-    about: {
-        getTitle: Text.getAbout,
-        getBody: Text.getAboutBody,
-    },
 };
 
 let modal;

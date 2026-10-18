@@ -33,7 +33,6 @@ function init(value) {
     menuPanel.appendChild(buildItem('help', Text.getHelp(), () => api.onInfoSelect('help')));
     menuPanel.appendChild(buildItem('article', Text.getTerms(), () => api.onInfoSelect('terms')));
     menuPanel.appendChild(buildItem('shield', Text.getPrivacy(), () => api.onInfoSelect('privacy')));
-    menuPanel.appendChild(buildItem('info', Text.getAbout(), () => api.onInfoSelect('about')));
     menuPanel.appendChild(buildItem('config', Text.getPreference(), () => api.onPreferenceSelect()));
 
     document.body.append(menuButton, menuOverlay, menuPanel);
