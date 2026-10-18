@@ -5,6 +5,7 @@ html, body {
 body {
     --search-offset: clamp(32px, 20dvh, 200px);
     --search-title-height: 56px;
+    --search-bottom-offset: 64px;
 }
 
 @media (max-width: 720px) {

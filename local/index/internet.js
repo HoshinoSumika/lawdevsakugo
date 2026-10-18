@@ -35,6 +35,7 @@ function build(data, query) {
                 num: law.law_info.law_num,
                 type: law.law_info.law_type,
                 repealStatus: info.repeal_status,
+                isRepealed: Boolean(info.repeal_status) && info.repeal_status !== 'None',
                 isUnenforced: info.current_revision_status === 'UnEnforced',
             },
             level: getMatchLevel(nameList, query),
@@ -50,15 +51,11 @@ function build(data, query) {
 }
 
 function compareEntry(a, b) {
-    return Number(isRepealed(a.law)) - Number(isRepealed(b.law))
+    return Number(a.law.isRepealed) - Number(b.law.isRepealed)
         || b.level - a.level
         || getTypeOrder(a.law.type) - getTypeOrder(b.law.type)
         || a.law.title.length - b.law.title.length
         || a.index - b.index;
-}
-
-function isRepealed(law) {
-    return Boolean(law.repealStatus) && law.repealStatus !== 'None';
 }
 
 function getTypeOrder(type) {

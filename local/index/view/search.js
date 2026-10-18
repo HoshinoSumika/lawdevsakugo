@@ -1,7 +1,5 @@
 export const Search = {
     init,
-    setValue,
-    blur,
     showCandidate,
     showLoading,
     showInternetResult,
@@ -143,7 +141,7 @@ function showCandidate(query, lawList) {
     lawList.forEach(law => {
         fragment.appendChild(buildLawItem(law));
     });
-    fragment.appendChild(buildInternetItem(query));
+    fragment.appendChild(buildInternetItem('search-internet', Text.getInternetSearch(query), () => api.onInternetSelect()));
     render(fragment, false, true);
 }
 
@@ -214,7 +212,9 @@ function fitList() {
     const internetHeight = searchList.lastElementChild.offsetHeight;
     const countFit = (bottom) => lawItemList.filter(item => item.getBoundingClientRect().bottom + internetHeight <= bottom).length;
 
-    let count = countFit(window.innerHeight);
+    const container = flex.getElement();
+    const maxBottom = searchList.getBoundingClientRect().bottom + parseFloat(getComputedStyle(container).maxHeight) - container.getBoundingClientRect().height;
+    let count = countFit(maxBottom);
     if (Device.isTouch()) {
         const visibleCount = countFit(window.visualViewport.offsetTop + window.visualViewport.height);
         if (visibleCount > 0) {
@@ -348,8 +348,7 @@ function buildContent() {
 }
 
 function buildLawItem(law) {
-    const isRepealed = Boolean(law.repealStatus) && law.repealStatus !== 'None';
-    const status = getStatusTag(law, isRepealed);
+    const status = getStatusTag(law);
 
     const title = document.createElement('div');
     title.className = 'search-item-title';
@@ -371,7 +370,9 @@ function buildLawItem(law) {
 
     const item = document.createElement('a');
     item.className = 'search-item';
-    item.classList.toggle('search-item-repealed', isRepealed);
+    if (law.isRepealed) {
+        item.classList.add('search-item-repealed');
+    }
     item.href = Route.getLawHref(law.id);
     item.draggable = false;
     item.appendChild(main);
@@ -385,8 +386,8 @@ function buildTag(text) {
     return tag;
 }
 
-function getStatusTag(law, isRepealed) {
-    if (isRepealed) {
+function getStatusTag(law) {
+    if (law.isRepealed) {
         return Text.getRepealStatus(law.repealStatus);
     }
     if (law.isUnenforced) {
@@ -405,34 +406,21 @@ function buildInternetResult(result) {
         fragment.appendChild(buildLawItem(law));
     });
     if (hasMore) {
-        fragment.appendChild(buildInternetAllItem(result.totalCount));
+        fragment.appendChild(buildInternetItem('search-internet-all', Text.getSearchShowAll(), () => api.onInternetAllSelect(result.totalCount)));
     }
     return fragment;
 }
 
-function buildInternetAllItem(totalCount) {
+function buildInternetItem(className, label, onClick) {
     const text = document.createElement('div');
     text.className = 'search-item-main';
-    text.textContent = Text.getSearchShowAll();
+    text.textContent = label;
 
     const item = document.createElement('div');
-    item.className = 'search-item search-internet-all';
+    item.className = 'search-item ' + className;
     item.setAttribute('role', 'button');
     item.appendChild(text);
-    item.addEventListener('click', () => api.onInternetAllSelect(totalCount));
-    return item;
-}
-
-function buildInternetItem(query) {
-    const text = document.createElement('div');
-    text.className = 'search-item-main';
-    text.textContent = Text.getInternetSearch(query);
-
-    const item = document.createElement('div');
-    item.className = 'search-item search-internet';
-    item.setAttribute('role', 'button');
-    item.appendChild(text);
-    item.addEventListener('click', () => api.onInternetSelect());
+    item.addEventListener('click', onClick);
     return item;
 }
 

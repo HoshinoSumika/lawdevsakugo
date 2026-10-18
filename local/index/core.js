@@ -99,12 +99,6 @@ function changeShortcut() {
 }
 
 function selectInternet() {
-    if (Device.isTouch()) {
-        Search.blur();
-    }
-    if (!query || internetQuery === query) {
-        return;
-    }
     searchInternet(query, INTERNET_LIMIT);
 }
 

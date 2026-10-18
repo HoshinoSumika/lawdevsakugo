@@ -23,7 +23,7 @@
 }
 
 .search-container {
-    width: 100%; max-height: calc(100dvh - var(--search-offset) - var(--search-title-height));
+    width: 100%; max-height: calc(100dvh - var(--search-offset) - var(--search-title-height) - var(--search-bottom-offset));
 }
 
 .search-content {

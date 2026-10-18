@@ -30,26 +30,11 @@ function init(value) {
     menuPanel = document.createElement('div');
     menuPanel.className = 'menu-panel menu-panel-hidden';
     menuPanel.setAttribute('role', 'menu');
-    menuPanel.appendChild(buildItem('help', Text.getHelp(), () => {
-        hide();
-        api.onInfoSelect('help');
-    }));
-    menuPanel.appendChild(buildItem('article', Text.getTerms(), () => {
-        hide();
-        api.onInfoSelect('terms');
-    }));
-    menuPanel.appendChild(buildItem('shield', Text.getPrivacy(), () => {
-        hide();
-        api.onInfoSelect('privacy');
-    }));
-    menuPanel.appendChild(buildItem('info', Text.getAbout(), () => {
-        hide();
-        api.onInfoSelect('about');
-    }));
-    menuPanel.appendChild(buildItem('config', Text.getPreference(), () => {
-        hide();
-        api.onPreferenceSelect();
-    }));
+    menuPanel.appendChild(buildItem('help', Text.getHelp(), () => api.onInfoSelect('help')));
+    menuPanel.appendChild(buildItem('article', Text.getTerms(), () => api.onInfoSelect('terms')));
+    menuPanel.appendChild(buildItem('shield', Text.getPrivacy(), () => api.onInfoSelect('privacy')));
+    menuPanel.appendChild(buildItem('info', Text.getAbout(), () => api.onInfoSelect('about')));
+    menuPanel.appendChild(buildItem('config', Text.getPreference(), () => api.onPreferenceSelect()));
 
     document.body.append(menuButton, menuOverlay, menuPanel);
 
@@ -90,6 +75,9 @@ function buildItem(icon, label, onClick) {
     item.setAttribute('role', 'menuitem');
     item.innerHTML = Design.getIcon(icon, 'var(--color-black)');
     item.appendChild(text);
-    item.addEventListener('click', onClick);
+    item.addEventListener('click', () => {
+        hide();
+        onClick();
+    });
     return item;
 }

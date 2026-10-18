@@ -160,6 +160,7 @@ function buildLawRow(law) {
     link.href = Route.getLawHref(law.id);
     link.draggable = false;
     link.textContent = law.title;
+    link.addEventListener('click', hideModal);
 
     const remove = document.createElement('button');
     remove.type = 'button';

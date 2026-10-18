@@ -12,18 +12,23 @@ const INSET_HEIGHT = 'calc(100dvh - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
 
-const TITLE_MAP = {
-    help: Text.getHelp,
-    terms: Text.getTerms,
-    privacy: Text.getPrivacy,
-    about: Text.getAbout,
-};
-
-const BODY_MAP = {
-    help: Text.getHelpBody,
-    terms: Text.getTermsBody,
-    privacy: Text.getPrivacyBody,
-    about: Text.getAboutBody,
+const PAGE_MAP = {
+    help: {
+        getTitle: Text.getHelp,
+        getBody: Text.getHelpBody,
+    },
+    terms: {
+        getTitle: Text.getTerms,
+        getBody: Text.getTermsBody,
+    },
+    privacy: {
+        getTitle: Text.getPrivacy,
+        getBody: Text.getPrivacyBody,
+    },
+    about: {
+        getTitle: Text.getAbout,
+        getBody: Text.getAboutBody,
+    },
 };
 
 let modal;
@@ -43,9 +48,9 @@ function init() {
 
 function show(name) {
     applySize();
-    modal.setTitle(TITLE_MAP[name]());
+    modal.setTitle(PAGE_MAP[name].getTitle());
     modal.fitHeight(() => {
-        content.innerHTML = BODY_MAP[name]();
+        content.innerHTML = PAGE_MAP[name].getBody();
     });
     modal.resetScroll();
     modal.show();

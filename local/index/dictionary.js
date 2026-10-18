@@ -108,9 +108,8 @@ function getMajorList() {
 }
 
 function buildEntry(law) {
-    const abbrevList = law.abbrevList || [];
-    const kanaList = [law.kana].concat(abbrevList.map(abbrev => abbrev.kana)).filter(Boolean).map(normalize);
-    const titleList = [law.title].concat(abbrevList.map(abbrev => abbrev.title)).filter(Boolean).map(normalize);
+    const kanaList = [law.kana].concat(law.abbrevList.map(abbrev => abbrev.kana)).map(normalize);
+    const titleList = [law.title].concat(law.abbrevList.map(abbrev => abbrev.title)).map(normalize);
     return {
         law,
         textList: titleList.concat(kanaList),
