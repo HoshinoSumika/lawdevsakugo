@@ -29,9 +29,7 @@ async function search(title, limit) {
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
         const query = '?response_format=json' + '&limit=' + limit + '&law_title=' + encodeURIComponent(title);
-        const encodedApiUrl = encodeURIComponent(apiBaseUrl + query);
-        const proxyUrl = '/proxy?url=' + encodedApiUrl;
-        const res = await fetch(proxyUrl);
+        const res = await fetch(apiBaseUrl + query);
         if (res.ok) {
             const result = await res.json();
             return result;
@@ -89,9 +87,7 @@ async function fetchLawRevisionList(id) {
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/law_revisions/';
         const query = '?response_format=json';
-        const encodedApiUrl = encodeURIComponent(apiBaseUrl + id + query);
-        const proxyUrl = '/proxy?url=' + encodedApiUrl;
-        const res = await fetch(proxyUrl);
+        const res = await fetch(apiBaseUrl + id + query);
         if (res.ok) {
             const result = await res.json();
             return result;
@@ -119,9 +115,7 @@ async function fetchLawFullText(id) {
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/law_data/';
         const query = '?law_full_text_format=xml&response_format=xml';
-        const encodedApiUrl = encodeURIComponent(apiBaseUrl + id + query);
-        const proxyUrl = '/proxy?url=' + encodedApiUrl;
-        const res = await fetch(proxyUrl);
+        const res = await fetch(apiBaseUrl + id + query);
         if (res.ok) {
             let result = await res.text();
             result = Convert.encode(result);
@@ -137,9 +131,7 @@ async function fetchLawIdByNum(lawNum) {
     try {
         const apiBaseUrl = 'https://laws.e-gov.go.jp/api/2/laws';
         const query = '?response_format=json' + '&law_num=' + encodeURIComponent(lawNum);
-        const encodedApiUrl = encodeURIComponent(apiBaseUrl + query);
-        const proxyUrl = '/proxy?url=' + encodedApiUrl;
-        const res = await fetch(proxyUrl);
+        const res = await fetch(apiBaseUrl + query);
         if (res.ok) {
             const result = await res.json();
             const law = result.laws.find(item => item.law_info.law_num === lawNum);
