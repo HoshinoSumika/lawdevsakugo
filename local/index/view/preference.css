@@ -3,6 +3,22 @@
     width: 100%; padding: 8px 0px 16px 0px;
 }
 
+.preference-ghost {
+    overflow: hidden;
+    position: absolute; left: 0px;
+    width: 100%; padding: 8px 0px 16px 0px;
+    pointer-events: none;
+}
+
+.preference-page {
+    width: 100%;
+    display: flex; flex-direction: column;
+}
+.preference-page.confirm {
+    padding: 8px 24px 8px 24px;
+    font-size: 15px;
+}
+
 .preference-item {
     width: 100%; min-height: var(--size-normal); padding: 8px 24px 8px 24px;
     user-select: none; -webkit-user-select: none;
@@ -19,6 +35,20 @@
     background-color: var(--color-active);
 }
 
+.preference-item.danger {
+    color: var(--color-red);
+}
+
 .preference-label {
     flex: 1;
+}
+
+.preference-icon {
+    height: 24px;
+    display: flex; align-items: center;
+}
+
+.preference-divider {
+    width: 100%; height: 1px; margin: 8px 0px 8px 0px;
+    background-color: var(--color-smoke);
 }

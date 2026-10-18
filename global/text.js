@@ -24,6 +24,7 @@ export const Text = {
     getExclusion,
     getExclusionAdd,
     getAdd,
+    getRemove,
     getHighlightColor,
     getHighlightBackground,
     getBackgroundColor,
@@ -121,6 +122,12 @@ export const Text = {
     getRecent,
     getBookmarkEmpty,
     getRecentEmpty,
+    getBookmarkClear,
+    getBookmarkClearConfirm,
+    getBookmarkCleared,
+    getRecentClear,
+    getRecentClearConfirm,
+    getRecentCleared,
     getMajorLaw,
     getMenu,
     getShowBookmark,
@@ -244,6 +251,10 @@ function getExclusionAdd() {
 
 function getAdd() {
     return '追加';
+}
+
+function getRemove() {
+    return '削除';
 }
 
 function getHighlightColor() {
@@ -645,6 +656,30 @@ function getBookmarkEmpty() {
 
 function getRecentEmpty() {
     return '閲覧履歴がありません。';
+}
+
+function getBookmarkClear() {
+    return 'ブックマークを削除';
+}
+
+function getBookmarkClearConfirm() {
+    return 'すべてのブックマークを削除します。よろしいですか？';
+}
+
+function getBookmarkCleared() {
+    return 'ブックマークを削除しました。';
+}
+
+function getRecentClear() {
+    return '閲覧履歴を削除';
+}
+
+function getRecentClearConfirm() {
+    return 'すべての閲覧履歴を削除します。よろしいですか？';
+}
+
+function getRecentCleared() {
+    return '閲覧履歴を削除しました。';
 }
 
 function getMajorLaw() {
