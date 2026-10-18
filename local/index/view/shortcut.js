@@ -16,6 +16,7 @@ const INSET_WIDTH = 'calc(100% - var(--size-offset) * 4)';
 const INSET_HEIGHT = 'calc(100dvh - var(--size-offset) * 4)';
 const MODAL_MAX_WIDTH = 480;
 const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
+const DROP_DURATION = 200;
 
 const SECTION_MAP = {
     bookmark: {
@@ -37,6 +38,7 @@ let shortcut;
 let modal;
 let modalContent;
 let modalSection;
+let drag = null;
 
 function init(value) {
     api = value;
@@ -171,7 +173,111 @@ function buildLawRow(law) {
 
     const row = document.createElement('div');
     row.className = 'shortcut-row';
+    if (modalSection === 'bookmark') {
+        const handle = document.createElement('div');
+        handle.className = 'shortcut-drag';
+        handle.innerHTML = Design.getIcon('drag', 'var(--color-gray)');
+        handle.addEventListener('pointerdown', event => startDrag(event, row));
+        row.appendChild(handle);
+    }
     row.appendChild(link);
     row.appendChild(remove);
     return row;
+}
+
+function startDrag(event, row) {
+    if (drag || !event.isPrimary || event.button !== 0) {
+        return;
+    }
+    event.preventDefault();
+
+    const handle = event.currentTarget;
+    handle.setPointerCapture(event.pointerId);
+    handle.addEventListener('pointermove', moveDrag);
+    handle.addEventListener('pointerup', endDrag);
+    handle.addEventListener('pointercancel', endDrag);
+
+    const rowList = Array.from(modalContent.children);
+    const first = rowList[0];
+    const last = rowList[rowList.length - 1];
+    drag = {
+        row,
+        handle,
+        rowList,
+        centerList: rowList.map(item => item.offsetTop + item.offsetHeight / 2),
+        startIndex: rowList.indexOf(row),
+        index: rowList.indexOf(row),
+        startY: getContentY(event.clientY),
+        minShift: first.offsetTop - row.offsetTop,
+        maxShift: last.offsetTop + last.offsetHeight - row.offsetTop - row.offsetHeight,
+        shift: 0,
+    };
+    row.classList.add('dragging');
+}
+
+function moveDrag(event) {
+    drag.shift = Math.max(drag.minShift, Math.min(drag.maxShift, getContentY(event.clientY) - drag.startY));
+    drag.row.style.transform = 'translateY(' + drag.shift + 'px)';
+
+    const height = drag.row.offsetHeight;
+    const center = drag.centerList[drag.startIndex] + drag.shift;
+    let index = drag.startIndex;
+    drag.centerList.forEach((other, position) => {
+        if (position > drag.startIndex && other < center + height / 2) {
+            index = index + 1;
+        } else if (position < drag.startIndex && other > center - height / 2) {
+            index = index - 1;
+        }
+    });
+    if (index === drag.index) {
+        return;
+    }
+    drag.index = index;
+
+    drag.rowList.forEach((item, position) => {
+        if (item === drag.row) {
+            return;
+        }
+        let shift = 0;
+        if (position < drag.startIndex && position >= index) {
+            shift = height;
+        } else if (position > drag.startIndex && position <= index) {
+            shift = -height;
+        }
+        item.style.transform = shift ? 'translateY(' + shift + 'px)' : '';
+    });
+}
+
+function endDrag() {
+    drag.handle.removeEventListener('pointermove', moveDrag);
+    drag.handle.removeEventListener('pointerup', endDrag);
+    drag.handle.removeEventListener('pointercancel', endDrag);
+
+    const target = drag.rowList[drag.index];
+    let shift = 0;
+    if (drag.index > drag.startIndex) {
+        shift = target.offsetTop + target.offsetHeight - drag.row.offsetTop - drag.row.offsetHeight;
+    } else if (drag.index < drag.startIndex) {
+        shift = target.offsetTop - drag.row.offsetTop;
+    }
+
+    const animation = drag.row.animate([
+        { transform: 'translateY(' + drag.shift + 'px)' },
+        { transform: 'translateY(' + shift + 'px)' },
+    ], { duration: DROP_DURATION, easing: 'ease' });
+    drag.row.style.transform = 'translateY(' + shift + 'px)';
+    animation.onfinish = finishDrag;
+}
+
+function finishDrag() {
+    const lawList = Config.getBookmarkList();
+    lawList.splice(drag.index, 0, lawList.splice(drag.startIndex, 1)[0]);
+    Config.setBookmarkList(lawList);
+    drag = null;
+    renderModal();
+    api.onShortcutChange();
+}
+
+function getContentY(clientY) {
+    return clientY - modalContent.getBoundingClientRect().top;
 }
