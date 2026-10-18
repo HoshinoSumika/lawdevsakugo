@@ -21,8 +21,9 @@
 
     --color-red: #a83e2c;
     --color-red-bg: #f5e9e6;
-    --color-green: #3d6b54;
+    --color-green: #05c46b;
     --color-green-bg: #e6eee9;
+    --color-green-border: #04b360;
 }
 
 * {
