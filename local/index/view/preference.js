@@ -78,7 +78,7 @@ function show() {
     pageList = [{ title: Text.getPreference(), page: mainPage, scrollTop: 0 }];
     renderTitle();
     modal.clearNav();
-    modal.fitHeight(() => {
+    modal.fit(() => {
         content.replaceChildren(mainPage);
     });
     modal.resetScroll();
@@ -124,7 +124,7 @@ function switchPage(page, scrollTop, shift) {
     previous.getAnimations().forEach(animation => animation.cancel());
     page.getAnimations().forEach(animation => animation.cancel());
 
-    const isResized = modal.fitHeight(() => {
+    const isResized = modal.fit(() => {
         content.replaceChildren(page);
     });
     scroll.scrollTop = scrollTop;

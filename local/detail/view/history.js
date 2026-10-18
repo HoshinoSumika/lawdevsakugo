@@ -51,14 +51,14 @@ async function show() {
     const baseLawId = lawId.split('_')[0];
 
     if (!baseLawId) {
-        modal.fitHeight(() => renderMessage(Text.getLawIdUnavailable(), true));
+        modal.fit(() => renderMessage(Text.getLawIdUnavailable(), true));
         modal.resetScroll();
         modal.show();
         return;
     }
 
     if (baseLawId === revisionLawId && revisionList.length > 0) {
-        modal.fitHeight(() => renderRevisionList(lawId));
+        modal.fit(() => renderRevisionList(lawId));
         scrollToCurrent(false);
         modal.show();
         return;
@@ -66,7 +66,7 @@ async function show() {
 
     revisionList = [];
     revisionLawId = baseLawId;
-    modal.fitHeight(() => renderMessage(Text.getLoading(), false));
+    modal.fit(() => renderMessage(Text.getLoading(), false));
     modal.resetScroll();
     modal.show();
 
@@ -76,12 +76,12 @@ async function show() {
     }
 
     if (!loaded) {
-        modal.fitHeight(() => renderMessage(Text.getHistoryLoadFailed(), true));
+        modal.fit(() => renderMessage(Text.getHistoryLoadFailed(), true));
         return;
     }
 
     revisionList = loaded;
-    modal.fitHeight(() => renderRevisionList(lawId));
+    modal.fit(() => renderRevisionList(lawId));
     scrollToCurrent(true);
 }
 

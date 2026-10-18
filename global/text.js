@@ -85,6 +85,11 @@ export const Text = {
     getVerticalAlignMiddle,
     getVerticalAlignTop,
     getVerticalAlignOffset,
+    getComparePreference,
+    getCompareReplaceRatio,
+    getCompareCaptionRatio,
+    getCompareOldColor,
+    getCompareNewColor,
     getStoragePreference,
     getPreferenceClear,
     getPreferenceClearConfirm,
@@ -105,6 +110,11 @@ export const Text = {
     getCurrentEnforced,
     getPreviousEnforced,
     getNewEnactment,
+    getCompareRun,
+    getCompareEmpty,
+    getCompareLoadFailed,
+    getCompareExtractFailed,
+    getCompareNoChange,
     getLawTitle,
     getLawAbbrev,
     getLawNum,
@@ -495,6 +505,26 @@ function getVerticalAlignOffset() {
     return '中央からのずれ';
 }
 
+function getComparePreference() {
+    return '条文比較の詳細設定';
+}
+
+function getCompareReplaceRatio() {
+    return '全体の変更として扱う変更割合（通常の条文）';
+}
+
+function getCompareCaptionRatio() {
+    return '全体の変更として扱う変更割合（見出しの変更を伴う条文）';
+}
+
+function getCompareOldColor() {
+    return '旧条文の色';
+}
+
+function getCompareNewColor() {
+    return '新条文の色';
+}
+
 function getStoragePreference() {
     return 'データの管理';
 }
@@ -573,6 +603,26 @@ function getPreviousEnforced() {
 
 function getNewEnactment() {
     return '新規制定';
+}
+
+function getCompareRun() {
+    return '比較';
+}
+
+function getCompareEmpty() {
+    return '比較できる履歴がありません。';
+}
+
+function getCompareLoadFailed() {
+    return '比較する法令データを取得できませんでした。';
+}
+
+function getCompareExtractFailed() {
+    return '法令データから条文を抽出できませんでした。';
+}
+
+function getCompareNoChange() {
+    return '本文の条文に差分はありません。';
 }
 
 function getLawTitle() {

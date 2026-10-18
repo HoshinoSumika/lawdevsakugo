@@ -52,6 +52,11 @@ const STRUCTURE_HEADING_LIST = [
 ];
 const ARTICLE_CAPTION_ENTRY = { key: 'article-caption', selector: '.content .ArticleCaption' };
 const ARTICLE_TITLE_ENTRY = { key: 'article-title', selector: '.content .ArticleTitle' };
+const COMPARE_DEFAULT_STYLE = { colorMode: 'default' };
+const COMPARE_ENTRY_LIST = [
+    { key: 'old', label: Text.getCompareOldColor(), type: 'deletion', color: '#a83e2c', defaultStyle: COMPARE_DEFAULT_STYLE },
+    { key: 'new', label: Text.getCompareNewColor(), type: 'addition', color: '#05c46b', defaultStyle: COMPARE_DEFAULT_STYLE },
+];
 const CHARACTER_PLACEMENT_PREVIEW_LIST = [
     { selector: '.preference-preview.character-placement .paren', size: 0.75 },
     { selector: '.preference-preview.character-placement .word', size: 1.5 },
@@ -67,6 +72,7 @@ let content;
 let mainPage;
 let storagePage;
 let typesettingPage;
+let comparePage;
 let parenPage;
 let wordPage;
 let parenEntryList;
@@ -133,6 +139,10 @@ function init(value) {
         showNextPage(Text.getTypesettingPreference(), typesettingPage);
     }));
     mainPage.appendChild(buildDivider());
+    mainPage.appendChild(buildNavigationItem(Text.getComparePreference(), () => {
+        showNextPage(Text.getComparePreference(), comparePage);
+    }));
+    mainPage.appendChild(buildDivider());
     mainPage.appendChild(buildNavigationItem(Text.getStoragePreference(), () => {
         showNextPage(Text.getStoragePreference(), storagePage);
     }));
@@ -171,6 +181,19 @@ function init(value) {
     appendHeadingNavigationItem(typesettingPage, Text.getArticleTitleDisplay(), buildArticleHeadingPage(ARTICLE_TITLE_ENTRY));
     appendHeadingNavigationItem(typesettingPage, Text.getStructureHeadingDisplay(), buildStructureHeadingPage());
 
+    comparePage = document.createElement('div');
+    comparePage.classList.add('preference-page');
+    COMPARE_ENTRY_LIST.forEach(entry => {
+        const { get, update } = bindEntryStyle(entry, Config.getCompareColorMap, Config.setCompareColorMap, applyCompareColor);
+        appendColorChoiceItem(comparePage, entry.label, [
+            { value: 'default', label: Text.getDefaultColor() },
+            { value: 'custom', label: Text.getCustomColor() },
+        ], 'colorMode', 'color', entry.color, get, update);
+    });
+    comparePage.appendChild(buildDivider());
+    comparePage.appendChild(buildSeekbarItem(Text.getCompareReplaceRatio(), 0.5, 1, 0.05, Config.getCompareReplaceRatio, formatRatio, Config.setCompareReplaceRatio));
+    comparePage.appendChild(buildSeekbarItem(Text.getCompareCaptionRatio(), 0, 1, 0.05, Config.getCompareCaptionRatio, formatRatio, Config.setCompareCaptionRatio));
+
     storagePage = document.createElement('div');
     storagePage.classList.add('preference-page');
     storagePage.appendChild(buildActionItem(Text.getCacheClear(), () => {
@@ -199,7 +222,7 @@ function show() {
     pageList = [{ title: Text.getPreference(), page: mainPage, scrollTop: 0 }];
     renderTitle();
     modal.clearNav();
-    modal.fitHeight(() => {
+    modal.fit(() => {
         content.replaceChildren(mainPage);
     });
     modal.resetScroll();
@@ -253,7 +276,7 @@ function switchPage(page, scrollTop, shift) {
     previous.getAnimations().forEach(animation => animation.cancel());
     page.getAnimations().forEach(animation => animation.cancel());
 
-    const isResized = modal.fitHeight(() => {
+    const isResized = modal.fit(() => {
         content.replaceChildren(page);
     });
     scroll.scrollTop = scrollTop;
@@ -332,6 +355,7 @@ function applyAll() {
     applyWordHighlight();
     applyCharacterPlacementPreview();
     applyHeadingStyle();
+    applyCompareColor();
     applyFontFamily(Config.getFontFamily());
     applyFontSize(Config.getFontSize());
     applyLineHeight(Config.getLineHeight());
@@ -458,6 +482,20 @@ function readEntryStyle(styleMap, entry) {
     return Object.assign({ fontFamily: 'inherit', isBold: true, isItalic: false, size: 1, colorMode, color: entry.color || '', background: 'none', backgroundColor: '' }, entry.defaultStyle, styleMap[entry.key]);
 }
 
+function applyCompareColor() {
+    const colorMap = Config.getCompareColorMap();
+    setStyle('compare-color', COMPARE_ENTRY_LIST.map(entry => {
+        const entryStyle = readEntryStyle(colorMap, entry);
+        if (entryStyle.colorMode !== 'custom') {
+            return '';
+        }
+        const color = entryStyle.color || entry.color;
+        return '.compare-result { '
+            + '--compare-' + entry.type + '-color: ' + color + '; '
+            + '--compare-' + entry.type + '-background: color-mix(in srgb, ' + color + ' 12%, transparent); }';
+    }).join(' '));
+}
+
 function applyFontFamily(value) {
     setStyle('font-family', '.content { font-family: ' + value + '; }');
 }
@@ -506,6 +544,10 @@ function formatLetterSpacing(value) {
     return value.toFixed(2) + 'em';
 }
 
+function formatRatio(value) {
+    return Math.round(value * 100) + '%';
+}
+
 function formatVerticalAlignOffset(value) {
     return value.toFixed(2);
 }
@@ -544,7 +586,7 @@ function toggleItem(item, isShown) {
         element.getAnimations().forEach(animation => animation.cancel());
     });
 
-    modal.fitHeight(() => {
+    modal.fit(() => {
         item.style.display = isShown ? '' : 'none';
     });
 
@@ -956,7 +998,7 @@ function buildWordEntryPage(value) {
         findWord(value).exclusionList.forEach(exclusion => {
             exclusionSection.appendChild(buildRemovableItem(exclusion, () => {
                 updateWord(value, { exclusionList: findWord(value).exclusionList.filter(item => item !== exclusion) });
-                modal.fitHeight(renderExclusion);
+                modal.fit(renderExclusion);
             }));
         });
         exclusionSection.appendChild(buildNavigationItem(Text.getExclusionAdd(), () => {

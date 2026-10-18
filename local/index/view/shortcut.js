@@ -121,7 +121,7 @@ function showModal(section) {
     modalSection = section;
     applySize();
     modal.setTitle(SECTION_MAP[section].getTitle());
-    modal.fitHeight(renderModal);
+    modal.fit(renderModal);
     modal.resetScroll();
     modal.show();
 }
@@ -168,7 +168,7 @@ function buildLawRow(law) {
     remove.innerHTML = Design.getIcon('delete', 'var(--color-gray)');
     remove.addEventListener('click', () => {
         SECTION_MAP[modalSection].remove(law.id);
-        modal.fitHeight(renderModal);
+        modal.fit(renderModal);
         api.onShortcutChange();
     });
 

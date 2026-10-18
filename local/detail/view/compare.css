@@ -1,0 +1,177 @@
+.compare-content {
+    width: 100%;
+}
+
+.compare-selection {
+    position: relative;
+    width: 100%;
+}
+
+.compare-list {
+    width: 100%; padding: 8px 0px 8px 0px;
+    display: flex; flex-direction: column;
+}
+
+.compare-item {
+    width: 100%; min-height: 64px; padding: 8px 24px 8px 24px;
+    cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.compare-item:hover {
+    background-color: var(--color-hover);
+}
+.compare-item:active {
+    background-color: var(--color-active);
+}
+.compare-item.selected {
+    box-shadow: inset 4px 0px var(--color-gray);
+}
+.compare-item.selected .compare-item-date {
+    font-weight: bold;
+}
+.compare-item.disabled {
+    cursor: default;
+    color: var(--color-gray);
+}
+.compare-item.disabled:hover, .compare-item.disabled:active {
+    background-color: transparent;
+}
+
+.compare-item-date {
+    font-size: 15px;
+}
+.compare-item-num {
+    font-size: 13px;
+    color: var(--color-gray);
+}
+
+.compare-loading {
+    z-index: 2;
+    position: absolute; top: 0px; left: 0px;
+    width: 100%; height: 100%;
+    display: none;
+    background-color: color-mix(in srgb, var(--color-white) 88%, transparent);
+}
+.compare-loading.shown {
+    display: block;
+}
+
+.compare-loading-text {
+    position: sticky; top: calc(50% - 0.9em);
+    user-select: none; -webkit-user-select: none;
+    text-align: center; font-weight: bold;
+}
+
+.compare-message {
+    padding: 32px 24px 32px 24px;
+    text-align: center;
+    color: var(--color-gray);
+}
+.compare-message.error {
+    color: var(--color-red);
+}
+
+.compare-result {
+    --compare-deletion-color: var(--color-red);
+    --compare-deletion-background: var(--color-red-bg);
+    --compare-addition-color: var(--color-green);
+    --compare-addition-background: var(--color-green-bg);
+    width: 100%;
+    font-size: 14px; line-height: 1.65;
+}
+
+.compare-header, .compare-row {
+    display: grid; grid-template-columns: minmax(0px, 1fr) minmax(0px, 1fr);
+}
+
+.compare-header {
+    z-index: 1;
+    position: sticky; top: 0px;
+    background-color: var(--color-smoke);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.compare-header-cell {
+    min-width: 0px; padding: 8px 16px 8px 16px;
+}
+.compare-header-cell + .compare-header-cell {
+    border-left: 1px solid var(--color-border);
+}
+
+.compare-header-date {
+    font-weight: bold;
+}
+.compare-header-num {
+    font-size: 12px;
+    color: var(--color-gray);
+}
+
+.compare-row {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.compare-cell {
+    position: relative;
+    min-width: 0px; padding: 12px 16px 12px 40px;
+}
+.compare-cell + .compare-cell {
+    border-left: 1px solid var(--color-border);
+}
+.compare-cell.empty {
+    background-color: var(--color-smoke);
+}
+.compare-cell.deletion {
+    box-shadow: inset 4px 0px var(--compare-deletion-color);
+}
+.compare-cell.addition {
+    box-shadow: inset 4px 0px var(--compare-addition-color);
+}
+.compare-cell.deletion.replaced {
+    background-color: var(--compare-deletion-background);
+}
+.compare-cell.addition.replaced {
+    background-color: var(--compare-addition-background);
+}
+.compare-cell.deletion::before, .compare-cell.addition::before {
+    position: absolute; top: 12px; left: 16px;
+    font-weight: bold;
+}
+.compare-cell.deletion::before {
+    content: '−';
+    color: var(--compare-deletion-color);
+}
+.compare-cell.addition::before {
+    content: '+';
+    color: var(--compare-addition-color);
+}
+.compare-cell > section {
+    margin: 0px;
+}
+
+.compare-deletion {
+    background-color: color-mix(in srgb, var(--compare-deletion-color) 24%, transparent);
+}
+.compare-addition {
+    background-color: color-mix(in srgb, var(--compare-addition-color) 32%, transparent);
+}
+
+@media (max-width: 720px) {
+    .compare-result {
+        font-size: 12px; line-height: 1.55;
+    }
+
+    .compare-header-cell {
+        padding: 6px 8px 6px 8px;
+    }
+    .compare-header-num {
+        font-size: 10px;
+    }
+
+    .compare-cell {
+        padding: 8px 8px 8px 24px;
+    }
+    .compare-cell.deletion::before, .compare-cell.addition::before {
+        top: 8px; left: 8px;
+    }
+}

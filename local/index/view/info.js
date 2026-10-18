@@ -45,7 +45,7 @@ function init() {
 function show(name) {
     applySize();
     modal.setTitle(PAGE_MAP[name].getTitle());
-    modal.fitHeight(() => {
+    modal.fit(() => {
         content.innerHTML = PAGE_MAP[name].getBody();
     });
     modal.resetScroll();

@@ -47,7 +47,10 @@ function init(value) {
         hide();
         api.onOutlineSelect();
     }));
-    scroll.appendChild(buildItem('difference', Text.getCompare(), () => {}));
+    scroll.appendChild(buildItem('difference', Text.getCompare(), () => {
+        hide();
+        api.onCompareSelect();
+    }));
     scroll.appendChild(buildDivider());
     scroll.appendChild(bookmarkItem);
 

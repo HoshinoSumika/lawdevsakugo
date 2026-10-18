@@ -150,14 +150,14 @@ function buildDialogModal(placement) {
 
     const group = buildGroup();
     group.appendChild(buildButton('行を足す', () => {
-        modal.fitHeight(() => {
+        modal.fit(() => {
             const line = document.createElement('div');
             line.textContent = '行 ' + (lineArea.children.length + 1);
             lineArea.appendChild(line);
         });
     }));
     group.appendChild(buildButton('行を減らす', () => {
-        modal.fitHeight(() => {
+        modal.fit(() => {
             if (lineArea.lastChild) {
                 lineArea.lastChild.remove();
             }

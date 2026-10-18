@@ -10,6 +10,7 @@ import { Service } from '/global/service.js';
 import { Text } from '/global/text.js';
 import { Util } from '/global/util.js';
 
+import { Compare } from './view/compare.js';
 import { History } from './view/history.js';
 import { Info } from './view/info.js';
 import { Menu } from './view/menu.js';
@@ -28,6 +29,7 @@ const api = {
     getContainer: () => contentEl.parentElement,
     getLawId: () => Route.getLawId(),
     getLawTitle: () => findLawTitle(contentEl),
+    onCompareSelect: () => Compare.show(),
     onHistorySelect: () => History.show(),
     onInfoSelect: () => Info.show(),
     onMenuSelect: () => Menu.show(),
@@ -71,6 +73,7 @@ async function init() {
     messageLoadError.disableClose();
     messageLoading = Message.wait();
 
+    Compare.init(api);
     History.init(api);
     Info.init(api);
     Menu.init(api);
