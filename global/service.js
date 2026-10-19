@@ -101,7 +101,7 @@ async function loadCached(name, key, fetchValue, isValid) {
 
     try {
         if (cache && isCacheEnabled()) {
-            const cached = await cache.getItem(key);
+            const cached = await getCachedItem(cache, key);
             if (isValid(cached)) return cached;
         }
 
@@ -129,8 +129,21 @@ async function openCache(name) {
 
 async function closeCache(cache) {
     if (!cache) return;
-    await cache.cleanup();
+    try {
+        await cache.cleanup();
+    } catch (e) {
+        console.error(e);
+    }
     cache.close();
+}
+
+async function getCachedItem(cache, key) {
+    try {
+        return await cache.getItem(key);
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
 }
 
 async function setCachedItem(cache, key, value) {

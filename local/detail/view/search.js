@@ -306,7 +306,7 @@ function searchByNum(value) {
         return null;
     }
 
-    const exactMatch = mainProvision.querySelector('.Article[data-num="' + articleNum + '"]');
+    const exactMatch = mainProvision.querySelector('.Article[data-num="' + CSS.escape(articleNum) + '"]');
     if (exactMatch) {
         return exactMatch;
     }
@@ -349,14 +349,14 @@ function searchByText(value, limit) {
             continue;
         }
 
-        const clone = element.cloneNode(true);
-        clone.querySelectorAll('rt').forEach(rt => rt.remove());
-        if (!clone.textContent.includes(value)) {
+        const resultElement = getResultElement(element);
+        if (seen.has(resultElement)) {
             continue;
         }
 
-        const resultElement = getResultElement(element);
-        if (seen.has(resultElement)) {
+        const clone = element.cloneNode(true);
+        clone.querySelectorAll('rt').forEach(rt => rt.remove());
+        if (!clone.textContent.includes(value)) {
             continue;
         }
 

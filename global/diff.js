@@ -2,7 +2,7 @@ export const Diff = {
     compare,
 };
 
-const MAX_EDIT_DISTANCE = 10000;
+const MAX_EDIT_DISTANCE = 2000;
 const MATCH_LENGTH_MIN = 4;
 const BOUNDARY_SCORE_MAP = { '。': 2, '）': 2, '　': 2, '、': 1 };
 

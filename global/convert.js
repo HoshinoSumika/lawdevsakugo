@@ -325,7 +325,7 @@ function addSupplProvisionAmendLawNum(el) {
     el.querySelectorAll('.SupplProvision[data-amendlawnum]').forEach(sec => {
         const lawnum = sec.getAttribute('data-amendlawnum');
         const label = sec.querySelector(':scope > .SupplProvisionLabel');
-        const suffix = '　' + '（' + lawnum + '）';
+        const suffix = ZENKAKU_SPACE + '（' + lawnum + '）';
         label.appendChild(document.createTextNode(suffix));
     });
 
@@ -335,7 +335,7 @@ function addSupplProvisionAmendLawNum(el) {
 function addSupplProvisionExtractLabel(el) {
     el.querySelectorAll('.SupplProvision[data-extract="true"]').forEach(sec => {
         const label = sec.querySelector(':scope > .SupplProvisionLabel');
-        const suffix = '　' + '抄';
+        const suffix = ZENKAKU_SPACE + '抄';
         label.appendChild(document.createTextNode(suffix));
     });
 
@@ -368,8 +368,6 @@ function getFileExtension(src) {
 }
 
 function addZenkakuSpaceAfterClass(el, targetClass) {
-    const zenkaku = '\u3000';
-
     el.querySelectorAll('.' + targetClass).forEach(node => {
         if (node.textContent.trim().length === 0) {
             return;
@@ -380,11 +378,11 @@ function addZenkakuSpaceAfterClass(el, targetClass) {
         }
         const nextNode = node.nextSibling;
         if (nextNode.nodeType === Node.TEXT_NODE) {
-            if (!nextNode.data.startsWith(zenkaku)) {
-                nextNode.data = zenkaku + nextNode.data;
+            if (!nextNode.data.startsWith(ZENKAKU_SPACE)) {
+                nextNode.data = ZENKAKU_SPACE + nextNode.data;
             }
         } else {
-            parent.insertBefore(document.createTextNode(zenkaku), nextNode);
+            parent.insertBefore(document.createTextNode(ZENKAKU_SPACE), nextNode);
         }
     });
 
