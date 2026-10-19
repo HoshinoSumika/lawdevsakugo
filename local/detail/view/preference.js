@@ -54,8 +54,8 @@ const ARTICLE_CAPTION_ENTRY = { key: 'article-caption', selector: '.content .Art
 const ARTICLE_TITLE_ENTRY = { key: 'article-title', selector: '.content .ArticleTitle' };
 const COMPARE_DEFAULT_STYLE = { colorMode: 'default' };
 const COMPARE_ENTRY_LIST = [
-    { key: 'old', label: Text.getCompareOldColor(), type: 'deletion', color: '#a83e2c', defaultStyle: COMPARE_DEFAULT_STYLE },
-    { key: 'new', label: Text.getCompareNewColor(), type: 'addition', color: '#05c46b', defaultStyle: COMPARE_DEFAULT_STYLE },
+    { key: 'old', label: Text.getCompareOldColor(), type: 'deletion', color: '#ff6b6b', defaultStyle: COMPARE_DEFAULT_STYLE },
+    { key: 'new', label: Text.getCompareNewColor(), type: 'addition', color: '#51cf66', defaultStyle: COMPARE_DEFAULT_STYLE },
 ];
 const CHARACTER_PLACEMENT_PREVIEW_LIST = [
     { selector: '.preference-preview.character-placement .paren', size: 0.75 },

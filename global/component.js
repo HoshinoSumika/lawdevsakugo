@@ -11,8 +11,8 @@ const SWITCH_KNOB_SIZE = 14;
 const SWITCH_KNOB_OFFSET = (SWITCH_HEIGHT - SWITCH_KNOB_SIZE) / 2;
 const SWITCH_OFF_COLOR = 'var(--color-silver)';
 const SWITCH_OFF_BORDER_COLOR = 'var(--color-border)';
-const SWITCH_ON_COLOR = 'var(--color-green)';
-const SWITCH_ON_BORDER_COLOR = 'var(--color-green-border)';
+const SWITCH_ON_COLOR = '#05c46b';
+const SWITCH_ON_BORDER_COLOR = '#04b360';
 const SWITCH_KNOB_SHADOW = '0px 2px 5px rgba(0,0,0,0.2)';
 
 const RADIO_PADDING = 4;

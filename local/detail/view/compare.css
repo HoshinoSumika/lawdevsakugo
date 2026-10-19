@@ -73,10 +73,10 @@
 }
 
 .compare-result {
-    --compare-deletion-color: var(--color-red);
-    --compare-deletion-background: var(--color-red-bg);
-    --compare-addition-color: var(--color-green);
-    --compare-addition-background: var(--color-green-bg);
+    --compare-deletion-color: #ff6b6b;
+    --compare-deletion-background: color-mix(in srgb, var(--compare-deletion-color) 12%, transparent);
+    --compare-addition-color: #51cf66;
+    --compare-addition-background: color-mix(in srgb, var(--compare-addition-color) 12%, transparent);
     width: 100%;
     font-size: 14px; line-height: 1.65;
 }
