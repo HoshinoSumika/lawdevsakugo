@@ -87,7 +87,6 @@ export const Text = {
     getVerticalAlignOffset,
     getComparePreference,
     getCompareReplaceRatio,
-    getCompareCaptionRatio,
     getCompareOldColor,
     getCompareNewColor,
     getStoragePreference,
@@ -510,19 +509,15 @@ function getComparePreference() {
 }
 
 function getCompareReplaceRatio() {
-    return '全体の変更として扱う変更割合（通常の条文）';
-}
-
-function getCompareCaptionRatio() {
-    return '全体の変更として扱う変更割合（見出しの変更を伴う条文）';
+    return '部分変更と全体変更の境界点';
 }
 
 function getCompareOldColor() {
-    return '旧条文の色';
+    return '旧法の色';
 }
 
 function getCompareNewColor() {
-    return '新条文の色';
+    return '新法の色';
 }
 
 function getStoragePreference() {

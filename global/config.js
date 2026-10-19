@@ -55,8 +55,6 @@ export const Config = {
     setSingleParagraphNum,
     getCompareReplaceRatio,
     setCompareReplaceRatio,
-    getCompareCaptionRatio,
-    setCompareCaptionRatio,
     getCompareColorMap,
     setCompareColorMap,
     clear,
@@ -97,7 +95,6 @@ const defaults = {
     'article-placement': 'default',
     'single-paragraph-num': 'shown',
     'compare-replace-ratio': 0.8,
-    'compare-caption-ratio': 0.5,
     'compare-color': {},
 };
 
@@ -323,14 +320,6 @@ function getCompareReplaceRatio() {
 
 function setCompareReplaceRatio(value) {
     write('compare-replace-ratio', value);
-}
-
-function getCompareCaptionRatio() {
-    return read('compare-caption-ratio');
-}
-
-function setCompareCaptionRatio(value) {
-    write('compare-caption-ratio', value);
 }
 
 function getCompareColorMap() {

@@ -192,7 +192,6 @@ function init(value) {
     });
     comparePage.appendChild(buildDivider());
     comparePage.appendChild(buildSeekbarItem(Text.getCompareReplaceRatio(), 0.5, 1, 0.05, Config.getCompareReplaceRatio, formatRatio, Config.setCompareReplaceRatio));
-    comparePage.appendChild(buildSeekbarItem(Text.getCompareCaptionRatio(), 0, 1, 0.05, Config.getCompareCaptionRatio, formatRatio, Config.setCompareCaptionRatio));
 
     storagePage = document.createElement('div');
     storagePage.classList.add('preference-page');

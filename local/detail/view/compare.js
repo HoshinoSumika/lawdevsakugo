@@ -20,6 +20,7 @@ const MODAL_WIDTH = 'min(' + MODAL_MAX_WIDTH + 'px, ' + INSET_WIDTH + ')';
 const MODAL_HEIGHT = 'min(640px, ' + INSET_HEIGHT + ')';
 const SELECTION_LIMIT = 2;
 const MATCH_LENGTH_MIN = 4;
+const CAPTION_RATIO_SCALE = 0.625;
 const LABEL_SELECTOR = '.ArticleCaption, .ArticleTitle, .ParagraphNum, .ItemTitle, .Subitem1Title, .Subitem2Title, .Subitem3Title, .Subitem4Title, .Subitem5Title';
 
 let api;
@@ -434,7 +435,7 @@ function isReplaced(oldElement, newElement, rangeList) {
     if (ratio > Config.getCompareReplaceRatio()) {
         return true;
     }
-    return ratio > Config.getCompareCaptionRatio() && isCaptionReplaced(oldElement, newElement);
+    return ratio > Config.getCompareReplaceRatio() * CAPTION_RATIO_SCALE && isCaptionReplaced(oldElement, newElement);
 }
 
 function measureChangeRatio(element, rangeList) {

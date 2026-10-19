@@ -3,6 +3,7 @@ export const Diff = {
 };
 
 const MAX_EDIT_DISTANCE = 10000;
+const MATCH_LENGTH_MIN = 4;
 const BOUNDARY_SCORE_MAP = { '。': 2, '）': 2, '　': 2, '、': 1 };
 
 function compare(oldList, newList) {
@@ -92,7 +93,7 @@ function diffText(oldText, newText, maxEditDistance) {
     const newRangeList = [];
     let oldOffset = 0;
     let newOffset = 0;
-    operationList.forEach(operation => {
+    absorbShortMatch(operationList).forEach(operation => {
         if (operation.type === 'equal') {
             oldOffset = oldOffset + 1;
             newOffset = newOffset + 1;
@@ -129,9 +130,10 @@ function moveHunkToBoundary(operationList) {
         }
         const type = operationList[index].type;
         if (operationList.slice(index, end).every(operation => operation.type === type)) {
-            slideHunk(operationList, index, end);
+            index = slideHunk(operationList, index, end);
+        } else {
+            index = end;
         }
-        index = end;
     }
 }
 
@@ -158,6 +160,7 @@ function slideHunk(operationList, start, end) {
         slideLeft(operationList, hunk);
         step = step - 1;
     }
+    return hunk.end;
 }
 
 function canSlideLeft(operationList, hunk) {
@@ -193,26 +196,47 @@ function scoreHunk(operationList, hunk) {
     return beforeScore + (BOUNDARY_SCORE_MAP[last.value] || 0);
 }
 
+function absorbShortMatch(operationList) {
+    const resultList = [];
+    let matchList = [];
+    operationList.forEach(operation => {
+        if (operation.type === 'equal') {
+            matchList.push(operation);
+            return;
+        }
+        if (resultList.length > 0 && matchList.length < MATCH_LENGTH_MIN) {
+            matchList = matchList.flatMap(({ value }) => [{ type: 'delete', value }, { type: 'insert', value }]);
+        }
+        matchList.forEach(match => {
+            resultList.push(match);
+        });
+        resultList.push(operation);
+        matchList = [];
+    });
+    return resultList.concat(matchList);
+}
+
 function findOperationList(oldCharList, newCharList, maxEditDistance) {
     const limit = Math.min(oldCharList.length + newCharList.length, maxEditDistance);
     const traceList = [];
-    let previous = new Map([[1, 0]]);
+    let previous = new Int32Array(1);
 
     for (let distance = 0; distance <= limit; distance++) {
-        const current = new Map();
+        const current = new Int32Array(distance + 1);
         for (let diagonal = -distance; diagonal <= distance; diagonal += 2) {
-            const left = previous.get(diagonal - 1) ?? -1;
-            const right = previous.get(diagonal + 1) ?? -1;
+            const index = (diagonal + distance) / 2;
+            const left = previous[index - 1];
+            const right = previous[index];
             let oldIndex = diagonal === -distance || (diagonal !== distance && left < right)
-                ? Math.max(0, right)
-                : Math.max(0, left + 1);
+                ? right
+                : left + 1;
             let newIndex = oldIndex - diagonal;
 
             while (oldIndex < oldCharList.length && newIndex < newCharList.length && oldCharList[oldIndex] === newCharList[newIndex]) {
                 oldIndex = oldIndex + 1;
                 newIndex = newIndex + 1;
             }
-            current.set(diagonal, oldIndex);
+            current[index] = oldIndex;
 
             if (oldIndex >= oldCharList.length && newIndex >= newCharList.length) {
                 traceList.push(current);
@@ -233,12 +257,13 @@ function backtrack(traceList, oldCharList, newCharList) {
     for (let distance = traceList.length - 1; distance > 0; distance--) {
         const previous = traceList[distance - 1];
         const diagonal = oldIndex - newIndex;
-        const left = previous.get(diagonal - 1) ?? -1;
-        const right = previous.get(diagonal + 1) ?? -1;
+        const index = (diagonal + distance) / 2;
+        const left = previous[index - 1];
+        const right = previous[index];
         const previousDiagonal = diagonal === -distance || (diagonal !== distance && left < right)
             ? diagonal + 1
             : diagonal - 1;
-        const previousOldIndex = Math.max(0, previous.get(previousDiagonal) ?? 0);
+        const previousOldIndex = previous[(previousDiagonal + distance - 1) / 2];
         const previousNewIndex = previousOldIndex - previousDiagonal;
 
         while (oldIndex > previousOldIndex && newIndex > previousNewIndex) {
