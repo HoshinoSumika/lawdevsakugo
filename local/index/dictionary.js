@@ -5,7 +5,7 @@ export const Dictionary = {
 };
 
 const DATA_URL = '/data/law.json';
-const ROMAJI_PATTERN = /^[a-z'-]+$/;
+const ROMAJI_TAIL_PATTERN = /[a-z'-]+$/;
 const DOUBLE_CONSONANT_PATTERN = /^[bcdfghjklmpqrstvwxyz]$/;
 const VOWEL_LIST = ['a', 'i', 'u', 'e', 'o'];
 const SYLLABLE_LENGTH = 3;
@@ -90,7 +90,8 @@ function find(query, limit) {
     if (!text) {
         return [];
     }
-    const kanaList = ROMAJI_PATTERN.test(text) ? toHiraganaList(text) : [];
+    const romaji = text.match(ROMAJI_TAIL_PATTERN);
+    const kanaList = romaji ? toHiraganaList(romaji[0]).map(kana => text.slice(0, romaji.index) + kana) : [];
 
     const matchList = [];
     entryList.forEach((entry, index) => {
@@ -172,8 +173,10 @@ function convertRomaji(text, index, kana, kanaList) {
     const key = findSyllable(text, index);
     if (key) {
         convertRomaji(text, index + key.length, kana + syllableMap.get(key), kanaList);
-    } else if (isPartialSyllable(text.slice(index))) {
-        kanaList.push(kana);
+    } else {
+        getCompletionList(text.slice(index)).forEach(completion => {
+            kanaList.push(kana + completion);
+        });
     }
     if (char === 'n' && next) {
         convertRomaji(text, index + 1, kana + 'ん', kanaList);
@@ -197,8 +200,11 @@ function findSyllable(text, index) {
     return '';
 }
 
-function isPartialSyllable(rest) {
-    return rest.length < SYLLABLE_LENGTH && Array.from(syllableMap.keys()).some(key => key.startsWith(rest));
+function getCompletionList(rest) {
+    if (rest.length >= SYLLABLE_LENGTH) {
+        return [];
+    }
+    return Array.from(syllableMap.keys()).filter(key => key.startsWith(rest)).map(key => syllableMap.get(key));
 }
 
 function buildSyllableMap() {
