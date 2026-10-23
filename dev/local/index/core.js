@@ -44,6 +44,7 @@ function buildPageSection() {
 
     const group = buildGroup();
     group.appendChild(buildLink('テスト', './test.html'));
+    group.appendChild(buildLink('規則の変換', './rule.html'));
     group.appendChild(buildLink('トップページ', '../'));
     section.appendChild(group);
 
